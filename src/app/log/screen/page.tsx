@@ -27,7 +27,7 @@ export default async function ScreenPage({ searchParams }: { searchParams: DateS
         <Card>
           <SectionTitle>آخر 7 أيام</SectionTitle>
           {rows.length === 0 ? <p className="text-sm text-ink-muted">لا توجد سجلات بعد.</p> : (
-            <Table>
+            <Table bleed>
               <THead columns={['اليوم', 'تركيز', 'إداري', 'سلبي', 'المجموع']} />
               <TBody>
                 {[...rows].reverse().map((r) => (

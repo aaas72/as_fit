@@ -169,7 +169,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
 - افحص كل صفحة بعرض 375px و 1440px.
 - لا قوائم أو قيم إدخال ثابتة في الواجهة للأطعمة والمشروبات: كل ذلك من بيانات المستخدم.
 - **الوحدات بالعربية دائماً** في كل نص يراه المستخدم: سعرة، ملغ، ملغ/غ، غ، مل، كغ، سم، س، د. الرموز اللاتينية فقط للمصطلحات العلمية (MET، BMR، TDEE، WHR).
-- **الجداول** عبر `src/components/Table.tsx` فقط (`Table`, `THead`, `TBody`, `Tr`, `Td num`): رأس بخط أخضر، صفوف متناوبة `bg-brand/10`، تمرير `bg-brand/20`، الأرقام والتواريخ `whitespace-nowrap` بخط الأرقام.
+- **الجداول** عبر `src/components/Table.tsx` فقط: **بلا إطار وبلا حدود داخلية**، تتمدد على المكون الأب (`bleed` داخل البطاقة لتصل الأشرطة للحواف)، صفوف متناوبة `bg-brand/10`، تمرير `bg-brand/20`، رأس بنص أخضر عريض، الأرقام والتواريخ `whitespace-nowrap` بخط الأرقام.
 - **لا حدود جانبية ملوّنة** (`border-s-4` وما شابه) على البطاقات أو التنبيهات؛ نوع التنبيه يظهر في الوسم فقط.
 - لا ألوان حرفية خارج `globals.css`: `grep -rE "#[0-9a-fA-F]{3,8}\b|rgb\(|hsl\(" src/app src/components` يجب أن يكون فارغاً.
 - لا أصناف اتجاهية فيزيائية: `grep -rE "\b(ml|mr|pl|pr|left|right)-|text-(left|right)" src/app src/components` يجب أن يكون فارغاً.
