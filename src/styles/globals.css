@@ -1,0 +1,36 @@
+@import "tailwindcss";
+
+/* Fitness Telemetry UI — Light & Green. Semantic tokens only; Tailwind's default palette is disabled. */
+@theme {
+  --color-*: initial;
+  --color-white: #FFFFFF;
+  --color-transparent: transparent;
+
+  --color-canvas: #F4FBF7;
+  --color-surface: #FFFFFF;
+  --color-line: #E2E8F0;
+  --color-ink: #0F172A;
+  --color-ink-muted: #64748B;
+
+  --color-brand: #10B981;
+  --color-brand-strong: #059669;
+  --color-brand-ink: #047857;
+  --color-brand-soft: #ECFDF5;
+
+  --color-warning: #F59E0B;
+  --color-warning-ink: #B45309;
+  --color-warning-soft: #FFFBEB;
+
+  --color-danger: #EF4444;
+  --color-danger-ink: #B91C1C;
+  --color-danger-soft: #FEF2F2;
+
+  --font-sans: var(--font-cairo), system-ui, sans-serif;
+  --font-mono: var(--font-mono-num), ui-monospace, monospace;
+}
+
+@layer base {
+  html { color-scheme: light; }
+  body { @apply bg-canvas text-ink font-sans antialiased; }
+  :focus-visible { @apply outline-2 outline-offset-2 outline-brand; }
+}

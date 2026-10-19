@@ -1,0 +1,35 @@
+services:
+  db:
+    image: postgres:16-alpine
+    container_name: asfit-db
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-asfit}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-asfit_local}
+      POSTGRES_DB: ${POSTGRES_DB:-asfit}
+      TZ: ${APP_TIMEZONE:-Asia/Riyadh}
+    ports:
+      - "127.0.0.1:${POSTGRES_PORT:-5432}:5432"
+    volumes:
+      - asfit_pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-asfit} -d ${POSTGRES_DB:-asfit}"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+  app:
+    profiles: ["full"]          # docker compose --profile full up
+    build: .
+    container_name: asfit-app
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      DATABASE_URL: postgres://${POSTGRES_USER:-asfit}:${POSTGRES_PASSWORD:-asfit_local}@db:5432/${POSTGRES_DB:-asfit}
+      APP_TIMEZONE: ${APP_TIMEZONE:-Asia/Riyadh}
+    ports:
+      - "127.0.0.1:3000:3000"
+
+volumes:
+  asfit_pgdata:
