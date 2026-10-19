@@ -31,7 +31,7 @@ export type Settings = {
 // HH:MM per scheduled meal; null = not scheduled. Snacks are never scheduled.
 export type MealSchedule = { breakfast: string | null; lunch: string | null; dinner: string | null };
 
-export const DEFAULT_TIMEZONE = process.env.APP_TIMEZONE ?? 'Asia/Riyadh';
+export const DEFAULT_TIMEZONE = process.env.APP_TIMEZONE ?? 'Europe/Istanbul';
 
 export async function getProfileAndSettings(userId: number): Promise<{ profile: Profile; settings: Settings } | null> {
   const [row] = await db

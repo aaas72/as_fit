@@ -20,7 +20,7 @@ services:
       POSTGRES_USER: ${POSTGRES_USER:-asfit}
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-asfit_local}
       POSTGRES_DB: ${POSTGRES_DB:-asfit}
-      TZ: ${APP_TIMEZONE:-Asia/Riyadh}
+      TZ: ${APP_TIMEZONE:-Europe/Istanbul}
     ports:
       - "127.0.0.1:${POSTGRES_PORT:-5432}:5432"
     volumes:
@@ -40,7 +40,7 @@ services:
         condition: service_healthy
     environment:
       DATABASE_URL: postgres://${POSTGRES_USER:-asfit}:${POSTGRES_PASSWORD:-asfit_local}@db:5432/${POSTGRES_DB:-asfit}
-      APP_TIMEZONE: ${APP_TIMEZONE:-Asia/Riyadh}
+      APP_TIMEZONE: ${APP_TIMEZONE:-Europe/Istanbul}
     ports:
       - "127.0.0.1:3000:3000"
 
@@ -55,7 +55,7 @@ POSTGRES_USER=asfit
 POSTGRES_PASSWORD=asfit_local
 POSTGRES_DB=asfit
 DATABASE_URL=postgres://asfit:asfit_local@localhost:5432/asfit
-APP_TIMEZONE=Asia/Riyadh
+APP_TIMEZONE=Europe/Istanbul
 ```
 
 `.env` في `.gitignore` دائماً.

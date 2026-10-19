@@ -52,7 +52,7 @@ export const userProfiles = pgTable('user_profiles', {
 
 export const userSettings = pgTable('user_settings', {
   userId: integer('user_id').primaryKey().references(() => userProfiles.id, { onDelete: 'cascade' }),
-  timezone: varchar('timezone', { length: 64 }).notNull().default('Asia/Riyadh'),
+  timezone: varchar('timezone', { length: 64 }).notNull().default('Europe/Istanbul'),
   plannedDailyDeficitKcal: integer('planned_daily_deficit_kcal').notNull().default(500),
   proteinGPerKg: numeric('protein_g_per_kg', { precision: 3, scale: 2 }).notNull().default('1.80'),
   useNetMet: boolean('use_net_met').notNull().default(true),

@@ -43,6 +43,13 @@
       "when": 1792425380813,
       "tag": "0005_meal_schedule",
       "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "7",
+      "when": 1792429112406,
+      "tag": "0006_default_timezone_istanbul",
+      "breakpoints": true
     }
   ]
 }

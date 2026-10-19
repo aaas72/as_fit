@@ -13,7 +13,7 @@ export default defineConfig({
     baseURL: `http://localhost:${PORT}`,
     channel: process.env.E2E_BROWSER_CHANNEL ?? 'chrome', // system browser, no download
     locale: 'ar',
-    timezoneId: 'Asia/Riyadh',
+    timezoneId: 'Europe/Istanbul',
     trace: 'retain-on-failure',
   },
   projects: [

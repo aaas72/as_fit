@@ -7,7 +7,7 @@ import { GENDER_LABEL } from '@/lib/labels';
 import { profileSchema, type ProfileInput } from '@/lib/validation/schemas';
 import { upsertProfile } from '@/server/actions/profile';
 
-const TIMEZONES = ['Asia/Riyadh', 'Asia/Dubai', 'Asia/Kuwait', 'Asia/Qatar', 'Asia/Amman', 'Asia/Baghdad', 'Africa/Cairo', 'Europe/Istanbul', 'Africa/Casablanca', 'Africa/Algiers', 'Africa/Tunis', 'Europe/London', 'Europe/Berlin', 'America/New_York', 'UTC'];
+const TIMEZONES = ['Europe/Istanbul', 'Asia/Riyadh', 'Asia/Dubai', 'Asia/Kuwait', 'Asia/Qatar', 'Asia/Amman', 'Asia/Baghdad', 'Africa/Cairo', 'Africa/Casablanca', 'Africa/Algiers', 'Africa/Tunis', 'Europe/London', 'Europe/Berlin', 'America/New_York', 'UTC'];
 
 const num = cn(inputClass, 'font-mono');
 

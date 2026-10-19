@@ -26,7 +26,7 @@ CREATE TABLE user_profiles (
 
 CREATE TABLE user_settings (
   user_id                    INT PRIMARY KEY REFERENCES user_profiles(id) ON DELETE CASCADE,
-  timezone                   VARCHAR(64)  NOT NULL DEFAULT 'Asia/Riyadh',
+  timezone                   VARCHAR(64)  NOT NULL DEFAULT 'Europe/Istanbul',
   planned_daily_deficit_kcal INT          NOT NULL DEFAULT 500 CHECK (planned_daily_deficit_kcal BETWEEN 0 AND 1200),
   protein_g_per_kg           NUMERIC(3,2) NOT NULL DEFAULT 1.80 CHECK (protein_g_per_kg BETWEEN 0.8 AND 3.0),
   use_net_met                BOOLEAN      NOT NULL DEFAULT TRUE,
