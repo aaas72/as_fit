@@ -89,6 +89,10 @@ describe('metabolism', () => {
 2. وزن بصيام 12 ساعة ← يُحفظ مع شارة "غير ملتزم".
 3. تعديل سعرات صنف في `/foods` ← سعرات الوجبة القديمة لا تتغير.
 4. تجاهل تنبيه ← يختفي ولا يعود لنفس الفترة.
+5. مفتاح "سجّلت كل وجبات اليوم" يُحفظ ويظهر "عجز محقق" في لوحة التحكم.
+6. كل الصفحات الـ 12 على 1440px و 390px: لا أخطاء Console، لا تمرير أفقي، `<h1>` واحد، ولقطات في `test-results/screens/`.
+
+الملفات: `tests/e2e/flows.spec.ts` و `tests/e2e/pages.spec.ts`. تعمل على قاعدة **منفصلة** `asfit_test` تُعاد إنشاؤها (`tests/e2e/prepare-db.ts` يرفض أي قاعدة لا ينتهي اسمها بـ `_test`) وخادم على المنفذ 3100، مع متصفح النظام (Chrome) دون تنزيل متصفحات.
 
 ## 5. معايير القبول
 
@@ -109,5 +113,5 @@ describe('metabolism', () => {
 ```powershell
 pnpm test                          # Vitest
 pnpm vitest run --coverage         # التغطية
-pnpm test:e2e                      # Playwright (يتطلب db:up + dev)
+pnpm test:e2e                      # build + Playwright (يتطلب db:up فقط؛ لا يلمس قاعدة asfit)
 ```

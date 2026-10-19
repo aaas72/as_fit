@@ -135,7 +135,9 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
 - **RTL:** الأصناف المنطقية فقط: `ms-* me-* ps-* pe-* start-* end-* text-start text-end border-s border-e rounded-s rounded-e`. ممنوع `ml-* mr-* pl-* pr-* left-* right-* text-left text-right`.
 - دمج الأصناف الشرطية عبر `cn()` بسيط في `src/lib/cn.ts` (`filter(Boolean).join(' ')`) — لا مكتبات إضافية دون موافقة.
 - Whitespace واسع: `gap-6` بين البطاقات، `p-6` داخلها، شبكة `grid gap-6 sm:grid-cols-2 lg:grid-cols-3`.
-- النماذج: React Hook Form + Zod (نفس مخطط الـ Action) + `useActionState`.
+- النماذج: React Hook Form + Zod (نفس مخطط الـ Action) عبر `useActionForm` (`src/components/forms/useActionForm.ts`).
+- الأسماء الفعلية للمكونات: `ui.tsx` (Button، ButtonLink، PageHeader، SectionTitle، Stat، EmptyState، Field، FormStatus، inputClass)، `Card`، `Badge`، `Num`، `ProgressBar`، `ProgressRing`، `Icon`، `NavLinks` (SideNav + BottomNav للجوال)، `DateNav`، `InsightItem`، `charts.tsx`، و`forms/` (FoodCombobox، DeleteButton، DayCompleteToggle).
+- لون السلسلة الثانية في الرسوم: `--color-series-2: #4F46E5` (متحقق منه مع الأخضر للتباين وعمى الألوان).
 - الرسوم بـ Recharts داخل Client Components فقط؛ `ResponsiveContainer`، المحور السيني `reversed` (RTL)، والألوان عبر متغيرات الـ Tokens: `stroke="var(--color-brand)"`، الشبكة `var(--color-line)`، المحاور `var(--color-ink-muted)`. خط EMA بـ `brand`، القراءات الخام نقاط `ink-muted`.
 - كل عنصر تفاعلي يحمل `id` وصفياً فريداً (لـ Playwright).
 - SEO: `metadata` لكل صفحة (title + description) و `<h1>` واحد.

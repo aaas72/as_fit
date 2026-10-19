@@ -4,7 +4,7 @@ import nextTs from 'eslint-config-next/typescript';
 const config = [
   ...nextVitals,
   ...nextTs,
-  { ignores: ['.next/**', 'drizzle/**', 'node_modules/**', 'next-env.d.ts'] },
+  { ignores: ['.next/**', 'drizzle/**', 'node_modules/**', 'coverage/**', 'next-env.d.ts'] },
   {
     // src/domain must stay pure: no IO, no framework, no ORM
     files: ['src/domain/**/*.ts'],

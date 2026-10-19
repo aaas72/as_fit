@@ -23,4 +23,3 @@ test-results/
 # os / editor
 .DS_Store
 Thumbs.db
-coverage/

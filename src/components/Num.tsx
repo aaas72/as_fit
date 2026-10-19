@@ -6,7 +6,7 @@ export function Num({ value, unit, digits = 0, className }: { value: number; uni
   return (
     <bdi className={cn('font-mono tabular-nums', className)}>
       {text}
-      {unit && <span className="ms-1 text-ink-muted">{unit}</span>}
+      {unit && <span className="mx-1 text-[0.7em] font-normal text-ink-muted">{unit}</span>}
     </bdi>
   );
 }

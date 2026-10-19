@@ -1152,6 +1152,9 @@ export const runRules = (ctx: PeriodContext): InsightResult[] => RULES.flatMap(r
 
 ### 9.2 نمط الـ Action
 
+> [!NOTE]
+> المثال أدناه هو التصميم الأولي. التنفيذ الفعلي يستقبل كائناً عادياً بدل `FormData`، ويستخدم مخططات `src/lib/validation/schemas.ts` المشتركة مع النماذج، ويحدّث كل الصفحات بـ `revalidatePath('/', 'layout')`. انظر `src/server/actions/` ومهارة `asfit-server-actions`.
+
 ```ts
 // src/server/actions/exercise.ts
 'use server';

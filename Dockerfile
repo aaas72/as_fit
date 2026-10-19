@@ -9,6 +9,7 @@ WORKDIR /app
 RUN corepack enable && corepack prepare pnpm@10.34.6 --activate
 COPY --from=deps /app/node_modules ./node_modules
 COPY . .
+ENV NEXT_OUTPUT=standalone
 RUN pnpm build
 
 FROM node:24-alpine AS run

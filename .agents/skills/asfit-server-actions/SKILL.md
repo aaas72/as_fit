@@ -34,47 +34,13 @@ description: >-
 
 ## 3. النمط المرجعي
 
-```ts
-// src/server/actions/exercise.ts
-'use server';
-import { z } from 'zod';
-import { eq } from 'drizzle-orm';
-import { revalidatePath } from 'next/cache';
-import { db } from '@/server/db/client';
-import { exerciseLogs, exerciseCatalog } from '@/server/db/schema';
-import { exerciseKcal } from '@/domain/exercise';
-import { getCurrentTrendWeight } from '@/server/queries/weight';
-import { runInsights } from '@/server/services/insights-runner';
-import { USER_ID } from '@/server/session';
+التنفيذ الفعلي: [src/server/actions/exercise.ts](../../../src/server/actions/exercise.ts).
 
-const schema = z.object({
-  logDate: z.string().date(),
-  exerciseId: z.coerce.number().int().positive(),
-  durationMinutes: z.coerce.number().int().min(1).max(600),
-  metOverride: z.coerce.number().min(1.1).max(20).optional(),
-});
-
-export async function logExercise(_: unknown, formData: FormData) {
-  const parsed = schema.safeParse(Object.fromEntries(formData));
-  if (!parsed.success) return { ok: false, errors: parsed.error.flatten().fieldErrors };
-
-  const { logDate, exerciseId, durationMinutes, metOverride } = parsed.data;
-  const [ex] = await db.select().from(exerciseCatalog).where(eq(exerciseCatalog.id, exerciseId));
-  const met = metOverride ?? Number(ex.defaultMet);
-  const weight = await getCurrentTrendWeight(USER_ID);
-  const kcal = exerciseKcal(met, weight, durationMinutes);
-
-  await db.insert(exerciseLogs).values({
-    userId: USER_ID, logDate, exerciseId, durationMinutes,
-    metValue: String(met), weightUsedKg: String(weight),
-    grossBurnedKcal: String(kcal.gross), netBurnedKcal: String(kcal.net),
-  });
-
-  await runInsights(USER_ID, logDate);
-  revalidatePath('/');
-  return { ok: true, kcal };
-}
-```
+- الـ Action يستقبل **كائناً عادياً** (`input: unknown`) لا `FormData`، ويتحقق بنفس مخطط Zod الموجود في `src/lib/validation/schemas.ts` الذي يستخدمه النموذج.
+- يعيد `ActionResult` من `src/lib/validation/common.ts`: `{ ok: true, ...data }` أو `{ ok: false, errors?, message? }`.
+- بعد الكتابة: `runInsights(USER_ID, logDate)` ثم `refreshAll()` (= `revalidatePath('/', 'layout')`) من `src/server/services/action-helpers.ts`، لأن كل الصفحات تقرأ أرقاماً مشتقة.
+- في الواجهة: `useActionForm` في `src/components/forms/useActionForm.ts` (React Hook Form + `zodResolver` + `useTransition`) يربط النموذج بالـ Action ويعرض أخطاء الحقول القادمة من الخادم.
+- الحذف: `DeleteButton` بخطوتين (طلب ثم تأكيد) دون نوافذ المتصفح.
 
 ## 4. خدمة الملخص اليومي
 

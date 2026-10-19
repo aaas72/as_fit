@@ -25,6 +25,9 @@
   --color-danger-ink: #B91C1C;
   --color-danger-soft: #FEF2F2;
 
+  /* Second chart series (validated against brand for contrast + color-blind separation) */
+  --color-series-2: #4F46E5;
+
   --font-sans: var(--font-cairo), system-ui, sans-serif;
   --font-mono: var(--font-mono-num), ui-monospace, monospace;
 }

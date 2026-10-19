@@ -4,6 +4,7 @@ import { bodyFatCategory, navyBodyFat, whr, whrRisk, whtr, whtrRisk } from '@/do
 import { beverageMetrics } from '@/domain/beverages';
 import { caffeineLevel, latestDoseTime, residualCaffeineMg } from '@/domain/caffeine-kinetics';
 import { exerciseKcal } from '@/domain/exercise';
+import { clockDriftMin, driftTone } from '@/domain/meal-timing';
 import { baseTdee, bmrMifflin, dailyTargets, dynamicTdee, maxSafeDeficit } from '@/domain/metabolism';
 import { portionNutrition } from '@/domain/nutrition';
 import { sleepMetrics, socialJetLagH } from '@/domain/sleep';
@@ -40,6 +41,16 @@ describe('exercise (Net MET)', () => {
     expect(k.net).toBeCloseTo(207.9, 1);
   });
   it('net never negative', () => expect(exerciseKcal(0.9, 80, 10).net).toBe(0));
+});
+
+describe('meal timing (matches the DB generated column)', () => {
+  it('23:30 → 00:30 = +60, late 90, early −30', () => {
+    expect(clockDriftMin('23:30', '00:30')).toBe(60);
+    expect(clockDriftMin('13:00', '14:30')).toBe(90);
+    expect(clockDriftMin('08:00', '07:30')).toBe(-30);
+  });
+  it('tones: ≤30 brand, ≤90 warning, >90 danger', () =>
+    expect([driftTone(-30), driftTone(90), driftTone(91)]).toEqual(['brand', 'warning', 'danger']));
 });
 
 describe('nutrition', () => {
