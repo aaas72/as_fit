@@ -8,45 +8,20 @@ description: >-
 
 # AS_FIT — البيئة المحلية و Docker
 
-## 1. docker-compose.yml
+## 1. docker-compose.yml و Dockerfile
 
-```yaml
-services:
-  db:
-    image: postgres:16-alpine
-    container_name: asfit-db
-    restart: unless-stopped
-    environment:
-      POSTGRES_USER: ${POSTGRES_USER:-asfit}
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-asfit_local}
-      POSTGRES_DB: ${POSTGRES_DB:-asfit}
-      TZ: ${APP_TIMEZONE:-Europe/Istanbul}
-    ports:
-      - "127.0.0.1:${POSTGRES_PORT:-5432}:5432"
-    volumes:
-      - asfit_pgdata:/var/lib/postgresql/data
-    healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-asfit} -d ${POSTGRES_DB:-asfit}"]
-      interval: 5s
-      timeout: 3s
-      retries: 10
+المرجع الفعلي: [docker-compose.yml](../../../docker-compose.yml) و [Dockerfile](../../../Dockerfile). ثلاث خدمات:
 
-  app:
-    profiles: ["full"]          # docker compose --profile full up
-    build: .
-    container_name: asfit-app
-    depends_on:
-      db:
-        condition: service_healthy
-    environment:
-      DATABASE_URL: postgres://${POSTGRES_USER:-asfit}:${POSTGRES_PASSWORD:-asfit_local}@db:5432/${POSTGRES_DB:-asfit}
-      APP_TIMEZONE: ${APP_TIMEZONE:-Europe/Istanbul}
-    ports:
-      - "127.0.0.1:3000:3000"
+| الخدمة | الدور |
+|---|---|
+| `db` | PostgreSQL 16، المنفذ `127.0.0.1:${POSTGRES_PORT}` (5433 على جهاز المستخدم لأن 5432 مشغول بـ PostgreSQL محلي)، volume دائم `asfit_pgdata` |
+| `migrate` | مرحلة `migrator`: تشغّل `drizzle-kit migrate` ثم الـ seed (idempotent) وتخرج. لا يبدأ `app` إلا إذا انتهت بنجاح |
+| `app` | مرحلة `run`: خادم Next.js standalone (`node server.js`) بمستخدم غير root، `HOSTNAME=0.0.0.0`، على `127.0.0.1:${APP_PORT:-3000}` |
 
-volumes:
-  asfit_pgdata:
-```
+قرارات ملزمة:
+- `output: 'standalone'` يُفعَّل فقط عبر `NEXT_OUTPUT=standalone` (يضبطه الـ Dockerfile)، لأن `next start` المحلي والاختبارات تحتاج البناء العادي.
+- مرحلة البناء تضع `DATABASE_URL` وهمياً كي تُحمَّل الوحدات وقت البناء؛ القيمة الحقيقية تأتي وقت التشغيل من compose.
+- `.env` لا يدخل الصورة (`.dockerignore`).
 
 ## 2. .env.example
 
@@ -54,37 +29,22 @@ volumes:
 POSTGRES_USER=asfit
 POSTGRES_PASSWORD=asfit_local
 POSTGRES_DB=asfit
+# Change to 5433 if a local PostgreSQL already listens on 5432 (update DATABASE_URL too)
+POSTGRES_PORT=5432
 DATABASE_URL=postgres://asfit:asfit_local@localhost:5432/asfit
 APP_TIMEZONE=Europe/Istanbul
 ```
 
 `.env` في `.gitignore` دائماً.
 
-## 3. Dockerfile (يتطلب `output: 'standalone'` في next.config.ts)
+## 3. وضعا التشغيل
 
-```dockerfile
-FROM node:24-alpine AS deps
-WORKDIR /app
-RUN corepack enable && corepack prepare pnpm@10.34.6 --activate
-COPY package.json pnpm-lock.yaml ./
-RUN pnpm install --frozen-lockfile
+| الوضع | الأوامر | متى |
+|---|---|---|
+| **نشر محلي كامل في Docker** | `docker compose up -d --build` ← http://localhost:3000 | الاستخدام اليومي |
+| **تطوير** | `pnpm db:up` ثم `pnpm dev` | تعديل الكود (أوقف `asfit-app` أولاً لتحرير المنفذ 3000: `docker compose stop app`) |
 
-FROM node:24-alpine AS build
-WORKDIR /app
-RUN corepack enable && corepack prepare pnpm@10.34.6 --activate
-COPY --from=deps /app/node_modules ./node_modules
-COPY . .
-RUN pnpm build
-
-FROM node:24-alpine AS run
-WORKDIR /app
-ENV NODE_ENV=production
-COPY --from=build /app/.next/standalone ./
-COPY --from=build /app/.next/static ./.next/static
-COPY --from=build /app/public ./public
-EXPOSE 3000
-CMD ["node", "server.js"]
-```
+بعد أي تعديل في الكود: `docker compose up -d --build` يعيد بناء الصورة، ويطبق الـ migrations الجديدة تلقائياً عبر `migrate`.
 
 ## 4. سكربتات package.json
 
@@ -106,15 +66,12 @@ CMD ["node", "server.js"]
 }
 ```
 
-## 5. خطوات التشغيل (PowerShell)
+## 5. أول تشغيل (PowerShell)
 
 ```powershell
 pnpm install
-Copy-Item .env.example .env
-pnpm db:up
-pnpm db:migrate
-pnpm db:seed
-pnpm dev        # http://localhost:3000
+Copy-Item .env.example .env      # عدّل POSTGRES_PORT إن كان 5432 مشغولاً
+docker compose up -d --build     # db + migrate + app
 ```
 
 ## 6. النسخ الاحتياطي والاستعادة

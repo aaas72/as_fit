@@ -18,18 +18,37 @@ services:
       timeout: 3s
       retries: 10
 
-  app:
-    profiles: ["full"]          # docker compose --profile full up
-    build: .
-    container_name: asfit-app
+  # One-shot: applies migrations + idempotent seed, then exits. The app starts only if it succeeds.
+  migrate:
+    build:
+      context: .
+      target: migrator
+    image: asfit-migrator
+    container_name: asfit-migrate
+    restart: "no"
     depends_on:
       db:
         condition: service_healthy
     environment:
       DATABASE_URL: postgres://${POSTGRES_USER:-asfit}:${POSTGRES_PASSWORD:-asfit_local}@db:5432/${POSTGRES_DB:-asfit}
+
+  app:
+    build:
+      context: .
+      target: run
+    image: asfit-app
+    container_name: asfit-app
+    restart: unless-stopped
+    depends_on:
+      db:
+        condition: service_healthy
+      migrate:
+        condition: service_completed_successfully
+    environment:
+      DATABASE_URL: postgres://${POSTGRES_USER:-asfit}:${POSTGRES_PASSWORD:-asfit_local}@db:5432/${POSTGRES_DB:-asfit}
       APP_TIMEZONE: ${APP_TIMEZONE:-Europe/Istanbul}
     ports:
-      - "127.0.0.1:3000:3000"
+      - "127.0.0.1:${APP_PORT:-3000}:3000"
 
 volumes:
   asfit_pgdata:
