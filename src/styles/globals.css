@@ -7,6 +7,7 @@
   --color-transparent: transparent;
 
   --color-canvas: #F7FCF8;
+  --color-canvas-deep: #E8F6EC; /* bottom of the page gradient */
   --color-surface: #FFFFFF;
   --color-line: #E2E8F0;
   --color-ink: #0F172A;
@@ -36,6 +37,16 @@
 
 @layer base {
   html { color-scheme: light; }
-  body { @apply bg-canvas text-ink font-sans antialiased; }
+  /* Page gradient: soft spring-green glow at the top-right (RTL start), fading into the canvas, then a gentle
+     deepening toward the bottom. Fixed so it stays put while content scrolls. Cards are transparent and sit on it. */
+  body {
+    @apply text-ink font-sans antialiased;
+    background-color: var(--color-canvas);
+    background-image:
+      radial-gradient(900px 520px at 100% 0%, color-mix(in srgb, var(--color-brand) 14%, transparent), transparent 70%),
+      radial-gradient(700px 420px at 0% 100%, color-mix(in srgb, var(--color-brand) 8%, transparent), transparent 70%),
+      linear-gradient(180deg, var(--color-canvas) 0%, var(--color-canvas-deep) 100%);
+    background-attachment: fixed;
+  }
   :focus-visible { @apply outline-2 outline-offset-2 outline-brand; }
 }

@@ -1,15 +1,14 @@
 import type { Metadata } from 'next';
 import { Badge } from '@/components/Badge';
 import { Card } from '@/components/Card';
+import { BeverageCard } from '@/components/LogCards';
 import { DateNav } from '@/components/DateNav';
-import { DeleteButton } from '@/components/forms/DeleteButton';
 import { Num } from '@/components/Num';
 import { ProgressBar } from '@/components/ProgressBar';
 import { EmptyState, PageHeader, SectionTitle, Stat } from '@/components/ui';
 import { SideColumn } from '@/components/SideColumn';
 import { caffeineLevel, residualCaffeineMg } from '@/domain/caffeine-kinetics';
 import { CAFFEINE_DAILY_SAFE_MG } from '@/domain/constants';
-import { MILK_LABEL } from '@/lib/labels';
 import { addDaysIso, localClockOf, nowClock } from '@/lib/time';
 import { deleteBeverage } from '@/server/actions/beverages';
 import { getBeveragesBetween, getDrinks } from '@/server/queries/logs';
@@ -56,25 +55,7 @@ export default async function BeveragesPage({ searchParams }: { searchParams: Da
         </Card>
         <SideColumn title={<SectionTitle aside={<Badge>{todays.length}</Badge>}>مشروبات اليوم</SectionTitle>}>
           {todays.length === 0 && <EmptyState title="لا توجد مشروبات مسجلة لهذا اليوم" />}
-          {todays.map((b) => (
-            <Card key={b.id} className="flex flex-wrap items-center gap-3 p-4">
-              <bdi className="font-mono text-sm text-ink-muted">{localClockOf(b.consumedAt, tz)}</bdi>
-              <div className="min-w-0 flex-1">
-                <p className="font-semibold">{b.drinkName}</p>
-                <p className="text-sm text-ink-muted">
-                  <bdi className="font-mono">{b.volumeMl} مل</bdi>
-                  {b.dryCoffeeG != null && <> · <bdi className="font-mono">{b.dryCoffeeG} غ بن</bdi></>}
-                  {b.milkType !== 'none' && <> · حليب {MILK_LABEL[b.milkType]} <bdi className="font-mono">{b.milkMl} مل</bdi></>}
-                  {b.sugarTsp > 0 && <> · سكر <bdi className="font-mono">{b.sugarTsp}</bdi></>}
-                </p>
-              </div>
-              <div className="flex flex-col items-end text-sm">
-                <Num value={b.caffeineMg} unit="ملغ" className="font-semibold" />
-                <Num value={b.kcal} unit="سعرة" className="text-ink-muted" />
-              </div>
-              <DeleteButton id={b.id} action={deleteBeverage} />
-            </Card>
-          ))}
+          {todays.map((b) => <BeverageCard key={b.id} drink={b} time={localClockOf(b.consumedAt, tz)} onDelete={deleteBeverage} />)}
         </SideColumn>
       </div>
     </div>

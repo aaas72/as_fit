@@ -1,16 +1,13 @@
 import type { Metadata } from 'next';
 import { Badge } from '@/components/Badge';
 import { Card } from '@/components/Card';
+import { MealCard } from '@/components/LogCards';
 import { DateNav } from '@/components/DateNav';
 import { DayCompleteToggle } from '@/components/forms/DayCompleteToggle';
-import { DeleteButton } from '@/components/forms/DeleteButton';
 import { Num } from '@/components/Num';
 import { ProgressBar } from '@/components/ProgressBar';
 import { EmptyState, PageHeader, SectionTitle } from '@/components/ui';
 import { SideColumn } from '@/components/SideColumn';
-import { driftTone } from '@/domain/meal-timing';
-import { QUANTITY_UNIT } from '@/domain/nutrition';
-import { MEAL_LABEL } from '@/lib/labels';
 import { nowClock } from '@/lib/time';
 import { deleteMeal } from '@/server/actions/meals';
 import { getDayComplete, getFoods, getMealsBetween } from '@/server/queries/logs';
@@ -61,33 +58,7 @@ export default async function MealsPage({ searchParams }: { searchParams: DateSe
 
         <SideColumn title={<SectionTitle aside={<Badge>{meals.length} وجبات</Badge>}>وجبات اليوم</SectionTitle>}>
           {meals.length === 0 && <EmptyState title="لا توجد وجبات مسجلة لهذا اليوم">ابدأ بإضافة وجبة من النموذج.</EmptyState>}
-          {meals.map((m) => (
-            <Card key={m.id} className="flex flex-col gap-3 p-5">
-              <div className="flex flex-wrap items-center gap-2">
-                <h3 className="font-bold">{MEAL_LABEL[m.type]}</h3>
-                <bdi className="font-mono text-sm text-ink-muted">{m.actualTime}</bdi>
-                {m.driftMin != null && (
-                  <Badge tone={driftTone(m.driftMin)}>
-                    {m.driftMin === 0 ? 'في الموعد' : m.driftMin > 0 ? 'تأخير' : 'تبكير'} <Num value={Math.abs(m.driftMin)} unit="د" />
-                  </Badge>
-                )}
-                <span className="ms-auto"><DeleteButton id={m.id} action={deleteMeal} /></span>
-              </div>
-              <ul className="flex flex-col gap-1 text-sm">
-                {m.items.map((it) => (
-                  <li key={it.id} className="flex justify-between gap-2">
-                    <span>{it.nameAr} <bdi className="font-mono text-ink-muted">{it.quantity} {QUANTITY_UNIT[it.basis]}</bdi></span>
-                    <Num value={it.kcal} unit="سعرة" />
-                  </li>
-                ))}
-              </ul>
-              <div className="flex justify-between border-t border-line pt-2 text-sm font-semibold">
-                <span>المجموع</span>
-                <span className="flex gap-3"><Num value={m.kcal} unit="سعرة" /><Num value={m.protein} unit="غ" /></span>
-              </div>
-              {m.notes && <p className="text-sm text-ink-muted">{m.notes}</p>}
-            </Card>
-          ))}
+          {meals.map((m) => <MealCard key={m.id} meal={m} onDelete={deleteMeal} />)}
         </SideColumn>
       </div>
     </div>
