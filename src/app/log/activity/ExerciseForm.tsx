@@ -1,7 +1,8 @@
 'use client';
 
-import { useWatch } from 'react-hook-form';
+import { Controller, useWatch } from 'react-hook-form';
 import { useActionForm } from '@/components/forms/useActionForm';
+import { NumberStepper, Select } from '@/components/inputs/controls';
 import { Num } from '@/components/Num';
 import { Button, Field, FormStatus, inputClass } from '@/components/ui';
 import { exerciseKcal } from '@/domain/exercise';
@@ -27,16 +28,14 @@ export function ExerciseForm({ date, catalog, weightKg, useNetMet }: { date: str
     <form onSubmit={onSubmit} className="flex flex-col gap-5" noValidate>
       <input type="hidden" {...form.register('logDate')} />
       <Field label="التمرين" htmlFor="exerciseId" error={err('exerciseId')}>
-        <select id="exerciseId" className={inputClass} {...form.register('exerciseId')}>
-          {catalog.map((c) => <option key={c.id} value={c.id}>{c.nameAr} — MET {c.defaultMet}</option>)}
-        </select>
+        <Controller control={form.control} name="exerciseId" render={({ field }) => (<Select id="exerciseId" value={field.value as number} onChange={field.onChange} onBlur={field.onBlur} options={catalog.map((c) => ({ value: c.id, label: c.nameAr, hint: `MET ${c.defaultMet}` }))} />)} />
       </Field>
       <div className="grid gap-4 sm:grid-cols-2">
         <Field label="المدة (دقيقة)" htmlFor="durationMinutes" error={err('durationMinutes')}>
-          <input id="durationMinutes" inputMode="numeric" className={cn(inputClass, 'font-mono')} {...form.register('durationMinutes')} />
+          <Controller control={form.control} name="durationMinutes" render={({ field }) => (<NumberStepper id="durationMinutes" value={field.value} onChange={field.onChange} onBlur={field.onBlur} step={5} min={1} max={600} unit="دقيقة" invalid={Boolean(err('durationMinutes'))} />)} />
         </Field>
         <Field label="MET مخصص (اختياري)" htmlFor="metOverride" error={err('metOverride')} hint={`الافتراضي ${ex?.defaultMet ?? '—'} من Compendium`}>
-          <input id="metOverride" inputMode="decimal" className={cn(inputClass, 'font-mono')} {...form.register('metOverride')} />
+          <Controller control={form.control} name="metOverride" render={({ field }) => (<NumberStepper id="metOverride" value={field.value} onChange={field.onChange} onBlur={field.onBlur} step={0.1} min={1.1} max={20} invalid={Boolean(err('metOverride'))} />)} />
         </Field>
       </div>
       <Field label="ملاحظات" htmlFor="ex-notes">

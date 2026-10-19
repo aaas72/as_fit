@@ -1,8 +1,9 @@
 'use client';
 
-import { useWatch } from 'react-hook-form';
+import { Controller, useWatch } from 'react-hook-form';
 import { Badge } from '@/components/Badge';
 import { useActionForm } from '@/components/forms/useActionForm';
+import { NumberStepper } from '@/components/inputs/controls';
 import { Num } from '@/components/Num';
 import { Button, FormStatus } from '@/components/ui';
 import { screenSchema } from '@/lib/validation/schemas';
@@ -28,13 +29,14 @@ export function ScreenForm({ date, initial }: { date: string; initial: { highFoc
   return (
     <form onSubmit={onSubmit} className="flex flex-col gap-6" noValidate>
       <input type="hidden" {...form.register('logDate')} />
-      {SLIDERS.map((s, i) => (
+      {SLIDERS.map((s) => (
         <div key={s.name} className="flex flex-col gap-2">
-          <div className="flex items-baseline justify-between gap-2">
-            <label htmlFor={s.name} className="font-semibold">{s.label}</label>
-            <Num value={Number(values[i]) || 0} digits={1} unit="ساعة" className="text-lg font-semibold" />
+          <label htmlFor={s.name} className="font-semibold">{s.label}</label>
+          <div className="max-w-64">
+            <Controller control={form.control} name={s.name} render={({ field }) => (
+              <NumberStepper id={s.name} value={field.value} onChange={field.onChange} onBlur={field.onBlur} step={0.5} min={0} max={24} unit="ساعة" invalid={Boolean(err(s.name))} />
+            )} />
           </div>
-          <input id={s.name} type="range" min={0} max={16} step={0.5} className="w-full accent-brand" {...form.register(s.name)} />
           <span className="text-sm text-ink-muted">{err(s.name) ?? s.hint}</span>
         </div>
       ))}

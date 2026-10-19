@@ -1,14 +1,13 @@
 'use client';
 
-import { useWatch } from 'react-hook-form';
+import { Controller, useWatch } from 'react-hook-form';
 import { useActionForm } from '@/components/forms/useActionForm';
+import { NumberStepper } from '@/components/inputs/controls';
 import { Button, Field, FormStatus, inputClass } from '@/components/ui';
-import { cn } from '@/lib/cn';
 import { drinkSchema } from '@/lib/validation/schemas';
 import { saveDrink } from '@/server/actions/drinks';
 import type { DrinkView } from '@/server/queries/logs';
 
-const num = cn(inputClass, 'font-mono');
 
 // A drink in the user's own list. Values per 100 ml of the drink itself (milk and sugar are added when logging).
 export function DrinkForm({ drink, onDone, onCreated, caffeineMgPerG }: {
@@ -42,7 +41,7 @@ export function DrinkForm({ drink, onDone, onCreated, caffeineMgPerG }: {
           <input id={`${p}-name`} className={inputClass} placeholder="مثال: قهوة الصباح" {...form.register('nameAr')} />
         </Field>
         <Field label="الحجم المعتاد (مل)" htmlFor={`${p}-vol`} error={err('defaultVolumeMl')} hint="يُعبّأ تلقائياً عند التسجيل ويمكن تغييره">
-          <input id={`${p}-vol`} inputMode="decimal" className={num} {...form.register('defaultVolumeMl')} />
+          <Controller control={form.control} name="defaultVolumeMl" render={({ field }) => (<NumberStepper id={`${p}-vol`} value={field.value} onChange={field.onChange} onBlur={field.onBlur} step={10} min={1} max={3000} unit="مل" invalid={Boolean(err('defaultVolumeMl'))} />)} />
         </Field>
       </div>
 
@@ -54,20 +53,20 @@ export function DrinkForm({ drink, onDone, onCreated, caffeineMgPerG }: {
         </span>
       </label>
 
-      <div className="grid grid-cols-2 gap-4 sm:grid-cols-4">
+      <div className="grid gap-4 sm:grid-cols-2">
         {byWeight && (
           <Field label="وزن البن المعتاد (غ)" htmlFor={`${p}-coffee`} error={err('defaultCoffeeG')}>
-            <input id={`${p}-coffee`} inputMode="decimal" className={num} {...form.register('defaultCoffeeG')} />
+            <Controller control={form.control} name="defaultCoffeeG" render={({ field }) => (<NumberStepper id={`${p}-coffee`} value={field.value} onChange={field.onChange} onBlur={field.onBlur} step={1} min={0} max={100} unit="غ" invalid={Boolean(err('defaultCoffeeG'))} />)} />
           </Field>
         )}
         <Field label="كافيين لكل 100 مل (mg)" htmlFor={`${p}-caf`} error={err('caffeineMgPer100ml')} hint={byWeight ? 'يُستخدم إن لم تُدخل وزن البن' : '0 للمشروبات بلا كافيين'}>
-          <input id={`${p}-caf`} inputMode="decimal" className={num} {...form.register('caffeineMgPer100ml')} />
+          <Controller control={form.control} name="caffeineMgPer100ml" render={({ field }) => (<NumberStepper id={`${p}-caf`} value={field.value} onChange={field.onChange} onBlur={field.onBlur} step={1} min={0} max={1000} unit="mg" invalid={Boolean(err('caffeineMgPer100ml'))} />)} />
         </Field>
         <Field label="سعرات لكل 100 مل" htmlFor={`${p}-kcal`} error={err('kcalPer100ml')} hint="بدون الحليب والسكر">
-          <input id={`${p}-kcal`} inputMode="decimal" className={num} {...form.register('kcalPer100ml')} />
+          <Controller control={form.control} name="kcalPer100ml" render={({ field }) => (<NumberStepper id={`${p}-kcal`} value={field.value} onChange={field.onChange} onBlur={field.onBlur} step={1} min={0} max={1000} unit="kcal" invalid={Boolean(err('kcalPer100ml'))} />)} />
         </Field>
         <Field label="بروتين لكل 100 مل (غ)" htmlFor={`${p}-prot`} error={err('proteinGPer100ml')}>
-          <input id={`${p}-prot`} inputMode="decimal" className={num} {...form.register('proteinGPer100ml')} />
+          <Controller control={form.control} name="proteinGPer100ml" render={({ field }) => (<NumberStepper id={`${p}-prot`} value={field.value} onChange={field.onChange} onBlur={field.onBlur} step={0.1} min={0} max={100} unit="غ" invalid={Boolean(err('proteinGPer100ml'))} />)} />
         </Field>
       </div>
 

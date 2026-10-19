@@ -1,59 +1,70 @@
 'use client';
 
-import { useWatch } from 'react-hook-form';
+import { Controller, useWatch } from 'react-hook-form';
 import { Badge } from '@/components/Badge';
 import { useActionForm } from '@/components/forms/useActionForm';
+import { NumberStepper, Segmented } from '@/components/inputs/controls';
+import { TimeField } from '@/components/inputs/pickers';
 import { Num } from '@/components/Num';
-import { Button, Field, FormStatus, inputClass } from '@/components/ui';
+import { Button, Field, FormStatus } from '@/components/ui';
 import { sleepMetrics, sleepTargets } from '@/domain/sleep';
-import { cn } from '@/lib/cn';
-import { sleepSchema } from '@/lib/validation/schemas';
+import { nightDateTimes } from '@/lib/inputs';
+import { sleepClockSchema } from '@/lib/validation/schemas';
 import { logSleep } from '@/server/actions/sleep';
 
-// Local 'YYYY-MM-DDTHH:mm' strings compare correctly as plain wall-clock times for the preview.
-const asDate = (s: unknown) => (typeof s === 'string' && s.length >= 16 ? new Date(`${s}:00Z`) : null);
+const FRESHNESS = [
+  { value: 1, label: '1', hint: 'مرهق' }, { value: 2, label: '2', hint: 'متعب' }, { value: 3, label: '3', hint: 'عادي' },
+  { value: 4, label: '4', hint: 'جيد' }, { value: 5, label: '5', hint: 'منتعش' },
+];
 
-export function SleepForm({ defaults }: { defaults: { bedTime: string; sleepOnsetTime: string; wakeUpTime: string } }) {
+// Wall-clock 'YYYY-MM-DDTHH:mm' read as UTC: fine for durations in the preview
+const asDate = (s: string) => new Date(`${s}:00Z`);
+const isClock = (v: unknown): v is string => typeof v === 'string' && /^d{2}:d{2}$/.test(v);
+
+// Times only: the night is the one ending on wakeDate, earlier clocks roll back to the previous evening.
+export function SleepForm({ wakeDate }: { wakeDate: string }) {
   const { form, onSubmit, pending, status, err } = useActionForm({
-    schema: sleepSchema,
-    action: logSleep,
-    defaultValues: { ...defaults, nightInterruptions: 0, wasoMinutes: 0, freshness: 3 },
+    schema: sleepClockSchema,
+    action: (v) => logSleep({ ...nightDateTimes(v.wakeDate, v.bedClock, v.onsetClock, v.wakeClock), nightInterruptions: v.nightInterruptions, wasoMinutes: v.wasoMinutes, freshness: v.freshness }),
+    defaultValues: { wakeDate, bedClock: '23:00', onsetClock: '23:20', wakeClock: '07:00', nightInterruptions: 0, wasoMinutes: 0, freshness: 3 },
     successText: (r) => `حُفظ النوم: ${(r.tstMin / 60).toFixed(1)} ساعة نوم فعلي.`,
   });
-  const [bed, onset, wake, waso, freshness] = useWatch({ control: form.control, name: ['bedTime', 'sleepOnsetTime', 'wakeUpTime', 'wasoMinutes', 'freshness'] }) as unknown[];
-  const b = asDate(bed), o = asDate(onset), w = asDate(wake);
-  const m = b && o && w && b <= o && o < w ? sleepMetrics({ bed: b, onset: o, wake: w, wasoMin: Number(waso) || 0 }) : null;
+  const [bed, onset, wake, waso] = useWatch({ control: form.control, name: ['bedClock', 'onsetClock', 'wakeClock', 'wasoMinutes'] }) as unknown[];
+  const night = isClock(bed) && isClock(onset) && isClock(wake) ? nightDateTimes(wakeDate, bed, onset, wake) : null;
+  const m = night && night.sleepOnsetTime < night.wakeUpTime
+    ? sleepMetrics({ bed: asDate(night.bedTime), onset: asDate(night.sleepOnsetTime), wake: asDate(night.wakeUpTime), wasoMin: Number(waso) || 0 })
+    : null;
 
   return (
     <form onSubmit={onSubmit} className="flex flex-col gap-5" noValidate>
       <div className="grid gap-4 sm:grid-cols-3">
-        <Field label="الدخول للفراش" htmlFor="bedTime" error={err('bedTime')}>
-          <input id="bedTime" type="datetime-local" className={inputClass} {...form.register('bedTime')} />
-        </Field>
-        <Field label="بدء النوم" htmlFor="sleepOnsetTime" error={err('sleepOnsetTime')}>
-          <input id="sleepOnsetTime" type="datetime-local" className={inputClass} {...form.register('sleepOnsetTime')} />
-        </Field>
-        <Field label="الاستيقاظ" htmlFor="wakeUpTime" error={err('wakeUpTime')}>
-          <input id="wakeUpTime" type="datetime-local" className={inputClass} {...form.register('wakeUpTime')} />
-        </Field>
+        {([['bedClock', 'الدخول للفراش'], ['onsetClock', 'بدء النوم'], ['wakeClock', 'الاستيقاظ']] as const).map(([name, label]) => (
+          <Field key={name} label={label} htmlFor={name} error={err(name)}>
+            <Controller control={form.control} name={name} render={({ field }) => (
+              <TimeField id={name} value={field.value as string} onChange={field.onChange} onBlur={field.onBlur} invalid={Boolean(err(name))} />
+            )} />
+          </Field>
+        ))}
+      </div>
+
+      <div className="grid gap-4 sm:grid-cols-2">
         <Field label="مرات الاستيقاظ الليلي" htmlFor="nightInterruptions" error={err('nightInterruptions')}>
-          <input id="nightInterruptions" inputMode="numeric" className={cn(inputClass, 'font-mono')} {...form.register('nightInterruptions')} />
+          <Controller control={form.control} name="nightInterruptions" render={({ field }) => (
+            <NumberStepper id="nightInterruptions" value={field.value} onChange={field.onChange} onBlur={field.onBlur} min={0} max={50} unit="مرة" />
+          )} />
         </Field>
         <Field label="دقائق الاستيقاظ الليلي (WASO)" htmlFor="wasoMinutes" error={err('wasoMinutes')}>
-          <input id="wasoMinutes" inputMode="numeric" className={cn(inputClass, 'font-mono')} {...form.register('wasoMinutes')} />
+          <Controller control={form.control} name="wasoMinutes" render={({ field }) => (
+            <NumberStepper id="wasoMinutes" value={field.value} onChange={field.onChange} onBlur={field.onBlur} step={5} min={0} max={600} unit="دقيقة" />
+          )} />
         </Field>
-        <fieldset className="flex flex-col gap-1">
-          <legend className="mb-1 text-sm font-semibold">الانتعاش عند الاستيقاظ</legend>
-          <div className="flex gap-1">
-            {[1, 2, 3, 4, 5].map((n) => (
-              <label key={n} className={cn('grid size-10 cursor-pointer place-items-center rounded-lg border font-mono font-semibold', Number(freshness) === n ? 'border-brand bg-brand-soft text-brand-ink' : 'border-line')}>
-                <input type="radio" value={n} className="sr-only" id={`freshness-${n}`} {...form.register('freshness')} />
-                {n}
-              </label>
-            ))}
-          </div>
-        </fieldset>
       </div>
+
+      <Field label="الانتعاش عند الاستيقاظ" htmlFor="freshness-1">
+        <Controller control={form.control} name="freshness" render={({ field }) => (
+          <Segmented id="freshness" label="الانتعاش عند الاستيقاظ" value={Number(field.value)} onChange={field.onChange} options={FRESHNESS} />
+        )} />
+      </Field>
 
       {m && (
         <div className="grid grid-cols-2 gap-3 rounded-lg bg-brand-soft px-4 py-3 sm:grid-cols-4">

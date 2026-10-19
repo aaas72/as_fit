@@ -1,5 +1,6 @@
 export type NavItem = { href: string; label: string; icon: IconName };
-export type IconName = 'home' | 'meal' | 'cup' | 'run' | 'screen' | 'moon' | 'scale' | 'tape' | 'chart' | 'bell' | 'book' | 'gear';
+export type IconName = 'home' | 'meal' | 'cup' | 'run' | 'screen' | 'moon' | 'scale' | 'tape' | 'chart' | 'bell' | 'book' | 'gear'
+  | 'calendar' | 'clock' | 'chevron' | 'plus' | 'minus' | 'check';
 
 export const NAV_GROUPS: { title: string; items: NavItem[] }[] = [
   { title: 'اليوم', items: [{ href: '/', label: 'لوحة التحكم', icon: 'home' }] },

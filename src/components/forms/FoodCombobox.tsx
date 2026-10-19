@@ -33,7 +33,7 @@ export function FoodCombobox({ id, foods, onPick, onCreate, placeholder = 'اب�
         aria-expanded={open}
         aria-controls={listId}
         autoComplete="off"
-        className={cn(inputClass, 'py-3')}
+        className={cn(inputClass, 'h-12')}
         placeholder={placeholder}
         value={query}
         onFocus={() => { setOpen(true); setActive(0); }}

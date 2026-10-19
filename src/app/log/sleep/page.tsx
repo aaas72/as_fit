@@ -1,6 +1,7 @@
 import type { Metadata } from 'next';
 import { Badge } from '@/components/Badge';
 import { Card } from '@/components/Card';
+import { DateNav } from '@/components/DateNav';
 import { DeleteButton } from '@/components/forms/DeleteButton';
 import { Num } from '@/components/Num';
 import { EmptyState, PageHeader, SectionTitle } from '@/components/ui';
@@ -8,24 +9,23 @@ import { sleepTargets } from '@/domain/sleep';
 import { addDaysIso, arabicDayLabel, localClockOf } from '@/lib/time';
 import { deleteSleep } from '@/server/actions/sleep';
 import { getSleepBetween } from '@/server/queries/logs';
-import { resolveDate } from '@/server/queries/page';
+import { resolveDate, type DateSearchParams } from '@/server/queries/page';
 import { USER_ID } from '@/server/session';
 import { SleepForm } from './SleepForm';
 
 export const metadata: Metadata = { title: 'النوم', description: 'تسجيل النوم وحساب الكفاءة والكمون ومدة النوم الفعلي.' };
 
-export default async function SleepPage() {
-  const { tz, today } = await resolveDate();
+export default async function SleepPage({ searchParams }: { searchParams: DateSearchParams }) {
+  const { tz, today, date } = await resolveDate(searchParams);
   const nights = await getSleepBetween(USER_ID, addDaysIso(today, -13), today);
-  const yesterday = addDaysIso(today, -1);
 
   return (
     <div className="flex flex-col gap-6">
-      <PageHeader title="النوم" description="الليلة تُنسب إلى تاريخ الاستيقاظ. تسجيل الليلة نفسها مرة أخرى يحدّثها." />
+      <PageHeader title="النوم" description="اختر يوم الاستيقاظ ثم أدخل الأوقات فقط. الوقت المتأخر (مثل 23:00) يُنسب تلقائياً لمساء اليوم السابق." actions={<DateNav path="/log/sleep" date={date} today={today} />} />
       <div className="grid gap-6 xl:grid-cols-[minmax(0,3fr)_minmax(0,2fr)]">
         <Card>
-          <SectionTitle>ليلة جديدة</SectionTitle>
-          <SleepForm defaults={{ bedTime: `${yesterday}T23:00`, sleepOnsetTime: `${yesterday}T23:20`, wakeUpTime: `${today}T07:00` }} />
+          <SectionTitle>ليلة الاستيقاظ يوم {date === today ? 'اليوم' : arabicDayLabel(date)}</SectionTitle>
+          <SleepForm key={date} wakeDate={date} />
         </Card>
         <Card>
           <SectionTitle>المعايير</SectionTitle>

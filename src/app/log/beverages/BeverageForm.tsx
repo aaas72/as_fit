@@ -2,11 +2,13 @@
 
 import Link from 'next/link';
 import { useState } from 'react';
-import { useWatch } from 'react-hook-form';
+import { Controller, useWatch } from 'react-hook-form';
 import { DrinkForm } from '@/app/drinks/DrinkForm';
 import { useActionForm } from '@/components/forms/useActionForm';
+import { NumberStepper, Select } from '@/components/inputs/controls';
+import { TimeField } from '@/components/inputs/pickers';
 import { Num } from '@/components/Num';
-import { Button, Field, FormStatus, inputClass } from '@/components/ui';
+import { Button, Field, FormStatus } from '@/components/ui';
 import { beverageMetrics } from '@/domain/beverages';
 import type { MilkType } from '@/domain/constants';
 import { cn } from '@/lib/cn';
@@ -15,7 +17,6 @@ import { beverageSchema, MILK_TYPES } from '@/lib/validation/schemas';
 import { logBeverage } from '@/server/actions/beverages';
 import type { DrinkView } from '@/server/queries/logs';
 
-const num = cn(inputClass, 'font-mono');
 
 export function BeverageForm({ date, nowClock, caffeineMgPerG, drinks }: { date: string; nowClock: string; caffeineMgPerG: number; drinks: DrinkView[] }) {
   const [created, setCreated] = useState<DrinkView[]>([]);
@@ -82,28 +83,26 @@ export function BeverageForm({ date, nowClock, caffeineMgPerG, drinks }: { date:
           <h3 className="text-sm font-semibold text-ink-muted">2. التفاصيل</h3>
           <div className="grid gap-4 sm:grid-cols-2">
             <Field label="الوقت" htmlFor="time" error={err('time')}>
-              <input id="time" type="time" className={inputClass} {...form.register('time')} />
+              <Controller control={form.control} name="time" render={({ field }) => (<TimeField id="time" value={field.value as string} onChange={field.onChange} onBlur={field.onBlur} invalid={Boolean(err('time'))} />)} />
             </Field>
             <Field label="الحجم (مل)" htmlFor="volumeMl" error={err('volumeMl')}>
-              <input id="volumeMl" inputMode="decimal" className={num} {...form.register('volumeMl')} />
+              <Controller control={form.control} name="volumeMl" render={({ field }) => (<NumberStepper id="volumeMl" value={field.value} onChange={field.onChange} onBlur={field.onBlur} step={10} min={0} max={3000} unit="مل" invalid={Boolean(err('volumeMl'))} />)} />
             </Field>
             {drink.byCoffeeWeight && (
               <Field label="وزن البن (غ)" htmlFor="dryCoffeeG" error={err('dryCoffeeG')} hint={`الكافيين = الوزن × ${caffeineMgPerG} mg/g`}>
-                <input id="dryCoffeeG" inputMode="decimal" className={num} {...form.register('dryCoffeeG')} />
+                <Controller control={form.control} name="dryCoffeeG" render={({ field }) => (<NumberStepper id="dryCoffeeG" value={field.value} onChange={field.onChange} onBlur={field.onBlur} step={1} min={0} max={100} unit="غ" invalid={Boolean(err('dryCoffeeG'))} />)} />
               </Field>
             )}
             <Field label="الحليب" htmlFor="milkType">
-              <select id="milkType" className={inputClass} {...form.register('milkType')}>
-                {MILK_TYPES.map((t) => <option key={t} value={t}>{MILK_LABEL[t]}</option>)}
-              </select>
+              <Controller control={form.control} name="milkType" render={({ field }) => (<Select id="milkType" value={field.value as string} onChange={field.onChange} onBlur={field.onBlur} options={MILK_TYPES.map((t) => ({ value: t, label: MILK_LABEL[t] }))} />)} />
             </Field>
             {milkType !== 'none' && (
               <Field label="كمية الحليب (مل)" htmlFor="milkMl" error={err('milkMl')}>
-                <input id="milkMl" inputMode="decimal" className={num} {...form.register('milkMl')} />
+                <Controller control={form.control} name="milkMl" render={({ field }) => (<NumberStepper id="milkMl" value={field.value} onChange={field.onChange} onBlur={field.onBlur} step={10} min={0} max={1000} unit="مل" invalid={Boolean(err('milkMl'))} />)} />
               </Field>
             )}
             <Field label="السكر (ملعقة صغيرة)" htmlFor="sugarTsp" error={err('sugarTsp')} hint="الملعقة = 4.2 غ = 16.8 kcal">
-              <input id="sugarTsp" inputMode="decimal" className={num} {...form.register('sugarTsp')} />
+              <Controller control={form.control} name="sugarTsp" render={({ field }) => (<NumberStepper id="sugarTsp" value={field.value} onChange={field.onChange} onBlur={field.onBlur} step={0.5} min={0} max={20} unit="ملعقة" invalid={Boolean(err('sugarTsp'))} />)} />
             </Field>
           </div>
 

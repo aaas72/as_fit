@@ -6,16 +6,16 @@
   --color-white: #FFFFFF;
   --color-transparent: transparent;
 
-  --color-canvas: #F4FBF7;
+  --color-canvas: #F7FCF8;
   --color-surface: #FFFFFF;
   --color-line: #E2E8F0;
   --color-ink: #0F172A;
   --color-ink-muted: #64748B;
 
-  --color-brand: #10B981;
-  --color-brand-strong: #059669;
-  --color-brand-ink: #047857;
-  --color-brand-soft: #ECFDF5;
+  --color-brand: #22C55E;
+  --color-brand-strong: #16A34A;
+  --color-brand-ink: #15803D;
+  --color-brand-soft: #F0FDF4;
 
   /* No yellow, orange, red or bright colors (user decision). Attention states use calm grays;
      their meaning is always carried by the text label, never by color alone. */

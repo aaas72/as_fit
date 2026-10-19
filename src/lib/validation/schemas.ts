@@ -131,3 +131,26 @@ export const foodSchema = z.object({
 export type FoodInput = z.input<typeof foodSchema>;
 
 export const dayCompleteSchema = z.object({ logDate: isoDate, complete: bool });
+
+// Form-side shapes: the user enters clock times only; dates are inferred (src/lib/inputs.ts) before calling the action.
+export const sleepClockSchema = z.object({
+  wakeDate: isoDate,
+  bedClock: clockTime,
+  onsetClock: clockTime,
+  wakeClock: clockTime,
+  nightInterruptions: int(0, 50),
+  wasoMinutes: int(0, 600),
+  freshness: int(1, 5),
+});
+
+export const weighInClockSchema = z.object({
+  date: isoDate,
+  measuredClock: clockTime,
+  lastMealClock: clockTime,
+  weightKg: num(30, 300),
+  bathroomDone: bool,
+  noFluidsBefore: bool,
+  highSodiumYesterday: bool,
+  normalDigestion: bool,
+  isOfficialWeekly: bool,
+});

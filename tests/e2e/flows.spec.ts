@@ -5,7 +5,7 @@ test.describe.configure({ mode: 'serial' });
 // Creates a food through the inline form inside the meal page (the dictionary starts empty)
 async function createFoodInline(page: Page, f: { name?: string; basis: string; kcal: string; protein: string }) {
   if (f.name) await page.fill('#food-new-ar', f.name);
-  await page.selectOption('#food-new-basis', f.basis);
+  await page.click(`#food-new-basis-${f.basis}`);
   await page.fill('#food-new-calories', f.kcal);
   await page.fill('#food-new-proteinG', f.protein);
   await page.click('#food-new-save');
@@ -17,7 +17,7 @@ test('1. profile → meal → coffee with milk → walk → dashboard matches ma
   // Male, 30 y (born 1996-01-01), 180 cm, 80 kg → BMR 1780, base TDEE 2136
   await page.goto('/settings');
   await page.fill('#displayName', 'اختبار');
-  await page.selectOption('#gender', 'male');
+  await page.click('#gender-male');
   await page.fill('#birthDate', '1996-01-01');
   await page.fill('#heightCm', '180');
   await page.fill('#initialWeightKg', '80');
@@ -62,7 +62,8 @@ test('1. profile → meal → coffee with milk → walk → dashboard matches ma
   await expect(page.locator('#volumeMl')).toHaveValue('240');
   await expect(page.locator('#dryCoffeeG')).toHaveValue('15');
   await page.fill('#time', '09:00');
-  await page.selectOption('#milkType', 'whole');
+  await page.click('#milkType');
+  await page.getByRole('option', { name: 'كامل الدسم' }).click();
   await page.fill('#milkMl', '100');
   await page.fill('#sugarTsp', '1');
   await page.click('#save-beverage');
@@ -70,8 +71,8 @@ test('1. profile → meal → coffee with milk → walk → dashboard matches ma
 
   // Brisk walk 45 min, MET 4.3, 80 kg → net 207.9 kcal
   await page.goto('/log/activity');
-  const walkId = await page.locator('#exerciseId option', { hasText: 'مشي سريع' }).getAttribute('value');
-  await page.selectOption('#exerciseId', walkId!);
+  await page.click('#exerciseId');
+  await page.getByRole('option', { name: /مشي سريع/ }).click();
   await page.fill('#durationMinutes', '45');
   await page.click('#save-exercise');
   await expect(status(page)).toContainText('208 kcal');
@@ -88,10 +89,10 @@ test('1. profile → meal → coffee with milk → walk → dashboard matches ma
 test('2. weigh-in with 12 h fast is saved and flagged non-compliant', async ({ page }) => {
   await page.goto('/weigh-in');
   await page.waitForLoadState('networkidle'); // typing before hydration gets reset
-  const measured = await page.inputValue('#measuredAt');
-  const d = new Date(`${measured}:00Z`);
-  d.setUTCHours(d.getUTCHours() - 12);
-  await page.fill('#lastMealAt', d.toISOString().slice(0, 16));
+  // Times only: last meal = measurement clock − 12 h (rolls back to the previous evening when later than the reading)
+  const [h, m] = (await page.inputValue('#measuredAt')).split(':').map(Number);
+  await page.fill('#lastMealAt', `${String((h! + 12) % 24).padStart(2, '0')}:${String(m).padStart(2, '0')}`);
+  await page.locator('#lastMealAt').blur();
   await expect(page.getByText('القراءة الآن ستُحفظ كغير ملتزمة')).toBeVisible();
   await page.click('#wizard-next');
   await page.check('#bathroomDone');

@@ -2,11 +2,13 @@
 
 import Link from 'next/link';
 import { useState } from 'react';
-import { useFieldArray, useWatch } from 'react-hook-form';
+import { Controller, useFieldArray, useWatch } from 'react-hook-form';
 import { FoodForm } from '@/app/foods/FoodForm';
 import { Badge } from '@/components/Badge';
 import { FoodCombobox, type FoodOption } from '@/components/forms/FoodCombobox';
 import { useActionForm } from '@/components/forms/useActionForm';
+import { NumberStepper } from '@/components/inputs/controls';
+import { TimeField } from '@/components/inputs/pickers';
 import { Num } from '@/components/Num';
 import { Button, Field, FormStatus, inputClass } from '@/components/ui';
 import { clockDriftMin, driftTone } from '@/domain/meal-timing';
@@ -69,7 +71,9 @@ export function MealForm({ date, nowClock, foods, schedule }: { date: string; no
         </div>
         <div className="grid items-end gap-4 sm:grid-cols-2">
           <Field label="وقت الأكل الفعلي" htmlFor="actualTime" error={err('actualTime')}>
-            <input id="actualTime" type="time" className={inputClass} {...form.register('actualTime')} />
+            <Controller control={form.control} name="actualTime" render={({ field }) => (
+              <TimeField id="actualTime" value={field.value as string} onChange={field.onChange} onBlur={field.onBlur} invalid={Boolean(err('actualTime'))} />
+            )} />
           </Field>
           <div className="flex flex-col gap-1 pb-1 text-sm">
             {mealType === 'snack' ? (
@@ -120,11 +124,10 @@ export function MealForm({ date, nowClock, foods, schedule }: { date: string; no
               return (
                 <li key={field.id} className="grid items-center gap-3 p-3 sm:grid-cols-[minmax(0,1fr)_11rem_7rem_auto]">
                   <span className="font-semibold">{f?.nameAr ?? '—'}</span>
-                  <label className="flex items-center gap-2">
-                    <span className="sr-only">الكمية</span>
-                    <input id={`item-${i}-qty`} inputMode="decimal" aria-invalid={Boolean(err(`items.${i}.quantity`))} className={cn(inputClass, 'font-mono')} {...form.register(`items.${i}.quantity`)} />
-                    <span className="w-10 shrink-0 text-sm text-ink-muted">{f ? QUANTITY_UNIT[f.basis] : ''}</span>
-                  </label>
+                  <Controller control={form.control} name={`items.${i}.quantity`} render={({ field }) => (
+                    <NumberStepper id={`item-${i}-qty`} value={field.value} onChange={field.onChange} onBlur={field.onBlur}
+                      step={f?.basis === 'per_unit' ? 0.5 : 10} min={0} max={5000} unit={f ? QUANTITY_UNIT[f.basis] : ''} invalid={Boolean(err(`items.${i}.quantity`))} />
+                  )} />
                   <span className="text-sm">{r?.n ? <><Num value={r.n.calories} unit="kcal" /> · <Num value={r.n.protein} digits={1} unit="غ" /></> : '—'}</span>
                   <Button variant="ghost" className="px-2" aria-label={`حذف ${f?.nameAr ?? 'الصنف'}`} onClick={() => remove(i)}>✕</Button>
                   {err(`items.${i}.quantity`) && <p className="text-sm text-danger-ink sm:col-span-4">{err(`items.${i}.quantity`)}</p>}

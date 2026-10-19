@@ -4,7 +4,7 @@ import { Card } from '@/components/Card';
 import { DeleteButton } from '@/components/forms/DeleteButton';
 import { Num } from '@/components/Num';
 import { EmptyState, PageHeader, SectionTitle, Stat } from '@/components/ui';
-import { addDaysIso, arabicDayLabel, localInputOf, nowLocalInput, zonedDateTime } from '@/lib/time';
+import { addDaysIso, arabicDayLabel, localClockOf, nowClock, zonedDateTime } from '@/lib/time';
 import { deleteWeighIn } from '@/server/actions/weigh-in';
 import { getMealsBetween } from '@/server/queries/logs';
 import { resolveDate } from '@/server/queries/page';
@@ -23,7 +23,7 @@ export default async function WeighInPage() {
 
   const now = new Date();
   const lastMeal = meals.map((m) => zonedDateTime(m.date, m.actualTime, tz)).filter((d) => d <= now).sort((a, b) => b.getTime() - a.getTime())[0];
-  const suggested = lastMeal ? localInputOf(lastMeal, tz) : `${addDaysIso(today, -1)}T19:00`;
+  const suggested = lastMeal ? localClockOf(lastMeal, tz) : '';
   const latest = [...rows].reverse().find((r) => r.trend != null);
   const target = ps?.profile.targetWeightKg;
 
@@ -40,7 +40,7 @@ export default async function WeighInPage() {
       <div className="grid gap-6 xl:grid-cols-[minmax(0,3fr)_minmax(0,2fr)]">
         <Card>
           <SectionTitle>قراءة جديدة</SectionTitle>
-          <WeighInWizard nowInput={nowLocalInput(tz)} suggestedLastMeal={suggested} requiredFastingH={settings?.requiredFastingHours ?? 14} />
+          <WeighInWizard date={today} nowClock={nowClock(tz)} suggestedLastMeal={suggested} requiredFastingH={settings?.requiredFastingHours ?? 14} />
         </Card>
         <section className="flex flex-col gap-3">
           <SectionTitle>السجل</SectionTitle>

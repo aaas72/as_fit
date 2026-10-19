@@ -1,15 +1,18 @@
 'use client';
 
 import { useState } from 'react';
-import { useWatch } from 'react-hook-form';
+import { Controller, useWatch } from 'react-hook-form';
 import { Badge } from '@/components/Badge';
 import { useActionForm } from '@/components/forms/useActionForm';
+import { NumberStepper } from '@/components/inputs/controls';
+import { TimeField } from '@/components/inputs/pickers';
 import { Num } from '@/components/Num';
 import { ProgressBar } from '@/components/ProgressBar';
-import { Button, Field, FormStatus, inputClass } from '@/components/ui';
+import { Button, Field, FormStatus } from '@/components/ui';
 import { protocolCompliance } from '@/domain/weigh-in';
 import { cn } from '@/lib/cn';
-import { weighInSchema } from '@/lib/validation/schemas';
+import { earlierDateTime } from '@/lib/inputs';
+import { weighInClockSchema } from '@/lib/validation/schemas';
 import { logWeighIn } from '@/server/actions/weigh-in';
 
 const STEPS = ['الصيام', 'التحضير', 'مؤشرات الضوضاء', 'الوزن'] as const;
@@ -28,26 +31,31 @@ function YesNo({ name, value, onChange, yes, no }: { name: string; value: boolea
     </div>
   );
 }
-const asDate = (s: unknown) => (typeof s === 'string' && s.length >= 16 ? new Date(`${s}:00Z`) : null);
+const isClock = (v: unknown): v is string => typeof v === 'string' && /^d{2}:d{2}$/.test(v);
+// Wall-clock strings read as UTC: fine for the fasting-hours preview
+const asDate = (s: string) => new Date(`${s}:00Z`);
 
-export function WeighInWizard({ nowInput, suggestedLastMeal, requiredFastingH }: { nowInput: string; suggestedLastMeal: string; requiredFastingH: number }) {
+// Times only: the reading is on `date`; a last-meal clock later than the reading clock means the evening before.
+export function WeighInWizard({ date, nowClock, suggestedLastMeal, requiredFastingH }: { date: string; nowClock: string; suggestedLastMeal: string; requiredFastingH: number }) {
   const [step, setStep] = useState(0);
   const [result, setResult] = useState<{ compliant: boolean; violations: string[] } | null>(null);
   const { form, onSubmit, pending, status, err } = useActionForm({
-    schema: weighInSchema,
-    action: logWeighIn,
+    schema: weighInClockSchema,
+    action: ({ date: d, measuredClock, lastMealClock, ...rest }) =>
+      logWeighIn({ ...rest, measuredAt: `${d}T${measuredClock}`, lastMealAt: earlierDateTime(d, measuredClock, lastMealClock) }),
     defaultValues: {
-      measuredAt: nowInput, lastMealAt: suggestedLastMeal, weightKg: '',
+      date, measuredClock: nowClock, lastMealClock: suggestedLastMeal, weightKg: '',
       bathroomDone: false, noFluidsBefore: false, highSodiumYesterday: false, normalDigestion: true, isOfficialWeekly: true,
     },
     successText: (r) => (r.compliant ? 'حُفظت القراءة وهي ملتزمة بالبروتوكول.' : 'حُفظت القراءة، لكنها غير ملتزمة ولن تدخل خط الاتجاه.'),
     onSuccess: (r) => setResult({ compliant: r.compliant, violations: r.violations }),
   });
   const v = useWatch({ control: form.control }) as Record<string, unknown>;
-  const measured = asDate(v.measuredAt);
-  const lastMeal = asDate(v.lastMealAt);
-  const check = measured && lastMeal
-    ? protocolCompliance({ measuredAt: measured, lastMealAt: lastMeal, bathroomDone: Boolean(v.bathroomDone), noFluidsBefore: Boolean(v.noFluidsBefore) }, requiredFastingH)
+  const check = isClock(v.measuredClock) && isClock(v.lastMealClock)
+    ? protocolCompliance({
+      measuredAt: asDate(`${date}T${v.measuredClock}`), lastMealAt: asDate(earlierDateTime(date, v.measuredClock, v.lastMealClock)),
+      bathroomDone: Boolean(v.bathroomDone), noFluidsBefore: Boolean(v.noFluidsBefore),
+    }, requiredFastingH)
     : null;
   const fastingH = check?.fastingH ?? 0;
   type Flag = 'highSodiumYesterday' | 'normalDigestion' | 'isOfficialWeekly';
@@ -69,11 +77,15 @@ export function WeighInWizard({ nowInput, suggestedLastMeal, requiredFastingH }:
       {step === 0 && (
         <div className="flex flex-col gap-4">
           <div className="grid gap-4 sm:grid-cols-2">
-            <Field label="وقت القياس" htmlFor="measuredAt" error={err('measuredAt')}>
-              <input id="measuredAt" type="datetime-local" className={inputClass} {...form.register('measuredAt')} />
+            <Field label="وقت القياس" htmlFor="measuredAt" error={err('measuredClock')}>
+              <Controller control={form.control} name="measuredClock" render={({ field }) => (
+                <TimeField id="measuredAt" value={field.value as string} onChange={field.onChange} onBlur={field.onBlur} invalid={Boolean(err('measuredClock'))} />
+              )} />
             </Field>
-            <Field label="آخر وجبة" htmlFor="lastMealAt" error={err('lastMealAt')} hint="مقترحة آلياً من آخر وجبة مسجلة">
-              <input id="lastMealAt" type="datetime-local" className={inputClass} {...form.register('lastMealAt')} />
+            <Field label="آخر وجبة" htmlFor="lastMealAt" error={err('lastMealClock')} hint="مقترحة من آخر وجبة مسجلة. وقت أكبر من وقت القياس = مساء أمس">
+              <Controller control={form.control} name="lastMealClock" render={({ field }) => (
+                <TimeField id="lastMealAt" value={field.value as string} onChange={field.onChange} onBlur={field.onBlur} invalid={Boolean(err('lastMealClock'))} />
+              )} />
             </Field>
           </div>
           <div className="flex flex-col gap-2 rounded-lg border border-line p-4">
@@ -115,7 +127,11 @@ export function WeighInWizard({ nowInput, suggestedLastMeal, requiredFastingH }:
       {step === 3 && (
         <div className="flex flex-col gap-4">
           <Field label="الوزن (كغ)" htmlFor="weightKg" error={err('weightKg')}>
-            <input id="weightKg" inputMode="decimal" autoFocus className={cn(inputClass, 'max-w-48 font-mono text-2xl')} {...form.register('weightKg')} />
+            <div className="max-w-64">
+              <Controller control={form.control} name="weightKg" render={({ field }) => (
+                <NumberStepper id="weightKg" value={field.value} onChange={field.onChange} onBlur={field.onBlur} step={0.1} min={30} max={300} unit="كغ" invalid={Boolean(err('weightKg'))} />
+              )} />
+            </div>
           </Field>
           {check && (
             check.compliant

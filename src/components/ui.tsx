@@ -4,12 +4,13 @@ import { cn } from '@/lib/cn';
 // ───────── Buttons ─────────
 type Variant = 'primary' | 'secondary' | 'ghost' | 'danger';
 const VARIANT: Record<Variant, string> = {
-  primary: 'bg-brand-strong text-white hover:bg-brand-ink disabled:opacity-60',
+  primary: 'bg-brand-strong text-white hover:bg-brand-ink disabled:opacity-50',
   secondary: 'border border-line text-ink hover:border-brand hover:text-brand-ink disabled:opacity-60',
   ghost: 'text-ink-muted hover:bg-brand-soft hover:text-brand-ink disabled:opacity-60',
   danger: 'text-danger-ink hover:bg-danger-soft disabled:opacity-60',
 };
-const BTN = 'inline-flex items-center justify-center gap-2 rounded-lg px-4 py-2 font-semibold transition-colors duration-150 motion-reduce:transition-none disabled:cursor-not-allowed';
+// One size for every button: same height as the input fields, compact text
+const BTN = 'inline-flex h-10 items-center justify-center gap-2 rounded-lg px-5 text-sm font-semibold transition-colors duration-150 motion-reduce:transition-none disabled:cursor-not-allowed';
 
 export function Button({ variant = 'primary', className, ...rest }: React.ComponentProps<'button'> & { variant?: Variant }) {
   return <button type="button" className={cn(BTN, VARIANT[variant], className)} {...rest} />;
@@ -64,7 +65,7 @@ export function EmptyState({ title, children }: { title: string; children?: Reac
 
 // ───────── Form fields ─────────
 export const inputClass =
-  'w-full rounded-lg border border-line px-3 py-2 text-ink placeholder:text-ink-muted focus:border-brand focus:outline-none aria-[invalid=true]:border-danger';
+  'h-10 w-full rounded-lg border border-line px-3 text-sm text-ink placeholder:font-sans placeholder:text-ink-muted focus:border-brand focus:outline-none aria-[invalid=true]:border-danger';
 
 export function Field({ label, htmlFor, error, hint, children, className }: {
   label: string; htmlFor?: string; error?: string; hint?: React.ReactNode; children: React.ReactNode; className?: string;

@@ -1,8 +1,10 @@
 'use client';
 
+import { Controller } from 'react-hook-form';
 import { useActionForm } from '@/components/forms/useActionForm';
-import { Button, Field, FormStatus, inputClass } from '@/components/ui';
-import { cn } from '@/lib/cn';
+import { NumberStepper } from '@/components/inputs/controls';
+import { DateField } from '@/components/inputs/pickers';
+import { Button, Field, FormStatus } from '@/components/ui';
 import { measurementsSchema } from '@/lib/validation/schemas';
 import { logMeasurements } from '@/server/actions/measurements';
 
@@ -25,12 +27,12 @@ export function MeasurementsForm({ today }: { today: string }) {
   return (
     <form onSubmit={onSubmit} className="flex flex-col gap-5" noValidate>
       <Field label="التاريخ" htmlFor="m-date" error={err('logDate')} className="max-w-56">
-        <input id="m-date" type="date" max={today} className={inputClass} {...form.register('logDate')} />
+        <Controller control={form.control} name="logDate" render={({ field }) => (<DateField id="m-date" value={field.value as string} onChange={field.onChange} onBlur={field.onBlur} max={today} invalid={Boolean(err('logDate'))} />)} />
       </Field>
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
         {FIELDS.map((f) => (
           <Field key={f.name} label={`${f.label} (سم)`} htmlFor={f.name} error={err(f.name)} hint={'hint' in f ? f.hint : undefined}>
-            <input id={f.name} inputMode="decimal" className={cn(inputClass, 'font-mono')} {...form.register(f.name)} />
+            <Controller control={form.control} name={f.name} render={({ field }) => (<NumberStepper id={f.name} value={field.value} onChange={field.onChange} onBlur={field.onBlur} step={0.5} min={0} max={250} unit="سم" invalid={Boolean(err(f.name))} />)} />
           </Field>
         ))}
       </div>

@@ -1,10 +1,10 @@
 'use client';
 
-import { useWatch } from 'react-hook-form';
+import { Controller, useWatch } from 'react-hook-form';
 import type { FoodOption } from '@/components/forms/FoodCombobox';
 import { useActionForm } from '@/components/forms/useActionForm';
+import { NumberStepper, Segmented } from '@/components/inputs/controls';
 import { Button, Field, FormStatus, inputClass } from '@/components/ui';
-import { cn } from '@/lib/cn';
 import { BASIS_LABEL } from '@/lib/labels';
 import { BASES, foodSchema } from '@/lib/validation/schemas';
 import { saveFood } from '@/server/actions/foods';
@@ -42,16 +42,16 @@ export function FoodForm({ food, initialName = '', onDone, onCreated }: {
         <Field label="الاسم" htmlFor={`${prefix}-ar`} error={err('itemNameAr')}>
           <input id={`${prefix}-ar`} className={inputClass} {...form.register('itemNameAr')} />
         </Field>
-        <Field label="القيم الغذائية محسوبة" htmlFor={`${prefix}-basis`} hint="كما هي مكتوبة على الملصق أو في جدول القيم">
-          <select id={`${prefix}-basis`} className={inputClass} {...form.register('nutritionBasis')}>
-            {BASES.map((b) => <option key={b} value={b}>{BASIS_LABEL[b]}</option>)}
-          </select>
+        <Field label="القيم الغذائية محسوبة" htmlFor={`${prefix}-basis-per_100g`} hint="كما هي مكتوبة على الملصق أو في جدول القيم">
+          <Controller control={form.control} name="nutritionBasis" render={({ field }) => (
+            <Segmented id={`${prefix}-basis`} label="أساس القيم" value={field.value as string} onChange={field.onChange} options={BASES.map((b) => ({ value: b, label: BASIS_LABEL[b] }))} />
+          )} />
         </Field>
       </div>
-      <div className="grid grid-cols-2 gap-4 sm:grid-cols-4">
+      <div className="grid gap-4 sm:grid-cols-2">
         {([['calories', 'سعرات'], ['proteinG', 'بروتين (غ)'], ['carbsG', 'كربوهيدرات (غ)'], ['fatG', 'دهون (غ)']] as const).map(([name, label]) => (
           <Field key={name} label={`${label} ${per}`} htmlFor={`${prefix}-${name}`} error={err(name)}>
-            <input id={`${prefix}-${name}`} inputMode="decimal" className={cn(inputClass, 'font-mono')} {...form.register(name)} />
+            <Controller control={form.control} name={name} render={({ field }) => (<NumberStepper id={`${prefix}-${name}`} value={field.value} onChange={field.onChange} onBlur={field.onBlur} step={name === 'calories' ? 1 : 0.1} min={0} invalid={Boolean(err(name))} />)} />
           </Field>
         ))}
       </div>
@@ -63,7 +63,7 @@ export function FoodForm({ food, initialName = '', onDone, onCreated }: {
           </Field>
           {basis === 'per_unit' && (
             <Field label="وزن الحبة (غ)" htmlFor={`${prefix}-gpu`} error={err('gramsPerUnit')}>
-              <input id={`${prefix}-gpu`} inputMode="decimal" className={cn(inputClass, 'font-mono')} {...form.register('gramsPerUnit')} />
+              <Controller control={form.control} name="gramsPerUnit" render={({ field }) => (<NumberStepper id={`${prefix}-gpu`} value={field.value} onChange={field.onChange} onBlur={field.onBlur} step={1} min={0} max={5000} unit="غ" invalid={Boolean(err('gramsPerUnit'))} />)} />
             </Field>
           )}
         </div>
