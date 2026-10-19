@@ -15,7 +15,7 @@ const formatValue = (v: unknown): string => {
 export function InsightItem({ insight, actions, showPayload = false }: { insight: InsightView; actions?: React.ReactNode; showPayload?: boolean }) {
   const period = insight.periodStart === insight.periodEnd ? insight.periodEnd : `${insight.periodStart} ← ${insight.periodEnd}`;
   return (
-    <article className={`flex flex-col gap-2 rounded-xl border border-line border-s-4 bg-surface p-5 shadow-sm ${STRIPE[insight.severity]}`}>
+    <article className={`flex flex-col gap-2 rounded-xl border border-line border-s-4 p-5 ${STRIPE[insight.severity]}`}>
       <div className="flex flex-wrap items-center gap-2">
         <Badge tone={TONE[insight.severity]}>{SEVERITY_LABEL[insight.severity]}</Badge>
         <h3 className="font-bold">{insight.title}</h3>

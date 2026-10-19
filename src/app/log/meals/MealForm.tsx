@@ -45,7 +45,7 @@ export function MealForm({ date, nowClock, foods }: { date: string; nowClock: st
         <legend className="mb-2 text-sm font-semibold">نوع الوجبة</legend>
         <div className="flex flex-wrap gap-2">
           {MEAL_TYPES.map((t) => (
-            <label key={t} className={cn('cursor-pointer rounded-full border px-4 py-1.5 text-sm font-medium', mealType === t ? 'border-brand bg-brand-soft text-brand-ink' : 'border-line bg-surface')}>
+            <label key={t} className={cn('cursor-pointer rounded-full border px-4 py-1.5 text-sm font-medium', mealType === t ? 'border-brand bg-brand-soft text-brand-ink' : 'border-line')}>
               <input
                 type="radio" value={t} className="sr-only" id={`meal-type-${t}`}
                 {...form.register('mealType', { onChange: () => form.setValue('scheduledTime', DEFAULT_SCHEDULE[t]) })}

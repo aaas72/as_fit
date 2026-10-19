@@ -12,7 +12,8 @@ description: >-
 ## 1. فلسفة التصميم
 
 - **الروح:** لوحة تحكم رياضية وصحية تمنح شعوراً بالطاقة والنقاء والنظام.
-- **Clean & Minimalist:** مساحات بيضاء واسعة، بطاقة واحدة = فكرة واحدة، لا زخارف ولا Glassmorphism ولا تدرجات لونية.
+- **Clean & Minimalist:** مساحات واسعة، بطاقة واحدة = فكرة واحدة، لا زخارف ولا Glassmorphism ولا تدرجات لونية.
+- **لا خلفيات بيضاء ولا ظلال للمكونات** (بطاقات، جداول، تنبيهات، أزرار، حقول): الفصل بحدّ `border-line` فقط. الاستثناء الوحيد: العناصر التي تطفو فوق المحتوى (القائمة المنسدلة، الشريط السفلي في الجوال) تحتفظ بـ `bg-surface` كي تبقى مقروءة.
 - **وضع فاتح فقط** (Light). الوضع الداكن خارج النطاق حالياً.
 - `<html lang="ar" dir="rtl">`.
 - انتقالات 150–250ms، مع احترام `motion-reduce:`.
@@ -117,13 +118,13 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
 
 | المكوّن | الأصناف المرجعية |
 |---|---|
-| `Card` | `rounded-xl border border-line bg-surface shadow-sm p-6` |
+| `Card` | `rounded-xl border border-line p-6` — **بلا خلفية بيضاء وبلا ظل**؛ تظهر البطاقة على خلفية التطبيق بحدّ رفيع فقط |
 | `Stat` | تسمية `text-sm text-ink-muted` + قيمة `font-mono tabular-nums text-3xl font-semibold` + وحدة `text-sm text-ink-muted` |
 | `ProgressBar` | مسار `h-2 rounded-full bg-brand-soft` + تعبئة `h-full rounded-full bg-brand transition-[width]` (`warning`/`danger` حسب الحالة) |
 | `ProgressRing` | SVG دائري: المسار `stroke-brand-soft`، التعبئة `stroke-brand`، الرقم في المنتصف `font-mono` |
 | `Badge` | `inline-flex items-center gap-1 rounded-full px-3 py-1 text-sm font-medium bg-brand-soft text-brand-ink` (أو `warning-soft/warning-ink`، `danger-soft/danger-ink`) |
 | زر رئيسي | `rounded-lg bg-brand-strong px-4 py-2 font-semibold text-white hover:bg-brand-ink focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand` |
-| حقل | `rounded-lg border border-line bg-surface px-3 py-2 focus:border-brand focus:outline-none` |
+| حقل | `rounded-lg border border-line px-3 py-2 focus:border-brand focus:outline-none` (شفاف) |
 
 **الاستخدامات الرئيسية للتقدم:** هدف السعرات اليومي (Ring)، البروتين (Bar)، ساعات الصيام نحو 14 ساعة (Bar، يتحول `brand` عند الاكتمال).
 

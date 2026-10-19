@@ -22,7 +22,7 @@ export function FoodList({ foods }: { foods: FoodView[] }) {
   return (
     <div className="flex flex-col gap-4">
       <input id="food-search" type="search" placeholder="ابحث بالاسم…" className={inputClass} value={query} onChange={(e) => setQuery(e.target.value)} />
-      <div className="overflow-x-auto rounded-xl border border-line bg-surface shadow-sm">
+      <div className="overflow-x-auto rounded-xl border border-line">
         <table className="w-full min-w-[640px] text-sm">
           <thead className="text-ink-muted">
             <tr>{['الصنف', 'الأساس', 'سعرات', 'بروتين', 'كربوهيدرات', 'دهون', ''].map((h) => <th key={h} className="px-4 py-3 text-start font-medium">{h}</th>)}</tr>

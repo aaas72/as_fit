@@ -18,7 +18,7 @@ export function DayCompleteToggle({ date, complete }: { date: string; complete: 
       onClick={() => start(async () => { setOptimistic(!optimistic); await setDayComplete({ logDate: date, complete: !optimistic }); })}
       className={cn(
         'inline-flex items-center gap-3 rounded-lg border px-4 py-2 text-sm font-semibold transition-colors duration-150',
-        optimistic ? 'border-brand bg-brand-soft text-brand-ink' : 'border-line bg-surface text-ink hover:border-brand',
+        optimistic ? 'border-brand bg-brand-soft text-brand-ink' : 'border-line text-ink hover:border-brand',
       )}
     >
       <span className={cn('relative h-5 w-9 rounded-full transition-colors', optimistic ? 'bg-brand' : 'bg-line')}>

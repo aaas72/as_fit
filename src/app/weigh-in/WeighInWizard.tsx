@@ -20,7 +20,7 @@ function YesNo({ name, value, onChange, yes, no }: { name: string; value: boolea
       {[true, false].map((val) => (
         <button
           key={String(val)} type="button" id={`${name}-${val}`} aria-pressed={value === val} onClick={() => onChange(val)}
-          className={cn('rounded-full border px-4 py-1.5 text-sm font-medium', value === val ? 'border-brand bg-brand-soft text-brand-ink' : 'border-line bg-surface')}
+          className={cn('rounded-full border px-4 py-1.5 text-sm font-medium', value === val ? 'border-brand bg-brand-soft text-brand-ink' : 'border-line')}
         >
           {val ? yes : no}
         </button>

@@ -5,7 +5,7 @@ import { addDaysIso, arabicDayLabel } from '@/lib/time';
 export function DateNav({ path, date, today }: { path: string; date: string; today: string }) {
   const prev = addDaysIso(date, -1);
   const next = addDaysIso(date, 1);
-  const link = 'rounded-lg border border-line bg-surface px-3 py-1.5 text-sm font-medium hover:border-brand hover:text-brand-ink';
+  const link = 'rounded-lg border border-line px-3 py-1.5 text-sm font-medium hover:border-brand hover:text-brand-ink';
   return (
     <div className="flex items-center gap-2" aria-label="اختيار اليوم">
       <Link id="date-prev" href={`${path}?date=${prev}`} className={link} aria-label="اليوم السابق">→</Link>

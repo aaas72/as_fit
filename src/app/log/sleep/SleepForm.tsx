@@ -46,7 +46,7 @@ export function SleepForm({ defaults }: { defaults: { bedTime: string; sleepOnse
           <legend className="mb-1 text-sm font-semibold">الانتعاش عند الاستيقاظ</legend>
           <div className="flex gap-1">
             {[1, 2, 3, 4, 5].map((n) => (
-              <label key={n} className={cn('grid size-10 cursor-pointer place-items-center rounded-lg border font-mono font-semibold', Number(freshness) === n ? 'border-brand bg-brand-soft text-brand-ink' : 'border-line bg-surface')}>
+              <label key={n} className={cn('grid size-10 cursor-pointer place-items-center rounded-lg border font-mono font-semibold', Number(freshness) === n ? 'border-brand bg-brand-soft text-brand-ink' : 'border-line')}>
                 <input type="radio" value={n} className="sr-only" id={`freshness-${n}`} {...form.register('freshness')} />
                 {n}
               </label>

@@ -31,8 +31,8 @@ export default async function InsightsPage({ searchParams }: { searchParams: Pro
     <div className="flex flex-col gap-6">
       <PageHeader title="التنبيهات" description="كل تنبيه يعرض الأرقام التي أدت إليه. التنبيهات إرشادية وليست تشخيصاً طبياً." actions={<RefreshButton />} />
       <div className="flex gap-2">
-        <Link href="/insights" className={cn(tab, !all ? 'border-brand bg-brand-soft text-brand-ink' : 'border-line bg-surface')}>النشطة</Link>
-        <Link href="/insights?show=all" className={cn(tab, all ? 'border-brand bg-brand-soft text-brand-ink' : 'border-line bg-surface')}>الكل (مع المتجاهلة)</Link>
+        <Link href="/insights" className={cn(tab, !all ? 'border-brand bg-brand-soft text-brand-ink' : 'border-line')}>النشطة</Link>
+        <Link href="/insights?show=all" className={cn(tab, all ? 'border-brand bg-brand-soft text-brand-ink' : 'border-line')}>الكل (مع المتجاهلة)</Link>
       </div>
 
       <div className="grid gap-6 xl:grid-cols-[minmax(0,2fr)_minmax(0,1fr)]">
@@ -44,7 +44,7 @@ export default async function InsightsPage({ searchParams }: { searchParams: Pro
             </div>
           ))}
         </div>
-        <aside className="flex flex-col gap-2 self-start rounded-xl border border-line bg-surface p-5 shadow-sm">
+        <aside className="flex flex-col gap-2 self-start rounded-xl border border-line p-5">
           <h2 className="font-bold">القواعد المفعّلة</h2>
           <ul className="flex flex-col gap-2 text-sm">
             {RULES.map(([code, text]) => (

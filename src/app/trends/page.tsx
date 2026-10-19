@@ -58,7 +58,7 @@ export default async function TrendsPage({ searchParams }: { searchParams: Promi
       <PageHeader
         title="الاتجاهات"
         description="الوزن يُقرأ عبر خط الاتجاه لا القراءة المفردة. الحرق الفعلي يُحسب بالانحدار الخطي على القراءات الملتزمة بعد 14 يوماً."
-        actions={<div className="flex gap-2">{RANGES.map((r) => <Link key={r} href={`/trends?range=${r}`} className={cn(tab, r === range ? 'border-brand bg-brand-soft text-brand-ink' : 'border-line bg-surface')}><bdi className="font-mono">{r}</bdi> يوماً</Link>)}</div>}
+        actions={<div className="flex gap-2">{RANGES.map((r) => <Link key={r} href={`/trends?range=${r}`} className={cn(tab, r === range ? 'border-brand bg-brand-soft text-brand-ink' : 'border-line')}><bdi className="font-mono">{r}</bdi> يوماً</Link>)}</div>}
       />
 
       <Card className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
