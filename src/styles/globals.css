@@ -17,16 +17,18 @@
   --color-brand-ink: #047857;
   --color-brand-soft: #ECFDF5;
 
-  --color-warning: #F59E0B;
-  --color-warning-ink: #B45309;
-  --color-warning-soft: #FFFBEB;
+  /* No yellow, orange, red or bright colors (user decision). Attention states use calm grays;
+     their meaning is always carried by the text label, never by color alone. */
+  --color-warning: #94A3B8;
+  --color-warning-ink: #475569;
+  --color-warning-soft: #F1F5F9;
 
-  --color-danger: #EF4444;
-  --color-danger-ink: #B91C1C;
-  --color-danger-soft: #FEF2F2;
+  --color-danger: #64748B;
+  --color-danger-ink: #1E293B;
+  --color-danger-soft: #E2E8F0;
 
-  /* Second chart series (validated against brand for contrast + color-blind separation) */
-  --color-series-2: #4F46E5;
+  /* Second chart series: muted slate, paired with a dashed line or hollow marks to stay distinguishable */
+  --color-series-2: #475569;
 
   --font-sans: var(--font-cairo), system-ui, sans-serif;
   --font-mono: var(--font-mono-num), ui-monospace, monospace;

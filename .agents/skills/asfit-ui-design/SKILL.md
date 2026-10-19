@@ -31,10 +31,12 @@ description: >-
 | الأساسي (أزرار) | `brand-strong` | `#059669` | الأزرار الرئيسية، الحالة النشطة |
 | أخضر للنص | `brand-ink` | `#047857` | نص أخضر على أبيض (تباين كافٍ) |
 | أخضر باهت | `brand-soft` | `#ECFDF5` | خلفية الوسوم والتحديد |
-| تحذير | `warning` / `warning-ink` / `warning-soft` | `#F59E0B` / `#B45309` / `#FFFBEB` | Time Drift، صيام غير مكتمل |
-| خطر | `danger` / `danger-ink` / `danger-soft` | `#EF4444` / `#B91C1C` / `#FEF2F2` | تجاوز السعرات، عدم التزام |
+| انتباه | `warning` / `warning-ink` / `warning-soft` | `#94A3B8` / `#475569` / `#F1F5F9` | Time Drift، صيام غير مكتمل (رمادي هادئ) |
+| تجاوز / غير ملتزم | `danger` / `danger-ink` / `danger-soft` | `#64748B` / `#1E293B` / `#E2E8F0` | تجاوز السعرات، قراءة غير ملتزمة (رمادي أغمق) |
 
-> ⚠ `#10B981` و `#F59E0B` و `#EF4444` للتعبئة والأيقونات والأشرطة فقط، **لا للنص الصغير على الأبيض** (تباين غير كافٍ). للنص استخدم نسخة `-ink`.
+> **ممنوع تماماً: الأصفر والبرتقالي والأحمر وأي لون فاقع** (قرار المستخدم). الهوية = الأخضر + الرماديات فقط. حالات الانتباه تُميَّز بدرجة الرمادي **وبنص الوسم دائماً**، لا باللون وحده.
+
+> ⚠ `#10B981` للتعبئة والأيقونات والأشرطة فقط، **لا للنص الصغير** (تباين غير كافٍ). للنص استخدم نسخة `-ink`.
 
 ### ربط الحالات بالألوان
 
@@ -70,13 +72,13 @@ description: >-
   --color-brand-ink: #047857;
   --color-brand-soft: #ECFDF5;
 
-  --color-warning: #F59E0B;
-  --color-warning-ink: #B45309;
-  --color-warning-soft: #FFFBEB;
+  --color-warning: #94A3B8;
+  --color-warning-ink: #475569;
+  --color-warning-soft: #F1F5F9;
 
-  --color-danger: #EF4444;
-  --color-danger-ink: #B91C1C;
-  --color-danger-soft: #FEF2F2;
+  --color-danger: #64748B;
+  --color-danger-ink: #1E293B;
+  --color-danger-soft: #E2E8F0;
 
   --font-sans: var(--font-cairo), system-ui, sans-serif;
   --font-mono: var(--font-mono-num), ui-monospace, monospace;
@@ -138,7 +140,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
 - Whitespace واسع: `gap-6` بين البطاقات، `p-6` داخلها، شبكة `grid gap-6 sm:grid-cols-2 lg:grid-cols-3`.
 - النماذج: React Hook Form + Zod (نفس مخطط الـ Action) عبر `useActionForm` (`src/components/forms/useActionForm.ts`).
 - الأسماء الفعلية للمكونات: `ui.tsx` (Button، ButtonLink، PageHeader، SectionTitle، Stat، EmptyState، Field، FormStatus، inputClass)، `Card`، `Badge`، `Num`، `ProgressBar`، `ProgressRing`، `Icon`، `NavLinks` (SideNav + BottomNav للجوال)، `DateNav`، `InsightItem`، `charts.tsx`، و`forms/` (FoodCombobox، DeleteButton، DayCompleteToggle).
-- لون السلسلة الثانية في الرسوم: `--color-series-2: #4F46E5` (متحقق منه مع الأخضر للتباين وعمى الألوان).
+- لون السلسلة الثانية في الرسوم: `--color-series-2: #475569` (رمادي هادئ) ويُرفق دائماً بخط متقطع أو نقاط مفرغة ليتميّز عن الأخضر.
 - الرسوم بـ Recharts داخل Client Components فقط؛ `ResponsiveContainer`، المحور السيني `reversed` (RTL)، والألوان عبر متغيرات الـ Tokens: `stroke="var(--color-brand)"`، الشبكة `var(--color-line)`، المحاور `var(--color-ink-muted)`. خط EMA بـ `brand`، القراءات الخام نقاط `ink-muted`.
 - كل عنصر تفاعلي يحمل `id` وصفياً فريداً (لـ Playwright).
 - SEO: `metadata` لكل صفحة (title + description) و `<h1>` واحد.
