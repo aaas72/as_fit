@@ -25,6 +25,7 @@ export default async function SettingsPage() {
             plannedDeficit: s?.plannedDeficit ?? 500, proteinPerKg: s?.proteinPerKg ?? 1.8, useNetMet: s?.useNetMet ?? true,
             caffeineMgPerG: s?.caffeineMgPerG ?? 11, caffeineHalfLifeH: s?.caffeineHalfLifeH ?? 5,
             requiredFastingHours: s?.requiredFastingHours ?? 14, kcalPerKg: s?.kcalPerKg ?? 7700, emaAlpha: s?.emaAlpha ?? 0.1,
+            breakfastTime: s?.mealSchedule.breakfast ?? '', lunchTime: s?.mealSchedule.lunch ?? '', dinnerTime: s?.mealSchedule.dinner ?? '',
           }}
         />
       </Card>

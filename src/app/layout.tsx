@@ -17,7 +17,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
     <html lang="ar" dir="rtl" className={`${cairo.variable} ${mono.variable}`}>
       <body className="min-h-dvh">
         <div className="mx-auto flex min-h-dvh max-w-7xl gap-8 px-4 sm:px-6">
-          <aside className="sticky top-0 hidden h-dvh w-60 shrink-0 flex-col gap-8 overflow-y-auto py-8 lg:flex">
+          <aside className="sticky top-0 hidden h-dvh w-60 shrink-0 flex-col gap-8 overflow-y-auto py-8 [scrollbar-width:none] lg:flex [&::-webkit-scrollbar]:hidden">
             <Link href="/" className="px-3 text-2xl font-extrabold text-brand-ink">AS_FIT</Link>
             <SideNav />
           </aside>

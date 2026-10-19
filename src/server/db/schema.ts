@@ -27,11 +27,6 @@ const tstz = (name: string) => timestamp(name, { withTimezone: true });
 export const genderEnum = pgEnum('gender_t', ['male', 'female']);
 export const mealTypeEnum = pgEnum('meal_type_t', ['breakfast', 'lunch', 'dinner', 'snack']);
 export const nutritionBasisEnum = pgEnum('nutrition_basis_t', ['per_100g', 'per_100ml', 'per_unit']);
-export const drinkTypeEnum = pgEnum('drink_type_t', [
-  'coffee_brewed', 'coffee_turkish', 'coffee_instant',
-  'espresso', 'tea_black', 'tea_green',
-  'water', 'soda_zero', 'herbal',
-]);
 export const milkTypeEnum = pgEnum('milk_type_t', ['none', 'whole', 'semi_skimmed', 'skimmed']);
 export const insightSeverityEnum = pgEnum('insight_severity_t', ['info', 'warning', 'critical']);
 
@@ -66,6 +61,10 @@ export const userSettings = pgTable('user_settings', {
   requiredFastingHours: integer('required_fasting_hours').notNull().default(14),
   kcalPerKgFat: integer('kcal_per_kg_fat').notNull().default(7700),
   emaAlphaDaily: numeric('ema_alpha_daily', { precision: 3, scale: 2 }).notNull().default('0.10'),
+  // Meal schedule (user-defined; null = no scheduled time → no drift for that meal). Snacks are never scheduled.
+  breakfastTime: time('breakfast_time'),
+  lunchTime: time('lunch_time'),
+  dinnerTime: time('dinner_time'),
 }, (t) => [
   check('user_settings_deficit_ck', sql`${t.plannedDailyDeficitKcal} BETWEEN 0 AND 1200`),
   check('user_settings_protein_ck', sql`${t.proteinGPerKg} BETWEEN 0.8 AND 3.0`),
@@ -122,12 +121,35 @@ export const mealItems = pgTable('meal_items', {
 ]);
 
 // ───────────── Beverages ─────────────
+// User-defined drinks (the list starts empty). Values per 100 ml of the drink itself, before milk and sugar.
+export const beverageCatalog = pgTable('beverage_catalog', {
+  id: serial('id').primaryKey(),
+  userId: integer('user_id').notNull().references(() => userProfiles.id, { onDelete: 'cascade' }),
+  nameAr: varchar('name_ar', { length: 120 }).notNull(),
+  // true: caffeine = ground-coffee grams × user_settings.caffeine_mg_per_g_coffee (when grams are given)
+  byCoffeeWeight: boolean('by_coffee_weight').notNull().default(false),
+  caffeineMgPer100ml: numeric('caffeine_mg_per_100ml', { precision: 6, scale: 1 }).notNull().default('0'),
+  kcalPer100ml: numeric('kcal_per_100ml', { precision: 6, scale: 1 }).notNull().default('0'),
+  proteinGPer100ml: numeric('protein_g_per_100ml', { precision: 5, scale: 1 }).notNull().default('0'),
+  defaultVolumeMl: numeric('default_volume_ml', { precision: 6, scale: 1 }).notNull().default('250'),
+  defaultCoffeeG: numeric('default_coffee_g', { precision: 5, scale: 1 }),
+  isActive: boolean('is_active').notNull().default(true),
+  createdAt: tstz('created_at').notNull().defaultNow(),
+}, (t) => [
+  unique('beverage_catalog_user_name_uq').on(t.userId, t.nameAr),
+  check('bev_cat_caffeine_ck', sql`${t.caffeineMgPer100ml} >= 0`),
+  check('bev_cat_kcal_ck', sql`${t.kcalPer100ml} >= 0`),
+  check('bev_cat_protein_ck', sql`${t.proteinGPer100ml} >= 0`),
+  check('bev_cat_volume_ck', sql`${t.defaultVolumeMl} > 0`),
+]);
+
 export const beverageLogs = pgTable('beverage_logs', {
   id: serial('id').primaryKey(),
   userId: integer('user_id').notNull().references(() => userProfiles.id, { onDelete: 'cascade' }),
   logDate: date('log_date').notNull(),
   consumedAt: tstz('consumed_at').notNull(),
-  drinkType: drinkTypeEnum('drink_type').notNull(),
+  beverageId: integer('beverage_id').references(() => beverageCatalog.id, { onDelete: 'set null' }),
+  drinkName: varchar('drink_name', { length: 120 }).notNull(), // snapshot: history survives renames/deletes
   liquidVolumeMl: numeric('liquid_volume_ml', { precision: 6, scale: 1 }).notNull(),
   dryCoffeeGrams: numeric('dry_coffee_grams', { precision: 5, scale: 1 }),
   milkType: milkTypeEnum('milk_type').notNull().default('none'),
@@ -138,7 +160,9 @@ export const beverageLogs = pgTable('beverage_logs', {
   milkCalories: numeric('milk_calories', { precision: 6, scale: 1 }).notNull().default('0'),
   milkProteinG: numeric('milk_protein_g', { precision: 5, scale: 1 }).notNull().default('0'),
   sugarCalories: numeric('sugar_calories', { precision: 6, scale: 1 }).notNull().default('0'),
-  totalCalories: numeric('total_calories', { precision: 6, scale: 1 }).generatedAlwaysAs(sql`milk_calories + sugar_calories`),
+  baseCalories: numeric('base_calories', { precision: 6, scale: 1 }).notNull().default('0'),   // the drink itself (juice, soda…)
+  baseProteinG: numeric('base_protein_g', { precision: 5, scale: 1 }).notNull().default('0'),
+  totalCalories: numeric('total_calories', { precision: 6, scale: 1 }).generatedAlwaysAs(sql`base_calories + milk_calories + sugar_calories`),
 }, (t) => [
   index('idx_bev_user_date').on(t.userId, t.logDate),
   check('bev_volume_ck', sql`${t.liquidVolumeMl} >= 0`),

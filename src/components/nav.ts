@@ -31,6 +31,7 @@ export const NAV_GROUPS: { title: string; items: NavItem[] }[] = [
     title: 'الإدارة',
     items: [
       { href: '/foods', label: 'قاموس الأغذية', icon: 'book' },
+      { href: '/drinks', label: 'قائمة المشروبات', icon: 'cup' },
       { href: '/settings', label: 'الإعدادات', icon: 'gear' },
     ],
   },

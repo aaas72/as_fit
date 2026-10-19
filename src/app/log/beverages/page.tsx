@@ -8,10 +8,10 @@ import { ProgressBar } from '@/components/ProgressBar';
 import { EmptyState, PageHeader, SectionTitle, Stat } from '@/components/ui';
 import { caffeineLevel, residualCaffeineMg } from '@/domain/caffeine-kinetics';
 import { CAFFEINE_DAILY_SAFE_MG } from '@/domain/constants';
-import { DRINK_LABEL, MILK_LABEL } from '@/lib/labels';
+import { MILK_LABEL } from '@/lib/labels';
 import { addDaysIso, localClockOf, nowClock } from '@/lib/time';
 import { deleteBeverage } from '@/server/actions/beverages';
-import { getBeveragesBetween } from '@/server/queries/logs';
+import { getBeveragesBetween, getDrinks } from '@/server/queries/logs';
 import { resolveDate, type DateSearchParams } from '@/server/queries/page';
 import { getProfileAndSettings } from '@/server/queries/profile';
 import { USER_ID } from '@/server/session';
@@ -23,7 +23,7 @@ const LEVEL = { low: ['brand', 'ضئيل'], moderate: ['warning', 'متوسط'],
 
 export default async function BeveragesPage({ searchParams }: { searchParams: DateSearchParams }) {
   const { tz, today, date } = await resolveDate(searchParams);
-  const [ps, rows] = await Promise.all([getProfileAndSettings(USER_ID), getBeveragesBetween(USER_ID, addDaysIso(date, -1), date)]);
+  const [ps, rows, drinks] = await Promise.all([getProfileAndSettings(USER_ID), getBeveragesBetween(USER_ID, addDaysIso(date, -1), date), getDrinks(USER_ID, { activeOnly: true })]);
   const settings = ps?.settings;
   const todays = rows.filter((b) => b.date === date);
   const caffeineToday = todays.reduce((s, b) => s + b.caffeineMg, 0);
@@ -32,7 +32,7 @@ export default async function BeveragesPage({ searchParams }: { searchParams: Da
 
   return (
     <div className="flex flex-col gap-6">
-      <PageHeader title="المشروبات" description="الكافيين يُحسب من وزن البن عند توفره، وإلا من حجم المشروب. سعرات الحليب والسكر تُحسب آلياً." actions={<DateNav path="/log/beverages" date={date} today={today} />} />
+      <PageHeader title="المشروبات" description="اختر من مشروباتك أنت. الكافيين والسعرات تُحسب من قيم المشروب في قائمتك، وسعرات الحليب والسكر آلياً." actions={<DateNav path="/log/beverages" date={date} today={today} />} />
 
       <Card className="grid gap-6 sm:grid-cols-3">
         <div className="flex flex-col gap-2">
@@ -51,7 +51,7 @@ export default async function BeveragesPage({ searchParams }: { searchParams: Da
       <div className="grid gap-6 xl:grid-cols-[minmax(0,3fr)_minmax(0,2fr)]">
         <Card>
           <SectionTitle>مشروب جديد</SectionTitle>
-          <BeverageForm key={date} date={date} nowClock={date === today ? nowClock(tz) : '09:00'} caffeineMgPerG={settings?.caffeineMgPerG ?? 11} />
+          <BeverageForm key={date} date={date} nowClock={nowClock(tz)} caffeineMgPerG={settings?.caffeineMgPerG ?? 11} drinks={drinks} />
         </Card>
         <section className="flex flex-col gap-3">
           <SectionTitle aside={<Badge>{todays.length}</Badge>}>مشروبات اليوم</SectionTitle>
@@ -60,7 +60,7 @@ export default async function BeveragesPage({ searchParams }: { searchParams: Da
             <Card key={b.id} className="flex flex-wrap items-center gap-3 p-4">
               <bdi className="font-mono text-sm text-ink-muted">{localClockOf(b.consumedAt, tz)}</bdi>
               <div className="min-w-0 flex-1">
-                <p className="font-semibold">{DRINK_LABEL[b.drinkType]}</p>
+                <p className="font-semibold">{b.drinkName}</p>
                 <p className="text-sm text-ink-muted">
                   <bdi className="font-mono">{b.volumeMl} مل</bdi>
                   {b.dryCoffeeG != null && <> · <bdi className="font-mono">{b.dryCoffeeG} غ بن</bdi></>}

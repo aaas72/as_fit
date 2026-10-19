@@ -2,7 +2,7 @@ import { expect, test } from '@playwright/test';
 
 // Visual smoke test: every page renders without console errors or horizontal overflow, at desktop and phone width.
 // Screenshots land in test-results/screens for review. Runs after flows.spec.ts so pages have data.
-const PAGES = ['/', '/log/meals', '/log/beverages', '/log/activity', '/log/screen', '/log/sleep', '/weigh-in', '/measurements', '/trends', '/insights', '/foods', '/settings'];
+const PAGES = ['/', '/log/meals', '/log/beverages', '/log/activity', '/log/screen', '/log/sleep', '/weigh-in', '/measurements', '/trends', '/insights', '/foods', '/drinks', '/settings'];
 const VIEWPORTS = [{ name: 'desktop', width: 1440, height: 1000 }, { name: 'phone', width: 390, height: 844 }];
 
 for (const vp of VIEWPORTS) {

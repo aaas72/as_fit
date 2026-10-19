@@ -14,7 +14,7 @@ export function useActionForm<S extends z.ZodTypeAny, R extends object>(opts: {
   action: (values: z.output<S>) => Promise<ActionResult<R>>;
   defaultValues: DefaultValues<z.input<S> & FieldValues>;
   successText: string | ((res: { ok: true } & R) => string);
-  onSuccess?: (res: { ok: true } & R) => void;
+  onSuccess?: (res: { ok: true } & R, values: z.output<S>) => void;
 }) {
   const form = useForm<z.input<S> & FieldValues, unknown, z.output<S>>({
     resolver: zodResolver(opts.schema),
@@ -29,7 +29,7 @@ export function useActionForm<S extends z.ZodTypeAny, R extends object>(opts: {
       const res = await opts.action(values);
       if (res.ok) {
         setStatus({ tone: 'brand', text: typeof opts.successText === 'function' ? opts.successText(res) : opts.successText });
-        opts.onSuccess?.(res);
+        opts.onSuccess?.(res, values);
         return;
       }
       for (const [field, msgs] of Object.entries(res.errors ?? {})) {

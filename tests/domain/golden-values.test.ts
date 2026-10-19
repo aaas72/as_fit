@@ -58,20 +58,34 @@ describe('nutrition', () => {
   it('per_unit', () => expect(portionNutrition({ basis: 'per_unit', calories: 72, protein: 6.3, fat: 5 }, 2)).toMatchObject({ calories: 144, protein: 12.6, fat: 10 }));
 });
 
-describe('beverages', () => {
+describe('beverages (user-defined drinks)', () => {
+  const coffee = { byCoffeeWeight: true, caffeineMgPer100ml: 40, kcalPer100ml: 0, proteinGPer100ml: 0 };
+  const tea = { byCoffeeWeight: false, caffeineMgPer100ml: 20, kcalPer100ml: 0, proteinGPer100ml: 0 };
+  const juice = { byCoffeeWeight: false, caffeineMgPer100ml: 0, kcalPer100ml: 45, proteinGPer100ml: 0.7 };
   it('caffeine by weight 18 g × 11 = 198', () =>
-    expect(beverageMetrics({ drinkType: 'coffee_brewed', volumeMl: 200, dryCoffeeG: 18, milkType: 'none', milkMl: 0, sugarTsp: 0 }).caffeineMg).toBe(198));
-  it('caffeine by volume', () =>
-    expect(beverageMetrics({ drinkType: 'tea_black', volumeMl: 240, milkType: 'none', milkMl: 0, sugarTsp: 0 }).caffeineMg).toBeCloseTo(48));
+    expect(beverageMetrics({ drink: coffee, volumeMl: 200, dryCoffeeG: 18, milkType: 'none', milkMl: 0, sugarTsp: 0 }).caffeineMg).toBe(198));
+  it('coffee without grams falls back to mg per 100 ml', () =>
+    expect(beverageMetrics({ drink: coffee, volumeMl: 240, dryCoffeeG: null, milkType: 'none', milkMl: 0, sugarTsp: 0 }).caffeineMg).toBeCloseTo(96));
+  it('caffeine by volume: 240 ml × 20/100 = 48', () =>
+    expect(beverageMetrics({ drink: tea, volumeMl: 240, milkType: 'none', milkMl: 0, sugarTsp: 0 }).caffeineMg).toBeCloseTo(48));
+  it('grams ignored for non-coffee drinks', () =>
+    expect(beverageMetrics({ drink: tea, volumeMl: 100, dryCoffeeG: 18, milkType: 'none', milkMl: 0, sugarTsp: 0 }).caffeineMg).toBeCloseTo(20));
+  it('drink own calories and protein: 250 ml juice = 112.5 kcal, 1.75 g', () => {
+    const m = beverageMetrics({ drink: juice, volumeMl: 250, milkType: 'none', milkMl: 0, sugarTsp: 0 });
+    expect(m.baseKcal).toBeCloseTo(112.5);
+    expect(m.proteinG).toBeCloseTo(1.75);
+  });
   it('sugar 2 tsp = 33.6 kcal', () =>
-    expect(beverageMetrics({ drinkType: 'water', volumeMl: 0, milkType: 'none', milkMl: 0, sugarTsp: 2 }).sugarKcal).toBeCloseTo(33.6));
-  it('milk 200 ml whole: 124 kcal, 6.6 g protein (A9)', () => {
-    const m = beverageMetrics({ drinkType: 'coffee_instant', volumeMl: 200, milkType: 'whole', milkMl: 200, sugarTsp: 0 });
+    expect(beverageMetrics({ drink: tea, volumeMl: 0, milkType: 'none', milkMl: 0, sugarTsp: 2 }).sugarKcal).toBeCloseTo(33.6));
+  it('milk 200 ml whole: 124 kcal, 6.6 g protein (A9); totals add up', () => {
+    const m = beverageMetrics({ drink: juice, volumeMl: 100, milkType: 'whole', milkMl: 200, sugarTsp: 1 });
     expect(m.milkKcal).toBeCloseTo(124);
     expect(m.milkProteinG).toBeCloseTo(6.6);
+    expect(m.totalKcal).toBeCloseTo(45 + 124 + 16.8);
+    expect(m.proteinG).toBeCloseTo(0.7 + 6.6);
   });
   it('milk ignored when type is none', () =>
-    expect(beverageMetrics({ drinkType: 'espresso', volumeMl: 30, milkType: 'none', milkMl: 100, sugarTsp: 0 }).milkProteinG).toBe(0));
+    expect(beverageMetrics({ drink: tea, volumeMl: 30, milkType: 'none', milkMl: 100, sugarTsp: 0 }).milkProteinG).toBe(0));
 });
 
 describe('caffeine kinetics', () => {

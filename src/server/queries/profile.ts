@@ -25,7 +25,11 @@ export type Settings = {
   requiredFastingHours: number;
   kcalPerKg: number;
   emaAlpha: number;
+  mealSchedule: MealSchedule;
 };
+
+// HH:MM per scheduled meal; null = not scheduled. Snacks are never scheduled.
+export type MealSchedule = { breakfast: string | null; lunch: string | null; dinner: string | null };
 
 export const DEFAULT_TIMEZONE = process.env.APP_TIMEZONE ?? 'Asia/Riyadh';
 
@@ -60,6 +64,11 @@ export async function getProfileAndSettings(userId: number): Promise<{ profile: 
       requiredFastingHours: s?.requiredFastingHours ?? 14,
       kcalPerKg: s?.kcalPerKgFat ?? 7700,
       emaAlpha: Number(s?.emaAlphaDaily ?? 0.1),
+      mealSchedule: {
+        breakfast: s?.breakfastTime?.slice(0, 5) ?? null,
+        lunch: s?.lunchTime?.slice(0, 5) ?? null,
+        dinner: s?.dinnerTime?.slice(0, 5) ?? null,
+      },
     },
   };
 }

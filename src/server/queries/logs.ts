@@ -1,7 +1,7 @@
 import { and, asc, between, desc, eq, inArray, isNull } from 'drizzle-orm';
 import { db } from '@/server/db/client';
 import {
-  beverageLogs, bodyMeasurements, dayStatus, exerciseCatalog, exerciseLogs, foodDictionary, insights,
+  beverageCatalog, beverageLogs, bodyMeasurements, dayStatus, exerciseCatalog, exerciseLogs, foodDictionary, insights,
   mealItems, meals, screenTimeLogs, sleepLogs,
 } from '@/server/db/schema';
 
@@ -53,7 +53,8 @@ export async function getBeveragesBetween(userId: number, from: string, to: stri
     id: b.id,
     date: b.logDate,
     consumedAt: b.consumedAt,
-    drinkType: b.drinkType,
+    beverageId: b.beverageId,
+    drinkName: b.drinkName,
     volumeMl: Number(b.liquidVolumeMl),
     dryCoffeeG: n(b.dryCoffeeGrams),
     milkType: b.milkType,
@@ -61,10 +62,23 @@ export async function getBeveragesBetween(userId: number, from: string, to: stri
     sugarTsp: Number(b.sugarTeaspoons),
     caffeineMg: Number(b.caffeineMg),
     kcal: Number(b.totalCalories),
-    milkProteinG: Number(b.milkProteinG),
+    proteinG: Number(b.milkProteinG) + Number(b.baseProteinG),
   }));
 }
 export type BeverageView = Awaited<ReturnType<typeof getBeveragesBetween>>[number];
+
+// The user's own drink list (starts empty)
+export async function getDrinks(userId: number, opts: { activeOnly?: boolean } = {}) {
+  const rows = await db.select().from(beverageCatalog)
+    .where(and(eq(beverageCatalog.userId, userId), opts.activeOnly ? eq(beverageCatalog.isActive, true) : undefined))
+    .orderBy(asc(beverageCatalog.nameAr));
+  return rows.map((d) => ({
+    id: d.id, nameAr: d.nameAr, byCoffeeWeight: d.byCoffeeWeight,
+    caffeineMgPer100ml: Number(d.caffeineMgPer100ml), kcalPer100ml: Number(d.kcalPer100ml), proteinGPer100ml: Number(d.proteinGPer100ml),
+    defaultVolumeMl: Number(d.defaultVolumeMl), defaultCoffeeG: n(d.defaultCoffeeG), isActive: d.isActive,
+  }));
+}
+export type DrinkView = Awaited<ReturnType<typeof getDrinks>>[number];
 
 // ───────── Exercise ─────────
 export const getExerciseCatalog = () => db.select().from(exerciseCatalog).orderBy(asc(exerciseCatalog.defaultMet));

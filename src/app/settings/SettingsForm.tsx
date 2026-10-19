@@ -40,6 +40,20 @@ export function SettingsForm({ initial }: { initial: ProfileInput }) {
         </div>
       </section>
 
+      <section id="meal-schedule" className="flex scroll-mt-8 flex-col gap-4">
+        <div>
+          <h2 className="text-lg font-bold">جدول الوجبات</h2>
+          <p className="text-sm text-ink-muted">مواعيدك المعتادة. كل وجبة تُقارن بموعدها هنا لحساب التأخير أو التبكير. اترك الموعد فارغاً إن لم تكن الوجبة مجدولة.</p>
+        </div>
+        <div className="grid gap-4 sm:grid-cols-3">
+          {([['breakfastTime', 'الفطور'], ['lunchTime', 'الغداء'], ['dinnerTime', 'العشاء']] as const).map(([name, label]) => (
+            <Field key={name} label={label} htmlFor={name} error={err(name)}>
+              <input id={name} type="time" className={inputClass} {...r(name)} />
+            </Field>
+          ))}
+        </div>
+      </section>
+
       <section className="flex flex-col gap-4">
         <h2 className="text-lg font-bold">الأهداف</h2>
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">

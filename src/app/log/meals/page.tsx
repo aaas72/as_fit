@@ -55,7 +55,7 @@ export default async function MealsPage({ searchParams }: { searchParams: DateSe
       <div className="grid gap-6 xl:grid-cols-[minmax(0,3fr)_minmax(0,2fr)]">
         <Card>
           <SectionTitle>وجبة جديدة</SectionTitle>
-          <MealForm key={date} date={date} nowClock={date === today ? nowClock(tz) : '13:30'} foods={foods} />
+          <MealForm key={date} date={date} nowClock={nowClock(tz)} foods={foods} schedule={model?.settings.mealSchedule ?? { breakfast: null, lunch: null, dinner: null }} />
         </Card>
 
         <section className="flex flex-col gap-4">

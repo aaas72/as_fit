@@ -6,6 +6,7 @@ import { mealSchema } from '@/lib/validation/schemas';
 import type { ActionResult } from '@/lib/validation/common';
 import { db } from '@/server/db/client';
 import { foodDictionary, mealItems, meals } from '@/server/db/schema';
+import { getProfileAndSettings } from '@/server/queries/profile';
 import { failure, invalid, refreshAll, toNumStr } from '@/server/services/action-helpers';
 import { runInsights } from '@/server/services/insights-runner';
 import { USER_ID } from '@/server/session';
@@ -14,6 +15,11 @@ export async function createMeal(input: unknown): Promise<ActionResult<{ kcal: n
   const parsed = mealSchema.safeParse(input);
   if (!parsed.success) return invalid(parsed.error);
   const v = parsed.data;
+
+  // Scheduled time comes from the user's meal schedule (settings) and is stored with the meal as a snapshot
+  const ps = await getProfileAndSettings(USER_ID);
+  if (!ps) return failure('أنشئ الملف الشخصي أولاً من الإعدادات');
+  const scheduledTime = v.mealType === 'snack' ? null : ps.settings.mealSchedule[v.mealType];
 
   const foods = await db.select().from(foodDictionary).where(inArray(foodDictionary.id, v.items.map((i) => i.foodId)));
   const byId = new Map(foods.map((f) => [f.id, f]));
@@ -29,7 +35,7 @@ export async function createMeal(input: unknown): Promise<ActionResult<{ kcal: n
   await db.transaction(async (tx) => {
     const [meal] = await tx.insert(meals).values({
       userId: USER_ID, logDate: v.logDate, mealType: v.mealType,
-      scheduledTime: v.scheduledTime ? v.scheduledTime : null, actualTime: v.actualTime, notes: v.notes || null,
+      scheduledTime, actualTime: v.actualTime, notes: v.notes || null,
     }).returning({ id: meals.id });
     await tx.insert(mealItems).values(items.map(({ foodItemId, quantity, p }) => ({
       mealId: meal!.id, foodItemId, quantity: quantity.toFixed(2),

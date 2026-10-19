@@ -5,9 +5,6 @@
 CREATE TYPE gender_t           AS ENUM ('male', 'female');
 CREATE TYPE meal_type_t        AS ENUM ('breakfast', 'lunch', 'dinner', 'snack');
 CREATE TYPE nutrition_basis_t  AS ENUM ('per_100g', 'per_100ml', 'per_unit');
-CREATE TYPE drink_type_t       AS ENUM ('coffee_brewed', 'coffee_turkish', 'coffee_instant',
-                                        'espresso', 'tea_black', 'tea_green',
-                                        'water', 'soda_zero', 'herbal');
 CREATE TYPE milk_type_t        AS ENUM ('none', 'whole', 'semi_skimmed', 'skimmed');
 CREATE TYPE insight_severity_t AS ENUM ('info', 'warning', 'critical');
 
@@ -37,7 +34,11 @@ CREATE TABLE user_settings (
   caffeine_half_life_hours   NUMERIC(3,1) NOT NULL DEFAULT 5.0,
   required_fasting_hours     INT          NOT NULL DEFAULT 14,
   kcal_per_kg_fat            INT          NOT NULL DEFAULT 7700,
-  ema_alpha_daily            NUMERIC(3,2) NOT NULL DEFAULT 0.10
+  ema_alpha_daily            NUMERIC(3,2) NOT NULL DEFAULT 0.10,
+  -- Meal schedule (user-defined; NULL = not scheduled). Snacks are never scheduled.
+  breakfast_time             TIME,
+  lunch_time                 TIME,
+  dinner_time                TIME
 );
 
 -- ───────────── Food Dictionary ─────────────
@@ -86,12 +87,29 @@ CREATE TABLE meal_items (
 CREATE INDEX idx_meal_items_meal ON meal_items(meal_id);
 
 -- ───────────── Beverages ─────────────
+-- User-defined drinks (list starts empty). Values per 100 ml of the drink itself, before milk and sugar.
+CREATE TABLE beverage_catalog (
+  id                     SERIAL PRIMARY KEY,
+  user_id                INT NOT NULL REFERENCES user_profiles(id) ON DELETE CASCADE,
+  name_ar                VARCHAR(120) NOT NULL,
+  by_coffee_weight       BOOLEAN NOT NULL DEFAULT FALSE,   -- caffeine = grams × caffeine_mg_per_g_coffee
+  caffeine_mg_per_100ml  NUMERIC(6,1) NOT NULL DEFAULT 0 CHECK (caffeine_mg_per_100ml >= 0),
+  kcal_per_100ml         NUMERIC(6,1) NOT NULL DEFAULT 0 CHECK (kcal_per_100ml >= 0),
+  protein_g_per_100ml    NUMERIC(5,1) NOT NULL DEFAULT 0 CHECK (protein_g_per_100ml >= 0),
+  default_volume_ml      NUMERIC(6,1) NOT NULL DEFAULT 250 CHECK (default_volume_ml > 0),
+  default_coffee_g       NUMERIC(5,1),
+  is_active              BOOLEAN NOT NULL DEFAULT TRUE,
+  created_at             TIMESTAMPTZ NOT NULL DEFAULT now(),
+  UNIQUE (user_id, name_ar)
+);
+
 CREATE TABLE beverage_logs (
   id                 SERIAL PRIMARY KEY,
   user_id            INT NOT NULL REFERENCES user_profiles(id) ON DELETE CASCADE,
   log_date           DATE NOT NULL,
   consumed_at        TIMESTAMPTZ NOT NULL,
-  drink_type         drink_type_t NOT NULL,
+  beverage_id        INT REFERENCES beverage_catalog(id) ON DELETE SET NULL,
+  drink_name         VARCHAR(120) NOT NULL,                 -- snapshot
   liquid_volume_ml   NUMERIC(6,1) NOT NULL CHECK (liquid_volume_ml >= 0),
   dry_coffee_grams   NUMERIC(5,1) CHECK (dry_coffee_grams >= 0),
   milk_type          milk_type_t  NOT NULL DEFAULT 'none',
@@ -101,7 +119,9 @@ CREATE TABLE beverage_logs (
   milk_calories      NUMERIC(6,1) NOT NULL DEFAULT 0,
   milk_protein_g     NUMERIC(5,1) NOT NULL DEFAULT 0,
   sugar_calories     NUMERIC(6,1) NOT NULL DEFAULT 0,
-  total_calories     NUMERIC(6,1) GENERATED ALWAYS AS (milk_calories + sugar_calories) STORED
+  base_calories      NUMERIC(6,1) NOT NULL DEFAULT 0,       -- the drink itself
+  base_protein_g     NUMERIC(5,1) NOT NULL DEFAULT 0,
+  total_calories     NUMERIC(6,1) GENERATED ALWAYS AS (base_calories + milk_calories + sugar_calories) STORED
 );
 CREATE INDEX idx_bev_user_date ON beverage_logs(user_id, log_date);
 
@@ -250,7 +270,7 @@ LEFT JOIN (
   GROUP BY m.user_id, m.log_date
 ) f USING (user_id, log_date)
 LEFT JOIN (
-  SELECT user_id, log_date, SUM(total_calories) AS bev_kcal, SUM(milk_protein_g) AS bev_protein,
+  SELECT user_id, log_date, SUM(total_calories) AS bev_kcal, SUM(milk_protein_g + base_protein_g) AS bev_protein,
          SUM(caffeine_mg) AS caffeine_mg
   FROM beverage_logs GROUP BY user_id, log_date
 ) b USING (user_id, log_date)

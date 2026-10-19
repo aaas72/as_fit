@@ -1,4 +1,5 @@
-// Idempotent seed: reference catalogs + one placeholder profile (edited later from /settings).
+// Idempotent seed: exercise catalog + one placeholder profile (edited later from /settings).
+// Foods and drinks are NOT seeded: the user builds their own lists (they start empty).
 // Run with: pnpm db:seed
 try {
   process.loadEnvFile();
@@ -18,24 +19,11 @@ const EXERCISES = [
   { code: 'home_workout_vigorous', nameAr: 'تمارين منزلية مكثفة / دائرية', defaultMet: '8.0' },
 ];
 
-// USDA FoodData Central (approximate). Olive oil: 884 kcal is per 100 g, not per 100 ml.
-const FOODS = [
-  { itemNameAr: 'بيضة كاملة', itemNameEn: 'Egg, whole', nutritionBasis: 'per_unit', gramsPerUnit: '50', calories: '72', proteinG: '6.3' },
-  { itemNameAr: 'صدر دجاج مطبوخ (مشوي)', itemNameEn: 'Chicken breast, roasted', nutritionBasis: 'per_100g', gramsPerUnit: null, calories: '165', proteinG: '31.0' },
-  { itemNameAr: 'رز أبيض مطبوخ', itemNameEn: 'White rice, cooked', nutritionBasis: 'per_100g', gramsPerUnit: null, calories: '130', proteinG: '2.7' },
-  { itemNameAr: 'خبز أسمر (قمح كامل)', itemNameEn: 'Whole-wheat bread', nutritionBasis: 'per_100g', gramsPerUnit: null, calories: '247', proteinG: '13.0' },
-  { itemNameAr: 'زبادي يوناني قليل الدسم', itemNameEn: 'Greek yogurt, low-fat', nutritionBasis: 'per_100g', gramsPerUnit: null, calories: '73', proteinG: '10.0' },
-  { itemNameAr: 'تونة معلبة بالماء (مصفاة)', itemNameEn: 'Tuna, canned in water, drained', nutritionBasis: 'per_100g', gramsPerUnit: null, calories: '116', proteinG: '26.0' },
-  { itemNameAr: 'شوفان جاف', itemNameEn: 'Oats, dry', nutritionBasis: 'per_100g', gramsPerUnit: null, calories: '389', proteinG: '16.9' },
-  { itemNameAr: 'زيت زيتون', itemNameEn: 'Olive oil', nutritionBasis: 'per_100g', gramsPerUnit: null, calories: '884', proteinG: '0' },
-] as const;
-
 async function main() {
   const { db } = await import('./client');
-  const { exerciseCatalog, foodDictionary, userProfiles, userSettings } = await import('./schema');
+  const { exerciseCatalog, userProfiles, userSettings } = await import('./schema');
 
   const ex = await db.insert(exerciseCatalog).values(EXERCISES).onConflictDoNothing().returning({ id: exerciseCatalog.id });
-  const fd = await db.insert(foodDictionary).values([...FOODS]).onConflictDoNothing().returning({ id: foodDictionary.id });
 
   const existing = await db.select({ id: userProfiles.id }).from(userProfiles).limit(1);
   let profileCreated = false;
@@ -52,7 +40,7 @@ async function main() {
     profileCreated = true;
   }
 
-  console.log(`exercise_catalog: +${ex.length} | food_dictionary: +${fd.length} | placeholder profile: ${profileCreated ? 'created' : 'exists'}`);
+  console.log(`exercise_catalog: +${ex.length} | placeholder profile: ${profileCreated ? 'created' : 'exists'}`);
   process.exit(0);
 }
 

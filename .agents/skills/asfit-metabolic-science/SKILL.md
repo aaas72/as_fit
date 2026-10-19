@@ -44,10 +44,12 @@ $$\text{kcal}_{\text{gross}} = \text{MET} \times 3.5 \times \tfrac{W}{200} \time
 ### 2.4 التغذية
 `per_100g / per_100ml`: `kcal = calories × q/100` — `per_unit`: `kcal = calories × q`.
 
-### 2.5 المشروبات
-- قهوة ببن موزون (`coffee_brewed`, `coffee_turkish`, `espresso`): `caffeine = dry_g × k`.
-- غير ذلك: `caffeine = ml × c_type` (الجدول في المراجع).
+### 2.5 المشروبات (قائمة يدخلها المستخدم)
+- كل مشروب في `beverage_catalog` بقيمه لكل 100 مل: كافيين، سعرات، بروتين، و`by_coffee_weight`.
+- قهوة ببن موزون (`by_coffee_weight` + وزن البن): `caffeine = dry_g × k` (k من الإعدادات، 11 افتراضياً).
+- غير ذلك: `caffeine = ml × caffeine_mg_per_100ml / 100`. السعرات والبروتين بنفس الطريقة.
 - `milk_kcal = ml × {whole 0.62, semi 0.46, skimmed 0.35}` — `sugar_kcal = tsp × 4.2 × 4`.
+- `CAFFEINE_REFERENCE` في `src/domain/beverages.ts` قيم مرجعية تُعرض للمستخدم فقط ولا تُخزَّن.
 
 ### 2.6 الكافيين المتبقي
 $$C(t_{\text{bed}}) = \sum_i D_i \times 0.5^{(t_{\text{bed}} - t_i)/T_{1/2}}$$

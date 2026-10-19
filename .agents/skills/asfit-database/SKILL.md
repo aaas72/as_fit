@@ -38,10 +38,11 @@ erDiagram
 | الجدول | التردد | ملاحظات |
 |---|---|---|
 | `user_profiles` | مرة | الجنس، تاريخ الميلاد، الطول، الوزن الأولي/المستهدف، معامل النشاط (1.2) |
-| `user_settings` | مرة | المنطقة الزمنية، العجز المخطط، g/kg بروتين، `use_net_met`، ثوابت الكافيين، ساعات الصيام، 7700، α |
-| `food_dictionary` | مرجعي | `nutrition_basis` + `grams_per_unit` |
+| `user_settings` | مرة | المنطقة الزمنية، العجز المخطط، g/kg بروتين، `use_net_met`، ثوابت الكافيين، ساعات الصيام، 7700، α، **جدول الوجبات** (`breakfast_time`، `lunch_time`، `dinner_time`) |
+| `food_dictionary` | مرجعي (يدخله المستخدم، يبدأ فارغاً) | `nutrition_basis` + `grams_per_unit` |
 | `meals` | يومي (N) | `time_drift_minutes` مولّد |
 | `meal_items` | لكل وجبة (N) | سعرات/بروتين **Snapshot** |
+| `beverage_catalog` | مرجعي (يدخله المستخدم، يبدأ فارغاً) | قيم لكل 100 مل: كافيين، سعرات، بروتين؛ `by_coffee_weight`؛ الحجم المعتاد |
 | `beverage_logs` | يومي (N) | `caffeine_mg`، `milk_calories`، `milk_protein_g`، `sugar_calories` Snapshot؛ `total_calories` مولّد |
 | `day_status` | يومي (1) | PK `(user_id, log_date)`؛ `intake_complete` — فقط الأيام المكتملة تدخل حسابات العجز والـ TDEE المرصود |
 | `screen_time_logs` | يومي (1) | `UNIQUE(user_id, log_date)`، مجموع ≤ 24 |

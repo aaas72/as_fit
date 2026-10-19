@@ -1,6 +1,7 @@
 import { z } from 'zod';
-import { DRINK_TYPES } from '@/domain/beverages';
 import { bool, clockTime, int, isoDate, localDateTime, num, optionalNum } from './common';
+
+const optionalClock = z.union([clockTime, z.literal('')]).optional();
 
 export const MEAL_TYPES = ['breakfast', 'lunch', 'dinner', 'snack'] as const;
 export const MILK_TYPES = ['none', 'whole', 'semi_skimmed', 'skimmed'] as const;
@@ -23,13 +24,15 @@ export const profileSchema = z.object({
   requiredFastingHours: int(8, 24),
   kcalPerKg: int(5000, 9000),
   emaAlpha: num(0.01, 0.99),
+  breakfastTime: optionalClock,
+  lunchTime: optionalClock,
+  dinnerTime: optionalClock,
 });
 export type ProfileInput = z.input<typeof profileSchema>;
 
 export const mealSchema = z.object({
   logDate: isoDate,
   mealType: z.enum(MEAL_TYPES),
-  scheduledTime: z.union([clockTime, z.literal('')]).optional(),
   actualTime: clockTime,
   notes: z.string().max(500).optional(),
   items: z.array(z.object({ foodId: int(1, 1e9), quantity: num(0.1, 5000) })).min(1, 'أضف صنفاً واحداً على الأقل'),
@@ -39,7 +42,7 @@ export type MealInput = z.input<typeof mealSchema>;
 export const beverageSchema = z.object({
   logDate: isoDate,
   time: clockTime,
-  drinkType: z.enum(DRINK_TYPES),
+  beverageId: int(1, 1e9),
   volumeMl: num(0, 3000),
   dryCoffeeG: optionalNum(0, 100),
   milkType: z.enum(MILK_TYPES),
@@ -47,6 +50,19 @@ export const beverageSchema = z.object({
   sugarTsp: num(0, 20),
 });
 export type BeverageInput = z.input<typeof beverageSchema>;
+
+// A drink in the user's own list (values per 100 ml of the drink itself)
+export const drinkSchema = z.object({
+  id: optionalNum(1, 1e9),
+  nameAr: z.string().trim().min(1, 'مطلوب').max(120),
+  byCoffeeWeight: bool,
+  caffeineMgPer100ml: num(0, 1000),
+  kcalPer100ml: num(0, 1000),
+  proteinGPer100ml: num(0, 100),
+  defaultVolumeMl: num(1, 3000),
+  defaultCoffeeG: optionalNum(0, 100),
+});
+export type DrinkInput = z.input<typeof drinkSchema>;
 
 export const exerciseSchema = z.object({
   logDate: isoDate,

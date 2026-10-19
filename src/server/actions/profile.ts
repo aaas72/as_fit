@@ -23,6 +23,7 @@ export async function upsertProfile(input: unknown): Promise<ActionResult> {
     timezone: v.timezone, plannedDailyDeficitKcal: v.plannedDeficit, proteinGPerKg: v.proteinPerKg.toFixed(2),
     useNetMet: v.useNetMet, caffeineMgPerGCoffee: v.caffeineMgPerG.toFixed(1), caffeineHalfLifeHours: v.caffeineHalfLifeH.toFixed(1),
     requiredFastingHours: v.requiredFastingHours, kcalPerKgFat: v.kcalPerKg, emaAlphaDaily: v.emaAlpha.toFixed(2),
+    breakfastTime: v.breakfastTime || null, lunchTime: v.lunchTime || null, dinnerTime: v.dinnerTime || null,
   };
 
   await db.transaction(async (tx) => {
