@@ -1,0 +1,29 @@
+import { KCAL_PER_KG_FAT_DEFAULT, MIN_INTAKE_KCAL, SAFE_WEEKLY_LOSS_PCT, type Gender } from './constants';
+
+// Mifflin-St Jeor (1990)
+export function bmrMifflin(p: { weightKg: number; heightCm: number; ageYears: number; gender: Gender }) {
+  const base = 10 * p.weightKg + 6.25 * p.heightCm - 5 * p.ageYears;
+  return p.gender === 'male' ? base + 5 : base - 161;
+}
+
+// activityFactor = non-exercise activity only (logged exercise is added separately)
+export const baseTdee = (bmr: number, activityFactor = 1.2) => bmr * activityFactor;
+export const dynamicTdee = (base: number, exerciseKcal: number) => base + exerciseKcal;
+
+// Largest daily deficit whose expected loss stays ≤ 1% of body weight per week (S11)
+export const maxSafeDeficit = (weightKg: number, kcalPerKg = KCAL_PER_KG_FAT_DEFAULT) =>
+  (SAFE_WEEKLY_LOSS_PCT.max * weightKg * kcalPerKg) / 7;
+
+export function dailyTargets(p: {
+  tdee: number; bmr: number; deficit: number; gender: Gender; weightKg: number; proteinPerKg: number; kcalPerKg?: number;
+}) {
+  const floor = Math.max(p.bmr, MIN_INTAKE_KCAL[p.gender]);
+  const deficit = Math.min(p.deficit, maxSafeDeficit(p.weightKg, p.kcalPerKg));
+  return {
+    calories: Math.max(p.tdee - deficit, floor),
+    proteinG: p.proteinPerKg * p.weightKg,
+    deficitApplied: deficit,
+    deficitCapped: deficit < p.deficit,
+    floorApplied: p.tdee - deficit < floor,
+  };
+}
