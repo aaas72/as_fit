@@ -5,7 +5,7 @@ import type { FoodOption } from '@/components/forms/FoodCombobox';
 import { useActionForm } from '@/components/forms/useActionForm';
 import { NumberStepper, Segmented } from '@/components/inputs/controls';
 import { Button, Field, FormStatus, inputClass } from '@/components/ui';
-import { BASIS_LABEL } from '@/lib/labels';
+import { BASIS_LABEL, BASIS_SHORT } from '@/lib/labels';
 import { BASES, foodSchema } from '@/lib/validation/schemas';
 import { saveFood } from '@/server/actions/foods';
 import type { FoodView } from '@/server/queries/logs';
@@ -42,9 +42,9 @@ export function FoodForm({ food, initialName = '', onDone, onCreated }: {
         <Field label="الاسم" htmlFor={`${prefix}-ar`} error={err('itemNameAr')}>
           <input id={`${prefix}-ar`} className={inputClass} {...form.register('itemNameAr')} />
         </Field>
-        <Field label="القيم الغذائية محسوبة" htmlFor={`${prefix}-basis-per_100g`} hint="كما هي مكتوبة على الملصق أو في جدول القيم">
+        <Field label="القيم الغذائية لكل" htmlFor={`${prefix}-basis-per_100g`} hint="كما هي مكتوبة على الملصق أو في جدول القيم">
           <Controller control={form.control} name="nutritionBasis" render={({ field }) => (
-            <Segmented id={`${prefix}-basis`} label="أساس القيم" value={field.value as string} onChange={field.onChange} options={BASES.map((b) => ({ value: b, label: BASIS_LABEL[b] }))} />
+            <Segmented id={`${prefix}-basis`} label="أساس القيم" value={field.value as string} onChange={field.onChange} options={BASES.map((b) => ({ value: b, label: BASIS_SHORT[b] }))} />
           )} />
         </Field>
       </div>

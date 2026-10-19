@@ -2,6 +2,8 @@ import { eq } from 'drizzle-orm';
 import type { Gender } from '@/domain/constants';
 import { db } from '@/server/db/client';
 import { userProfiles, userSettings } from '@/server/db/schema';
+import { mockProfile, mockSettings } from '@/server/mock/mock-data';
+import { MOCK_MODE } from '@/server/mock/mode';
 
 export type Profile = {
   id: number;
@@ -34,6 +36,7 @@ export type MealSchedule = { breakfast: string | null; lunch: string | null; din
 export const DEFAULT_TIMEZONE = process.env.APP_TIMEZONE ?? 'Europe/Istanbul';
 
 export async function getProfileAndSettings(userId: number): Promise<{ profile: Profile; settings: Settings } | null> {
+  if (MOCK_MODE) return { profile: mockProfile, settings: mockSettings };
   const [row] = await db
     .select()
     .from(userProfiles)
@@ -75,6 +78,7 @@ export async function getProfileAndSettings(userId: number): Promise<{ profile: 
 
 // Timezone without loading everything (for actions that only need log_date)
 export async function getTimezone(userId: number) {
+  if (MOCK_MODE) return mockSettings.timezone;
   const [s] = await db.select({ tz: userSettings.timezone }).from(userSettings).where(eq(userSettings.userId, userId));
   return s?.tz ?? DEFAULT_TIMEZONE;
 }

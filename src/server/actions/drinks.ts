@@ -5,11 +5,13 @@ import { drinkSchema } from '@/lib/validation/schemas';
 import type { ActionResult } from '@/lib/validation/common';
 import { db } from '@/server/db/client';
 import { beverageCatalog } from '@/server/db/schema';
-import { invalid, refreshAll, toNumStr } from '@/server/services/action-helpers';
+import { invalid, refreshAll, toNumStr, failure } from '@/server/services/action-helpers';
+import { MOCK_MODE, MOCK_READ_ONLY_MESSAGE } from '@/server/mock/mode';
 import { USER_ID } from '@/server/session';
 
 // Editing or deleting a drink never changes past logs: each log keeps its own name and values (snapshot).
 export async function saveDrink(input: unknown): Promise<ActionResult<{ id: number }>> {
+  if (MOCK_MODE) return failure(MOCK_READ_ONLY_MESSAGE);
   const parsed = drinkSchema.safeParse(input);
   if (!parsed.success) return invalid(parsed.error);
   const v = parsed.data;
@@ -37,6 +39,7 @@ export async function saveDrink(input: unknown): Promise<ActionResult<{ id: numb
 }
 
 export async function deleteDrink(id: number): Promise<ActionResult> {
+  if (MOCK_MODE) return failure(MOCK_READ_ONLY_MESSAGE);
   await db.delete(beverageCatalog).where(and(eq(beverageCatalog.id, id), eq(beverageCatalog.userId, USER_ID)));
   refreshAll();
   return { ok: true };

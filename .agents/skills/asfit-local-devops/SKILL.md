@@ -46,6 +46,17 @@ APP_TIMEZONE=Europe/Istanbul
 
 بعد أي تعديل في الكود: `docker compose up -d --build` يعيد بناء الصورة، ويطبق الـ migrations الجديدة تلقائياً عبر `migrate`.
 
+## 3.1 وضع بيانات المحاكاة (USE_MOCK_DATA)
+
+| القيمة | السلوك |
+|---|---|
+| `USE_MOCK_DATA=true` | كل القراءات من `src/server/mock/mock-data.ts` (90 يوماً حتى اليوم، حتمية، محسوبة بنفس دوال `src/domain`). التنبيهات تُولَّد عند القراءة بالقواعد الحقيقية (`src/server/mock/insights.ts`). **كل الكتابات مرفوضة** برسالة واضحة، وشريط تنبيه يظهر في كل صفحة. |
+| `false` أو غير موجود | قاعدة البيانات كالمعتاد. |
+
+- التبديل: في `.env` (للتطوير) أو `USE_MOCK_DATA=true docker compose up -d` (لـ Docker). يُقرأ وقت التشغيل، فلا يحتاج إعادة بناء.
+- نقطة التحويل الوحيدة هي طبقة القراءة: `src/server/queries/*` (فرع `if (MOCK_MODE)`) + حارس في بداية كل Server Action. لا تضف قراءة من قاعدة البيانات خارج `src/server/queries` وإلا فلن تتبع الوضع.
+- أنواع القراءة الصريحة في `src/server/queries/views.ts` يستخدمها الطرفان.
+
 ## 4. سكربتات package.json
 
 ```json

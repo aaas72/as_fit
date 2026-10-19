@@ -10,9 +10,11 @@ import { beverageCatalog, beverageLogs } from '@/server/db/schema';
 import { getProfileAndSettings } from '@/server/queries/profile';
 import { failure, invalid, refreshAll } from '@/server/services/action-helpers';
 import { runInsights } from '@/server/services/insights-runner';
+import { MOCK_MODE, MOCK_READ_ONLY_MESSAGE } from '@/server/mock/mode';
 import { USER_ID } from '@/server/session';
 
 export async function logBeverage(input: unknown): Promise<ActionResult<{ caffeineMg: number; kcal: number }>> {
+  if (MOCK_MODE) return failure(MOCK_READ_ONLY_MESSAGE);
   const parsed = beverageSchema.safeParse(input);
   if (!parsed.success) return invalid(parsed.error);
   const v = parsed.data;
@@ -47,6 +49,7 @@ export async function logBeverage(input: unknown): Promise<ActionResult<{ caffei
 }
 
 export async function deleteBeverage(id: number): Promise<ActionResult> {
+  if (MOCK_MODE) return failure(MOCK_READ_ONLY_MESSAGE);
   await db.delete(beverageLogs).where(and(eq(beverageLogs.id, id), eq(beverageLogs.userId, USER_ID)));
   refreshAll();
   return { ok: true };

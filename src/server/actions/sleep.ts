@@ -9,9 +9,11 @@ import { sleepLogs } from '@/server/db/schema';
 import { getTimezone } from '@/server/queries/profile';
 import { failure, invalid, refreshAll } from '@/server/services/action-helpers';
 import { runInsights } from '@/server/services/insights-runner';
+import { MOCK_MODE, MOCK_READ_ONLY_MESSAGE } from '@/server/mock/mode';
 import { USER_ID } from '@/server/session';
 
 export async function logSleep(input: unknown): Promise<ActionResult<{ tstMin: number }>> {
+  if (MOCK_MODE) return failure(MOCK_READ_ONLY_MESSAGE);
   const parsed = sleepSchema.safeParse(input);
   if (!parsed.success) return invalid(parsed.error);
   const v = parsed.data;
@@ -37,6 +39,7 @@ export async function logSleep(input: unknown): Promise<ActionResult<{ tstMin: n
 }
 
 export async function deleteSleep(id: number): Promise<ActionResult> {
+  if (MOCK_MODE) return failure(MOCK_READ_ONLY_MESSAGE);
   await db.delete(sleepLogs).where(and(eq(sleepLogs.id, id), eq(sleepLogs.userId, USER_ID)));
   refreshAll();
   return { ok: true };

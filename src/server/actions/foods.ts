@@ -4,11 +4,13 @@ import { eq } from 'drizzle-orm';
 import { foodSchema } from '@/lib/validation/schemas';
 import type { ActionResult } from '@/lib/validation/common';
 import { db } from '@/server/db/client';
+import { MOCK_MODE, MOCK_READ_ONLY_MESSAGE } from '@/server/mock/mode';
 import { foodDictionary } from '@/server/db/schema';
 import { failure, invalid, refreshAll, toNumStr } from '@/server/services/action-helpers';
 
 // Editing a food never changes past meals: meal_items keep their nutrition snapshot.
 export async function saveFood(input: unknown): Promise<ActionResult<{ id: number }>> {
+  if (MOCK_MODE) return failure(MOCK_READ_ONLY_MESSAGE);
   const parsed = foodSchema.safeParse(input);
   if (!parsed.success) return invalid(parsed.error);
   const v = parsed.data;
@@ -36,6 +38,7 @@ export async function saveFood(input: unknown): Promise<ActionResult<{ id: numbe
 
 // Foods referenced by meals cannot be deleted; they are deactivated instead.
 export async function setFoodActive(id: number, active: boolean): Promise<ActionResult> {
+  if (MOCK_MODE) return failure(MOCK_READ_ONLY_MESSAGE);
   const [row] = await db.update(foodDictionary).set({ isActive: active }).where(eq(foodDictionary.id, id)).returning({ id: foodDictionary.id });
   if (!row) return failure('الصنف غير موجود');
   refreshAll();

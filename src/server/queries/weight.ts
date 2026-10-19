@@ -2,6 +2,8 @@ import { asc, eq } from 'drizzle-orm';
 import { dayNumber, emaTrend } from '@/domain/weight-trend';
 import { db } from '@/server/db/client';
 import { weighIns } from '@/server/db/schema';
+import { mockDataset } from '@/server/mock/mock-data';
+import { MOCK_MODE } from '@/server/mock/mode';
 
 export type WeighInRow = {
   id: number;
@@ -18,7 +20,12 @@ export type WeighInRow = {
 
 // All readings with the time-aware EMA of compliant readings attached.
 export async function getWeighIns(userId: number, alpha: number): Promise<WeighInRow[]> {
-  const rows = await db.select().from(weighIns).where(eq(weighIns.userId, userId)).orderBy(asc(weighIns.logDate));
+  const rows = MOCK_MODE
+    ? mockDataset().weighIns.map((w) => ({
+      id: w.id, logDate: w.logDate, measuredAt: w.measuredAt, dryFastedWeightKg: String(w.weight), fastingHours: String(w.fastingH),
+      isProtocolCompliant: w.compliant, isOfficialWeekly: w.official, highSodiumYesterday: w.highSodium, normalDigestion: w.normalDigestion,
+    }))
+    : await db.select().from(weighIns).where(eq(weighIns.userId, userId)).orderBy(asc(weighIns.logDate));
   const compliant = rows.filter((r) => r.isProtocolCompliant);
   const trend = emaTrend(compliant.map((r) => ({ day: dayNumber(r.logDate), weight: Number(r.dryFastedWeightKg) })), alpha);
   const trendByDate = new Map(compliant.map((r, i) => [r.logDate, trend[i]!]));

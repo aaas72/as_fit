@@ -6,6 +6,7 @@ import { db } from '@/server/db/client';
 import { insights } from '@/server/db/schema';
 import { getBeveragesBetween, getMealsBetween, getScreenBetween, getSleepBetween, type MealView } from '@/server/queries/logs';
 import { getTimezone } from '@/server/queries/profile';
+import { MOCK_MODE } from '@/server/mock/mode';
 import { loadModel } from './metabolic-model';
 
 const WINDOW_DAYS = 28;
@@ -69,6 +70,7 @@ export async function buildPeriodContext(userId: number, endDate?: string): Prom
 
 // Evaluates all rules on the 28-day window ending at endDate and stores new results (deduplicated by period).
 export async function runInsights(userId: number, endDate?: string) {
+  if (MOCK_MODE) return 0; // mock insights are computed on read (src/server/mock/insights.ts)
   const ctx = await buildPeriodContext(userId, endDate);
   if (!ctx) return 0;
   const results = runRules(ctx);

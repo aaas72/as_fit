@@ -1,5 +1,7 @@
 import { sql } from 'drizzle-orm';
 import { db } from '@/server/db/client';
+import { mockIntake } from '@/server/mock/mock-data';
+import { MOCK_MODE } from '@/server/mock/mode';
 
 export type IntakeRow = {
   date: string;
@@ -16,6 +18,7 @@ export type IntakeRow = {
 type Raw = Record<string, string | boolean | null>;
 
 export async function getIntake(userId: number, from: string, to: string): Promise<Map<string, IntakeRow>> {
+  if (MOCK_MODE) return mockIntake(from, to);
   const rows = (await db.execute(sql`
     SELECT log_date::text AS date, food_kcal, beverage_kcal, total_intake_kcal, total_protein_g, caffeine_mg,
            exercise_net_kcal, exercise_gross_kcal, intake_complete

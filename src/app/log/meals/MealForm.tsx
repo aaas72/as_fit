@@ -122,15 +122,15 @@ export function MealForm({ date, nowClock, foods, schedule }: { date: string; no
               const r = rows[i];
               const f = r?.food;
               return (
-                <li key={field.id} className="grid items-center gap-3 p-3 sm:grid-cols-[minmax(0,1fr)_11rem_7rem_auto]">
-                  <span className="font-semibold">{f?.nameAr ?? '—'}</span>
-                  <Controller control={form.control} name={`items.${i}.quantity`} render={({ field }) => (
+                <li key={field.id} className="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-x-3 gap-y-2 p-3 [grid-template-areas:'name_del'_'qty_qty'_'kcal_kcal'] sm:grid-cols-[minmax(0,1fr)_11rem_7rem_auto] sm:[grid-template-areas:'name_qty_kcal_del']">
+                  <span className="font-semibold [grid-area:name]">{f?.nameAr ?? '—'}</span>
+                  <div className="[grid-area:qty]"><Controller control={form.control} name={`items.${i}.quantity`} render={({ field }) => (
                     <NumberStepper id={`item-${i}-qty`} value={field.value} onChange={field.onChange} onBlur={field.onBlur}
                       step={f?.basis === 'per_unit' ? 0.5 : 10} min={0} max={5000} unit={f ? QUANTITY_UNIT[f.basis] : ''} invalid={Boolean(err(`items.${i}.quantity`))} />
-                  )} />
-                  <span className="text-sm">{r?.n ? <><Num value={r.n.calories} unit="kcal" /> · <Num value={r.n.protein} digits={1} unit="غ" /></> : '—'}</span>
-                  <Button variant="ghost" className="px-2" aria-label={`حذف ${f?.nameAr ?? 'الصنف'}`} onClick={() => remove(i)}>✕</Button>
-                  {err(`items.${i}.quantity`) && <p className="text-sm text-danger-ink sm:col-span-4">{err(`items.${i}.quantity`)}</p>}
+                  )} /></div>
+                  <span className="text-sm [grid-area:kcal]">{r?.n ? <><Num value={r.n.calories} unit="kcal" /> · <Num value={r.n.protein} digits={1} unit="غ" /></> : '—'}</span>
+                  <Button variant="ghost" className="px-2 [grid-area:del]" aria-label={`حذف ${f?.nameAr ?? 'الصنف'}`} onClick={() => remove(i)}>✕</Button>
+                  {err(`items.${i}.quantity`) && <p className="col-span-full text-sm text-danger-ink">{err(`items.${i}.quantity`)}</p>}
                 </li>
               );
             })}

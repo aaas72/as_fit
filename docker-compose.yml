@@ -47,6 +47,7 @@ services:
     environment:
       DATABASE_URL: postgres://${POSTGRES_USER:-asfit}:${POSTGRES_PASSWORD:-asfit_local}@db:5432/${POSTGRES_DB:-asfit}
       APP_TIMEZONE: ${APP_TIMEZONE:-Europe/Istanbul}
+      USE_MOCK_DATA: ${USE_MOCK_DATA:-false}
     ports:
       - "127.0.0.1:${APP_PORT:-3000}:3000"
 

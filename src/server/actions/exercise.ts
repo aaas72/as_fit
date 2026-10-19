@@ -10,9 +10,11 @@ import { getProfileAndSettings } from '@/server/queries/profile';
 import { getWeighIns, trendWeightAt } from '@/server/queries/weight';
 import { failure, invalid, refreshAll } from '@/server/services/action-helpers';
 import { runInsights } from '@/server/services/insights-runner';
+import { MOCK_MODE, MOCK_READ_ONLY_MESSAGE } from '@/server/mock/mode';
 import { USER_ID } from '@/server/session';
 
 export async function logExercise(input: unknown): Promise<ActionResult<{ gross: number; net: number }>> {
+  if (MOCK_MODE) return failure(MOCK_READ_ONLY_MESSAGE);
   const parsed = exerciseSchema.safeParse(input);
   if (!parsed.success) return invalid(parsed.error);
   const v = parsed.data;
@@ -38,6 +40,7 @@ export async function logExercise(input: unknown): Promise<ActionResult<{ gross:
 }
 
 export async function deleteExercise(id: number): Promise<ActionResult> {
+  if (MOCK_MODE) return failure(MOCK_READ_ONLY_MESSAGE);
   await db.delete(exerciseLogs).where(and(eq(exerciseLogs.id, id), eq(exerciseLogs.userId, USER_ID)));
   refreshAll();
   return { ok: true };

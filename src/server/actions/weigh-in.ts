@@ -10,10 +10,12 @@ import { beverageLogs, weighIns } from '@/server/db/schema';
 import { getProfileAndSettings } from '@/server/queries/profile';
 import { failure, invalid, refreshAll } from '@/server/services/action-helpers';
 import { runInsights } from '@/server/services/insights-runner';
+import { MOCK_MODE, MOCK_READ_ONLY_MESSAGE } from '@/server/mock/mode';
 import { USER_ID } from '@/server/session';
 
 // Non-compliant readings are SAVED (never rejected) with is_protocol_compliant = false.
 export async function logWeighIn(input: unknown): Promise<ActionResult<{ compliant: boolean; violations: string[]; fastingH: number }>> {
+  if (MOCK_MODE) return failure(MOCK_READ_ONLY_MESSAGE);
   const parsed = weighInSchema.safeParse(input);
   if (!parsed.success) return invalid(parsed.error);
   const v = parsed.data;
@@ -48,6 +50,7 @@ export async function logWeighIn(input: unknown): Promise<ActionResult<{ complia
 }
 
 export async function deleteWeighIn(id: number): Promise<ActionResult> {
+  if (MOCK_MODE) return failure(MOCK_READ_ONLY_MESSAGE);
   await db.delete(weighIns).where(and(eq(weighIns.id, id), eq(weighIns.userId, USER_ID)));
   refreshAll();
   return { ok: true };

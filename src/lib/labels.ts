@@ -3,6 +3,7 @@ export const MEAL_LABEL = { breakfast: 'فطور', lunch: 'غداء', dinner: '�
 export const MILK_LABEL = { none: 'بدون', whole: 'كامل الدسم', semi_skimmed: 'نصف دسم', skimmed: 'خالي الدسم' } as const;
 
 export const BASIS_LABEL = { per_100g: 'لكل 100 غ', per_100ml: 'لكل 100 مل', per_unit: 'لكل حبة' } as const;
+export const BASIS_SHORT = { per_100g: '100 غ', per_100ml: '100 مل', per_unit: 'حبة' } as const;
 
 export const SEVERITY_LABEL = { info: 'معلومة', warning: 'تحذير', critical: 'حرج' } as const;
 

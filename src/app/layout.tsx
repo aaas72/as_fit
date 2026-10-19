@@ -2,6 +2,7 @@ import type { Metadata } from 'next';
 import Link from 'next/link';
 import { Cairo, JetBrains_Mono } from 'next/font/google';
 import { BottomNav, SideNav } from '@/components/NavLinks';
+import { MOCK_MODE } from '@/server/mock/mode';
 import '@/styles/globals.css';
 
 const cairo = Cairo({ subsets: ['arabic', 'latin'], variable: '--font-cairo', display: 'swap' });
@@ -26,6 +27,12 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
               <Link href="/" className="text-xl font-extrabold text-brand-ink">AS_FIT</Link>
               <Link href="/settings" className="text-sm font-medium text-ink-muted">الإعدادات</Link>
             </header>
+            {MOCK_MODE && (
+              <div role="status" className="flex flex-wrap items-center gap-2 rounded-lg border border-dashed border-ink-muted px-4 py-2 text-sm text-ink-muted">
+                <span className="font-semibold text-ink">وضع بيانات المحاكاة</span>
+                البيانات المعروضة تجريبية من ملف وليست من قاعدة البيانات، والحفظ معطّل. للعودة: <code className="font-mono text-xs">USE_MOCK_DATA=false</code>
+              </div>
+            )}
             <main className="flex-1">{children}</main>
             <footer className="border-t border-line pt-4 text-sm text-ink-muted">أداة تتبع شخصية وليست جهازاً طبياً.</footer>
           </div>

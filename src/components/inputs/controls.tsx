@@ -51,7 +51,7 @@ export function Segmented<V extends string | number>({ id, options, value, onCha
             className={cn('flex flex-1 flex-col items-center gap-0.5 rounded-md px-2 py-1.5 transition-colors duration-150',
               selected ? 'bg-brand-strong text-white' : 'text-ink hover:bg-brand-soft')}
           >
-            <span className="font-mono font-semibold">{o.label}</span>
+            <span className={cn('whitespace-nowrap text-sm font-semibold', /^[\d.]+$/.test(o.label) && 'font-mono')}>{o.label}</span>
             {o.hint && <span className={cn('text-[11px]', selected ? 'text-white/80' : 'text-ink-muted')}>{o.hint}</span>}
           </button>
         );

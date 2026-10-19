@@ -1,5 +1,10 @@
 import { and, asc, between, desc, eq, inArray, isNull } from 'drizzle-orm';
 import { db } from '@/server/db/client';
+import { mockDataset, mockDrinks, mockExerciseCatalog, mockFoods } from '@/server/mock/mock-data';
+import { MOCK_MODE } from '@/server/mock/mode';
+import type { BeverageView, DrinkView, ExerciseCatalogRow, ExerciseView, FoodView, InsightView, MealView, MeasurementView, ScreenView, SleepView } from './views';
+
+export type { BeverageView, DrinkView, ExerciseCatalogRow, ExerciseView, FoodView, InsightView, MealView, MeasurementView, ScreenView, SleepView } from './views';
 import {
   beverageCatalog, beverageLogs, bodyMeasurements, dayStatus, exerciseCatalog, exerciseLogs, foodDictionary, insights,
   mealItems, meals, screenTimeLogs, sleepLogs,
@@ -8,7 +13,8 @@ import {
 const n = (v: string | null) => (v == null ? null : Number(v));
 
 // ───────── Meals ─────────
-export async function getMealsBetween(userId: number, from: string, to: string) {
+export async function getMealsBetween(userId: number, from: string, to: string): Promise<MealView[]> {
+  if (MOCK_MODE) return mockDataset().meals.filter((x) => x.date >= from && x.date <= to);
   const ms = await db.select().from(meals)
     .where(and(eq(meals.userId, userId), between(meals.logDate, from, to)))
     .orderBy(asc(meals.logDate), asc(meals.actualTime));
@@ -42,10 +48,10 @@ export async function getMealsBetween(userId: number, from: string, to: string) 
     };
   });
 }
-export type MealView = Awaited<ReturnType<typeof getMealsBetween>>[number];
 
 // ───────── Beverages ─────────
-export async function getBeveragesBetween(userId: number, from: string, to: string) {
+export async function getBeveragesBetween(userId: number, from: string, to: string): Promise<BeverageView[]> {
+  if (MOCK_MODE) return mockDataset().beverages.filter((x) => x.date >= from && x.date <= to);
   const rows = await db.select().from(beverageLogs)
     .where(and(eq(beverageLogs.userId, userId), between(beverageLogs.logDate, from, to)))
     .orderBy(asc(beverageLogs.consumedAt));
@@ -65,10 +71,10 @@ export async function getBeveragesBetween(userId: number, from: string, to: stri
     proteinG: Number(b.milkProteinG) + Number(b.baseProteinG),
   }));
 }
-export type BeverageView = Awaited<ReturnType<typeof getBeveragesBetween>>[number];
 
 // The user's own drink list (starts empty)
-export async function getDrinks(userId: number, opts: { activeOnly?: boolean } = {}) {
+export async function getDrinks(userId: number, opts: { activeOnly?: boolean } = {}): Promise<DrinkView[]> {
+  if (MOCK_MODE) return mockDrinks;
   const rows = await db.select().from(beverageCatalog)
     .where(and(eq(beverageCatalog.userId, userId), opts.activeOnly ? eq(beverageCatalog.isActive, true) : undefined))
     .orderBy(asc(beverageCatalog.nameAr));
@@ -78,12 +84,12 @@ export async function getDrinks(userId: number, opts: { activeOnly?: boolean } =
     defaultVolumeMl: Number(d.defaultVolumeMl), defaultCoffeeG: n(d.defaultCoffeeG), isActive: d.isActive,
   }));
 }
-export type DrinkView = Awaited<ReturnType<typeof getDrinks>>[number];
 
 // ───────── Exercise ─────────
-export const getExerciseCatalog = () => db.select().from(exerciseCatalog).orderBy(asc(exerciseCatalog.defaultMet));
+export const getExerciseCatalog = async (): Promise<ExerciseCatalogRow[]> => (MOCK_MODE ? mockExerciseCatalog : db.select().from(exerciseCatalog).orderBy(asc(exerciseCatalog.defaultMet)));
 
-export async function getExercisesBetween(userId: number, from: string, to: string) {
+export async function getExercisesBetween(userId: number, from: string, to: string): Promise<ExerciseView[]> {
+  if (MOCK_MODE) return mockDataset().exercises.filter((x) => x.date >= from && x.date <= to);
   const rows = await db.select({ log: exerciseLogs, nameAr: exerciseCatalog.nameAr })
     .from(exerciseLogs).innerJoin(exerciseCatalog, eq(exerciseCatalog.id, exerciseLogs.exerciseId))
     .where(and(eq(exerciseLogs.userId, userId), between(exerciseLogs.logDate, from, to)))
@@ -95,7 +101,8 @@ export async function getExercisesBetween(userId: number, from: string, to: stri
 }
 
 // ───────── Screen ─────────
-export async function getScreenBetween(userId: number, from: string, to: string) {
+export async function getScreenBetween(userId: number, from: string, to: string): Promise<ScreenView[]> {
+  if (MOCK_MODE) return mockDataset().screens.filter((x) => x.date >= from && x.date <= to);
   const rows = await db.select().from(screenTimeLogs)
     .where(and(eq(screenTimeLogs.userId, userId), between(screenTimeLogs.logDate, from, to)))
     .orderBy(asc(screenTimeLogs.logDate));
@@ -106,7 +113,8 @@ export async function getScreenBetween(userId: number, from: string, to: string)
 }
 
 // ───────── Sleep (log_date = wake-up date) ─────────
-export async function getSleepBetween(userId: number, from: string, to: string) {
+export async function getSleepBetween(userId: number, from: string, to: string): Promise<SleepView[]> {
+  if (MOCK_MODE) return mockDataset().sleeps.filter((x) => x.date >= from && x.date <= to);
   const rows = await db.select().from(sleepLogs)
     .where(and(eq(sleepLogs.userId, userId), between(sleepLogs.logDate, from, to)))
     .orderBy(asc(sleepLogs.logDate));
@@ -116,20 +124,20 @@ export async function getSleepBetween(userId: number, from: string, to: string) 
     tibMin: s.timeInBedMin ?? 0, latencyMin: s.sleepLatencyMin ?? 0, tstMin: s.totalSleepMin ?? 0,
   }));
 }
-export type SleepView = Awaited<ReturnType<typeof getSleepBetween>>[number];
 
 // ───────── Measurements ─────────
-export async function getMeasurements(userId: number) {
+export async function getMeasurements(userId: number): Promise<MeasurementView[]> {
+  if (MOCK_MODE) return [...mockDataset().measurements].reverse();
   const rows = await db.select().from(bodyMeasurements).where(eq(bodyMeasurements.userId, userId)).orderBy(desc(bodyMeasurements.logDate));
   return rows.map((m) => ({
     id: m.id, date: m.logDate, neckCm: n(m.neckCm), chestCm: n(m.chestCm), waistCm: Number(m.waistCm), hipCm: Number(m.hipCm),
     thighCm: n(m.thighCm), bicepCm: n(m.bicepCm), whr: Number(m.whr),
   }));
 }
-export type MeasurementView = Awaited<ReturnType<typeof getMeasurements>>[number];
 
 // ───────── Foods ─────────
-export async function getFoods(opts: { activeOnly?: boolean } = {}) {
+export async function getFoods(opts: { activeOnly?: boolean } = {}): Promise<FoodView[]> {
+  if (MOCK_MODE) return mockFoods;
   const rows = await db.select().from(foodDictionary)
     .where(opts.activeOnly ? eq(foodDictionary.isActive, true) : undefined)
     .orderBy(asc(foodDictionary.itemNameAr));
@@ -138,16 +146,17 @@ export async function getFoods(opts: { activeOnly?: boolean } = {}) {
     calories: Number(f.calories), protein: Number(f.proteinG), carbs: n(f.carbsG), fat: n(f.fatG), isActive: f.isActive,
   }));
 }
-export type FoodView = Awaited<ReturnType<typeof getFoods>>[number];
 
 // ───────── Day status ─────────
 export async function getDayComplete(userId: number, date: string) {
+  if (MOCK_MODE) return mockDataset().complete.has(date);
   const [row] = await db.select().from(dayStatus).where(and(eq(dayStatus.userId, userId), eq(dayStatus.logDate, date)));
   return row?.intakeComplete ?? false;
 }
 
 // ───────── Insights ─────────
-export async function getInsights(userId: number, opts: { includeDismissed?: boolean; limit?: number } = {}) {
+export async function getInsights(userId: number, opts: { includeDismissed?: boolean; limit?: number } = {}): Promise<InsightView[]> {
+  if (MOCK_MODE) return (await import('@/server/mock/insights')).mockInsights(userId, opts.limit);
   const rows = await db.select().from(insights)
     .where(and(eq(insights.userId, userId), opts.includeDismissed ? undefined : isNull(insights.dismissedAt)))
     .orderBy(desc(insights.periodEnd), desc(insights.createdAt))
@@ -158,4 +167,3 @@ export async function getInsights(userId: number, opts: { includeDismissed?: boo
     createdAt: r.createdAt, dismissedAt: r.dismissedAt,
   }));
 }
-export type InsightView = Awaited<ReturnType<typeof getInsights>>[number];
