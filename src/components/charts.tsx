@@ -57,8 +57,8 @@ export function CumulativeLossChart({ data }: { data: { date: string; expected: 
       <ComposedChart data={data} margin={{ top: 8, right: 8, left: 8, bottom: 0 }}>
         <CartesianGrid stroke={C.grid} vertical={false} />
         <XAxis dataKey="date" reversed tickFormatter={shortDate} {...axis} minTickGap={24} />
-        <YAxis orientation="right" tickFormatter={fmt(2)} width={52} {...axis} unit=" kg" />
-        <Tooltip {...tooltipStyle} formatter={(v, n) => [`${fmt(2)(v)} kg`, n]} />
+        <YAxis orientation="right" tickFormatter={fmt(2)} width={52} {...axis} unit=" كغ" />
+        <Tooltip {...tooltipStyle} formatter={(v, n) => [`${fmt(2)(v)} كغ`, n]} />
         <Legend wrapperStyle={{ fontSize: 12 }} />
         <ReferenceLine y={0} stroke={C.grid} />
         <Line name="النزول المتوقع (من العجز)" dataKey="expected" stroke={C.series2} strokeWidth={2} strokeDasharray="6 4" dot={false} connectNulls />
@@ -75,7 +75,7 @@ export function EnergyChart({ data, observed }: { data: { date: string; intake: 
         <CartesianGrid stroke={C.grid} vertical={false} />
         <XAxis dataKey="date" reversed tickFormatter={shortDate} {...axis} minTickGap={24} />
         <YAxis orientation="right" tickFormatter={fmt(0)} width={48} {...axis} />
-        <Tooltip {...tooltipStyle} formatter={(v, n) => [`${fmt(0)(v)} kcal`, n]} />
+        <Tooltip {...tooltipStyle} formatter={(v, n) => [`${fmt(0)(v)} سعرة`, n]} />
         <Legend wrapperStyle={{ fontSize: 12 }} />
         <Bar name="المتناول (أيام مكتملة)" dataKey="intake" fill={C.series2} radius={[4, 4, 0, 0]} maxBarSize={14} />
         <Line name="الحرق النظري (المعادلة)" dataKey="formulaTdee" stroke={C.brand} strokeWidth={2} dot={false} />

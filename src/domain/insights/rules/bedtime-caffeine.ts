@@ -25,9 +25,9 @@ export const bedtimeCaffeine: InsightRule = {
         ruleCode: this.code,
         severity: 'warning' as const,
         title: 'كافيين مرتفع وقت النوم',
-        message: `بقي في الدم نحو ${fmt(residual)} mg كافيين عند ${clock(bedAt, timezone)} (الحد ${CAFFEINE_BEDTIME_LIMIT_MG}). `
+        message: `بقي في الدم نحو ${fmt(residual)} ملغ كافيين عند ${clock(bedAt, timezone)} (الحد ${CAFFEINE_BEDTIME_LIMIT_MG}). `
           + (latest
-            ? `آخر كوب (${fmt(finalCup!.mg)} mg) كان يجب أن يكون قبل ${clock(latest, timezone)}.`
+            ? `آخر كوب (${fmt(finalCup!.mg)} ملغ) كان يجب أن يكون قبل ${clock(latest, timezone)}.`
             : 'الأكواب التي قبل آخر كوب تتجاوز الحد وحدها، فخفّف الكمية اليومية.'),
         payload: { residualMg: residual, bedAt: bedAt.toISOString(), halfLifeH: halfLife, finalCupMg: finalCup?.mg ?? null, latestFinalCupAt: latest?.toISOString() ?? null, doses: before.length },
         periodStart: d.date,

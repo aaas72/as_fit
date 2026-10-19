@@ -27,7 +27,7 @@ export function BeverageForm({ date, nowClock, caffeineMgPerG, drinks }: { date:
     schema: beverageSchema,
     action: logBeverage,
     defaultValues: { logDate: date, time: nowClock, beverageId: undefined, volumeMl: '', dryCoffeeG: '', milkType: 'none', milkMl: 0, sugarTsp: 0 },
-    successText: (r) => `حُفظ: ${Math.round(r.caffeineMg)} mg كافيين، ${Math.round(r.kcal)} kcal.`,
+    successText: (r) => `حُفظ: ${Math.round(r.caffeineMg)} ملغ كافيين، ${Math.round(r.kcal)} سعرة.`,
   });
   const v = useWatch({ control: form.control }) as Record<string, unknown>;
   const drink = all.find((d) => d.id === Number(v.beverageId));
@@ -89,7 +89,7 @@ export function BeverageForm({ date, nowClock, caffeineMgPerG, drinks }: { date:
               <Controller control={form.control} name="volumeMl" render={({ field }) => (<NumberStepper id="volumeMl" value={field.value} onChange={field.onChange} onBlur={field.onBlur} step={10} min={0} max={3000} unit="مل" invalid={Boolean(err('volumeMl'))} />)} />
             </Field>
             {drink.byCoffeeWeight && (
-              <Field label="وزن البن (غ)" htmlFor="dryCoffeeG" error={err('dryCoffeeG')} hint={`الكافيين = الوزن × ${caffeineMgPerG} mg/g`}>
+              <Field label="وزن البن (غ)" htmlFor="dryCoffeeG" error={err('dryCoffeeG')} hint={`الكافيين = الوزن × ${caffeineMgPerG} ملغ/غ`}>
                 <Controller control={form.control} name="dryCoffeeG" render={({ field }) => (<NumberStepper id="dryCoffeeG" value={field.value} onChange={field.onChange} onBlur={field.onBlur} step={1} min={0} max={100} unit="غ" invalid={Boolean(err('dryCoffeeG'))} />)} />
               </Field>
             )}
@@ -101,15 +101,15 @@ export function BeverageForm({ date, nowClock, caffeineMgPerG, drinks }: { date:
                 <Controller control={form.control} name="milkMl" render={({ field }) => (<NumberStepper id="milkMl" value={field.value} onChange={field.onChange} onBlur={field.onBlur} step={10} min={0} max={1000} unit="مل" invalid={Boolean(err('milkMl'))} />)} />
               </Field>
             )}
-            <Field label="السكر (ملعقة صغيرة)" htmlFor="sugarTsp" error={err('sugarTsp')} hint="الملعقة = 4.2 غ = 16.8 kcal">
+            <Field label="السكر (ملعقة صغيرة)" htmlFor="sugarTsp" error={err('sugarTsp')} hint="الملعقة = 4.2 غ = 16.8 سعرة">
               <Controller control={form.control} name="sugarTsp" render={({ field }) => (<NumberStepper id="sugarTsp" value={field.value} onChange={field.onChange} onBlur={field.onBlur} step={0.5} min={0} max={20} unit="ملعقة" invalid={Boolean(err('sugarTsp'))} />)} />
             </Field>
           </div>
 
           {preview && (
             <div className="grid grid-cols-3 gap-3 rounded-lg bg-brand-soft px-4 py-3 text-center">
-              <div><div className="text-xs text-brand-ink">كافيين</div><Num value={preview.caffeineMg} unit="mg" className="font-semibold" /></div>
-              <div><div className="text-xs text-brand-ink">سعرات</div><Num value={preview.totalKcal} unit="kcal" className="font-semibold" /></div>
+              <div><div className="text-xs text-brand-ink">كافيين</div><Num value={preview.caffeineMg} unit="ملغ" className="font-semibold" /></div>
+              <div><div className="text-xs text-brand-ink">سعرات</div><Num value={preview.totalKcal} unit="سعرة" className="font-semibold" /></div>
               <div><div className="text-xs text-brand-ink">بروتين</div><Num value={preview.proteinG} digits={1} unit="غ" className="font-semibold" /></div>
             </div>
           )}

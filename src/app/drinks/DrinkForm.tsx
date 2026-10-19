@@ -49,7 +49,7 @@ export function DrinkForm({ drink, onDone, onCreated, caffeineMgPerG }: {
         <input id={`${p}-bycoffee`} type="checkbox" className="mt-1 size-5 accent-brand" {...form.register('byCoffeeWeight')} />
         <span>
           <span className="block font-semibold">قهوة أحضّرها من بن موزون</span>
-          <span className="text-sm text-ink-muted">الكافيين = وزن البن × {caffeineMgPerG} mg/g (من الإعدادات). أدق من تقدير الحجم.</span>
+          <span className="text-sm text-ink-muted">الكافيين = وزن البن × {caffeineMgPerG} ملغ/غ (من الإعدادات). أدق من تقدير الحجم.</span>
         </span>
       </label>
 
@@ -59,11 +59,11 @@ export function DrinkForm({ drink, onDone, onCreated, caffeineMgPerG }: {
             <Controller control={form.control} name="defaultCoffeeG" render={({ field }) => (<NumberStepper id={`${p}-coffee`} value={field.value} onChange={field.onChange} onBlur={field.onBlur} step={1} min={0} max={100} unit="غ" invalid={Boolean(err('defaultCoffeeG'))} />)} />
           </Field>
         )}
-        <Field label="كافيين لكل 100 مل (mg)" htmlFor={`${p}-caf`} error={err('caffeineMgPer100ml')} hint={byWeight ? 'يُستخدم إن لم تُدخل وزن البن' : '0 للمشروبات بلا كافيين'}>
-          <Controller control={form.control} name="caffeineMgPer100ml" render={({ field }) => (<NumberStepper id={`${p}-caf`} value={field.value} onChange={field.onChange} onBlur={field.onBlur} step={1} min={0} max={1000} unit="mg" invalid={Boolean(err('caffeineMgPer100ml'))} />)} />
+        <Field label="كافيين لكل 100 مل (ملغ)" htmlFor={`${p}-caf`} error={err('caffeineMgPer100ml')} hint={byWeight ? 'يُستخدم إن لم تُدخل وزن البن' : '0 للمشروبات بلا كافيين'}>
+          <Controller control={form.control} name="caffeineMgPer100ml" render={({ field }) => (<NumberStepper id={`${p}-caf`} value={field.value} onChange={field.onChange} onBlur={field.onBlur} step={1} min={0} max={1000} unit="ملغ" invalid={Boolean(err('caffeineMgPer100ml'))} />)} />
         </Field>
         <Field label="سعرات لكل 100 مل" htmlFor={`${p}-kcal`} error={err('kcalPer100ml')} hint="بدون الحليب والسكر">
-          <Controller control={form.control} name="kcalPer100ml" render={({ field }) => (<NumberStepper id={`${p}-kcal`} value={field.value} onChange={field.onChange} onBlur={field.onBlur} step={1} min={0} max={1000} unit="kcal" invalid={Boolean(err('kcalPer100ml'))} />)} />
+          <Controller control={form.control} name="kcalPer100ml" render={({ field }) => (<NumberStepper id={`${p}-kcal`} value={field.value} onChange={field.onChange} onBlur={field.onBlur} step={1} min={0} max={1000} unit="سعرة" invalid={Boolean(err('kcalPer100ml'))} />)} />
         </Field>
         <Field label="بروتين لكل 100 مل (غ)" htmlFor={`${p}-prot`} error={err('proteinGPer100ml')}>
           <Controller control={form.control} name="proteinGPer100ml" render={({ field }) => (<NumberStepper id={`${p}-prot`} value={field.value} onChange={field.onChange} onBlur={field.onBlur} step={0.1} min={0} max={100} unit="غ" invalid={Boolean(err('proteinGPer100ml'))} />)} />

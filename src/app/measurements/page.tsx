@@ -4,6 +4,7 @@ import { Card } from '@/components/Card';
 import { DeleteButton } from '@/components/forms/DeleteButton';
 import { Num } from '@/components/Num';
 import { EmptyState, PageHeader, SectionTitle } from '@/components/ui';
+import { SideColumn } from '@/components/SideColumn';
 import { bodyFatCategory, navyBodyFat, whrRisk, whtr, whtrRisk, type BodyFatCategory } from '@/domain/anthropometry';
 import { deleteMeasurement } from '@/server/actions/measurements';
 import { getMeasurements, type MeasurementView } from '@/server/queries/logs';
@@ -11,6 +12,8 @@ import { resolveDate } from '@/server/queries/page';
 import { getProfileAndSettings } from '@/server/queries/profile';
 import { USER_ID } from '@/server/session';
 import { MeasurementsForm } from './MeasurementsForm';
+import { TBody, THead, Table, Td, Tr } from '@/components/Table';
+import { formatDate } from '@/lib/inputs';
 
 export const metadata: Metadata = { title: 'القياسات الشهرية', description: 'محيطات الجسم ونسبة الخصر للورك وللطول ونسبة الدهون.' };
 
@@ -75,29 +78,26 @@ export default async function MeasurementsPage() {
           <SectionTitle>قياس جديد</SectionTitle>
           <MeasurementsForm today={today} />
         </Card>
-        <section className="flex flex-col gap-3">
-          <SectionTitle>السجل</SectionTitle>
+        <SideColumn title={<SectionTitle>السجل</SectionTitle>}>
           {rows.length === 0 && <EmptyState title="لا توجد قياسات بعد" />}
           {rows.length > 0 && (
-            <Card className="overflow-x-auto p-0">
-              <table className="w-full min-w-[420px] text-sm">
-                <thead className="text-ink-muted"><tr>{['التاريخ', 'خصر', 'ورك', 'رقبة', 'WHR', ''].map((h) => <th key={h} className="px-3 py-3 text-start font-medium">{h}</th>)}</tr></thead>
-                <tbody>
-                  {rows.map((m) => (
-                    <tr key={m.id} className="border-t border-line">
-                      <td className="px-3 py-2"><bdi className="font-mono">{m.date}</bdi></td>
-                      <td className="px-3"><Num value={m.waistCm} digits={1} /></td>
-                      <td className="px-3"><Num value={m.hipCm} digits={1} /></td>
-                      <td className="px-3">{m.neckCm == null ? '—' : <Num value={m.neckCm} digits={1} />}</td>
-                      <td className="px-3"><Num value={m.whr} digits={3} /></td>
-                      <td className="px-3"><DeleteButton id={m.id} action={deleteMeasurement} /></td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </Card>
+            <Table>
+              <THead columns={['التاريخ', 'خصر', 'ورك', 'رقبة', 'WHR', '']} />
+              <TBody>
+                {rows.map((m) => (
+                  <Tr key={m.id}>
+                    <Td num>{formatDate(m.date)}</Td>
+                    <Td num>{m.waistCm.toFixed(1)}</Td>
+                    <Td num>{m.hipCm.toFixed(1)}</Td>
+                    <Td num>{m.neckCm == null ? '—' : m.neckCm.toFixed(1)}</Td>
+                    <Td num className="font-semibold">{m.whr.toFixed(3)}</Td>
+                    <Td className="text-end"><DeleteButton id={m.id} action={deleteMeasurement} /></Td>
+                  </Tr>
+                ))}
+              </TBody>
+            </Table>
           )}
-        </section>
+        </SideColumn>
       </div>
     </div>
   );

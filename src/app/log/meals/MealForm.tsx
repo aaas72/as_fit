@@ -32,7 +32,7 @@ export function MealForm({ date, nowClock, foods, schedule }: { date: string; no
     schema: mealSchema,
     action: createMeal,
     defaultValues: { logDate: date, mealType: 'lunch', actualTime: nowClock, notes: '', items: [] },
-    successText: (r) => `حُفظت الوجبة: ${Math.round(r.kcal)} kcal و ${Math.round(r.protein)} غ بروتين.`,
+    successText: (r) => `حُفظت الوجبة: ${Math.round(r.kcal)} سعرة و ${Math.round(r.protein)} غ بروتين.`,
     onSuccess: () => form.reset({ ...form.getValues(), notes: '', items: [] }),
   });
   const { fields, append, remove } = useFieldArray({ control: form.control, name: 'items' });
@@ -128,7 +128,7 @@ export function MealForm({ date, nowClock, foods, schedule }: { date: string; no
                     <NumberStepper id={`item-${i}-qty`} value={field.value} onChange={field.onChange} onBlur={field.onBlur}
                       step={f?.basis === 'per_unit' ? 0.5 : 10} min={0} max={5000} unit={f ? QUANTITY_UNIT[f.basis] : ''} invalid={Boolean(err(`items.${i}.quantity`))} />
                   )} /></div>
-                  <span className="text-sm [grid-area:kcal]">{r?.n ? <><Num value={r.n.calories} unit="kcal" /> · <Num value={r.n.protein} digits={1} unit="غ" /></> : '—'}</span>
+                  <span className="text-sm [grid-area:kcal]">{r?.n ? <><Num value={r.n.calories} unit="سعرة" /> · <Num value={r.n.protein} digits={1} unit="غ" /></> : '—'}</span>
                   <Button variant="ghost" className="px-2 [grid-area:del]" aria-label={`حذف ${f?.nameAr ?? 'الصنف'}`} onClick={() => remove(i)}>✕</Button>
                   {err(`items.${i}.quantity`) && <p className="col-span-full text-sm text-danger-ink">{err(`items.${i}.quantity`)}</p>}
                 </li>
@@ -146,7 +146,7 @@ export function MealForm({ date, nowClock, foods, schedule }: { date: string; no
       <div className="flex flex-wrap items-center justify-between gap-4 rounded-lg bg-brand-soft px-4 py-3">
         <span className="text-sm font-semibold text-brand-ink">مجموع الوجبة</span>
         <span className="flex gap-4">
-          <Num value={total.kcal} unit="kcal" className="font-semibold" />
+          <Num value={total.kcal} unit="سعرة" className="font-semibold" />
           <Num value={total.protein} unit="غ بروتين" className="font-semibold" />
         </span>
       </div>

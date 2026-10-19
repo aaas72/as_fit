@@ -71,29 +71,85 @@ export function TimeField({ id, value, onChange, onBlur, invalid, clearable = fa
   );
 }
 
+// ───────────────────────── Calendar ─────────────────────────
+// Monday-first month grid with Arabic month names and a 12-year view. Shared by DateField and DateNav.
+export function CalendarPanel({ value, onSelect, min, max, today = new Date().toISOString().slice(0, 10) }: {
+  value: string; onSelect: (iso: string) => void; min?: string; max?: string; today?: string;
+}) {
+  const anchor = /^\d{4}-\d{2}-\d{2}$/.test(value) ? value : max ?? today;
+  const [view, setView] = useState({ y: Number(anchor.slice(0, 4)), m: Number(anchor.slice(5, 7)) - 1 });
+  const [mode, setMode] = useState<'days' | 'years'>('days');
+  const disabled = (iso: string) => (min != null && iso < min) || (max != null && iso > max);
+  const shift = (delta: number) => setView((v) => {
+    const d = new Date(Date.UTC(v.y, v.m + delta, 1));
+    return { y: d.getUTCFullYear(), m: d.getUTCMonth() };
+  });
+  const yearStart = view.y - (view.y % 12);
+  const navBtn = 'grid size-8 place-items-center rounded-md text-ink-muted hover:bg-brand-soft hover:text-brand-ink';
+
+  return (
+    <div className="flex flex-col gap-2">
+      <div className="flex items-center justify-between">
+        <button type="button" aria-label="السابق" className={navBtn} onClick={() => (mode === 'days' ? shift(-1) : setView((v) => ({ ...v, y: v.y - 12 })))}>
+          <Icon name="chevron" className="size-4 -rotate-90" />
+        </button>
+        <button type="button" className="rounded-md px-2 py-1 font-semibold hover:bg-brand-soft" onClick={() => setMode(mode === 'days' ? 'years' : 'days')}>
+          {mode === 'days' ? <>{AR_MONTHS[view.m]} <bdi className="font-mono">{view.y}</bdi></> : <bdi className="font-mono">{yearStart}–{yearStart + 11}</bdi>}
+        </button>
+        <button type="button" aria-label="التالي" className={navBtn} onClick={() => (mode === 'days' ? shift(1) : setView((v) => ({ ...v, y: v.y + 12 })))}>
+          <Icon name="chevron" className="size-4 rotate-90" />
+        </button>
+      </div>
+
+      {mode === 'days' ? (
+        <>
+          <div className="grid grid-cols-7 gap-1 text-center text-xs text-ink-muted">{AR_WEEKDAYS_SHORT.map((w) => <span key={w}>{w}</span>)}</div>
+          <div className="grid grid-cols-7 gap-1">
+            {monthGrid(view.y, view.m).map((c) => {
+              const selected = c.iso === value;
+              const off = disabled(c.iso);
+              return (
+                <button
+                  key={c.iso} type="button" disabled={off} aria-pressed={selected} aria-label={c.iso}
+                  onClick={() => onSelect(c.iso)}
+                  className={cn(cell, !c.inMonth && 'text-ink-muted/50', off && 'cursor-not-allowed opacity-30',
+                    selected ? 'bg-brand-strong text-white' : !off && 'hover:bg-brand-soft', c.iso === today && !selected && 'font-bold text-brand-ink ring-1 ring-brand/40')}
+                >
+                  {c.day}
+                </button>
+              );
+            })}
+          </div>
+        </>
+      ) : (
+        <div className="grid grid-cols-4 gap-1" dir="ltr">
+          {Array.from({ length: 12 }, (_, i) => yearStart + i).map((y) => (
+            <button key={y} type="button" onClick={() => { setView((v) => ({ ...v, y })); setMode('days'); }}
+              className={cn(cell, y === view.y ? 'bg-brand-strong text-white' : 'hover:bg-brand-soft')}>{y}</button>
+          ))}
+        </div>
+      )}
+      {!disabled(today) && (
+        <div className="border-t border-line pt-2 text-sm">
+          <button type="button" className="font-semibold text-brand-ink" onClick={() => onSelect(today)}>اليوم</button>
+        </div>
+      )}
+    </div>
+  );
+}
+
 // ───────────────────────── Date ─────────────────────────
-// Type "19/10/2026", or pick from a Monday-first calendar with Arabic month names. Year view for distant dates.
+// Type "19/10/2026", or pick from the calendar.
 export function DateField({ id, value, onChange, onBlur, invalid, min, max }: FieldProps & { min?: string; max?: string }) {
   const [draft, setDraft] = useState<string | null>(null);
   const { open, setOpen, ref } = usePopover();
   const current = value ?? '';
-  const anchor = /^\d{4}-\d{2}-\d{2}$/.test(current) ? current : max ?? new Date().toISOString().slice(0, 10);
-  const [view, setView] = useState({ y: Number(anchor.slice(0, 4)), m: Number(anchor.slice(5, 7)) - 1 });
-  const [mode, setMode] = useState<'days' | 'years'>('days');
-  const today = new Date().toISOString().slice(0, 10);
 
   const commit = (text: string) => {
     setDraft(null);
     if (text.trim() === '') return onChange('');
     onChange(parseDate(text) ?? text);
   };
-  const disabled = (iso: string) => (min != null && iso < min) || (max != null && iso > max);
-  const shift = (delta: number) => setView((v) => {
-    const d = new Date(Date.UTC(v.y, v.m + delta, 1));
-    return { y: d.getUTCFullYear(), m: d.getUTCMonth() };
-  });
-  const openPanel = () => { setView({ y: Number(anchor.slice(0, 4)), m: Number(anchor.slice(5, 7)) - 1 }); setMode('days'); setOpen(!open); };
-  const yearStart = view.y - (view.y % 12);
 
   return (
     <div ref={ref} className="relative">
@@ -109,50 +165,12 @@ export function DateField({ id, value, onChange, onBlur, invalid, min, max }: Fi
         onBlur={(e) => { commit(e.target.value); onBlur?.(); }}
         onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); commit(e.currentTarget.value); } }}
       />
-      <button type="button" className={iconBtn} aria-label="اختيار التاريخ" aria-expanded={open} onClick={openPanel}>
+      <button type="button" className={iconBtn} aria-label="اختيار التاريخ" aria-expanded={open} onClick={() => setOpen(!open)}>
         <Icon name="calendar" className="size-4" />
       </button>
       {open && (
         <div className={cn(panelClass, 'w-72')} role="dialog" aria-label="اختيار التاريخ">
-          <div className="mb-2 flex items-center justify-between">
-            <button type="button" aria-label="السابق" className="grid size-8 place-items-center rounded-md hover:bg-brand-soft" onClick={() => (mode === 'days' ? shift(-1) : setView((v) => ({ ...v, y: v.y - 12 })))}>→</button>
-            <button type="button" className="rounded-md px-2 py-1 font-semibold hover:bg-brand-soft" onClick={() => setMode(mode === 'days' ? 'years' : 'days')}>
-              {mode === 'days' ? <>{AR_MONTHS[view.m]} <bdi className="font-mono">{view.y}</bdi></> : <bdi className="font-mono">{yearStart}–{yearStart + 11}</bdi>}
-            </button>
-            <button type="button" aria-label="التالي" className="grid size-8 place-items-center rounded-md hover:bg-brand-soft" onClick={() => (mode === 'days' ? shift(1) : setView((v) => ({ ...v, y: v.y + 12 })))}>←</button>
-          </div>
-
-          {mode === 'days' ? (
-            <>
-              <div className="grid grid-cols-7 gap-1 text-center text-xs text-ink-muted">{AR_WEEKDAYS_SHORT.map((w) => <span key={w}>{w}</span>)}</div>
-              <div className="mt-1 grid grid-cols-7 gap-1">
-                {monthGrid(view.y, view.m).map((c) => {
-                  const selected = c.iso === current;
-                  const off = disabled(c.iso);
-                  return (
-                    <button
-                      key={c.iso} type="button" disabled={off} aria-pressed={selected} aria-label={c.iso}
-                      onClick={() => { onChange(c.iso); setOpen(false); }}
-                      className={cn(cell, !c.inMonth && 'text-ink-muted/50', off && 'cursor-not-allowed opacity-30',
-                        selected ? 'bg-brand-strong text-white' : !off && 'hover:bg-brand-soft', c.iso === today && !selected && 'font-bold text-brand-ink')}
-                    >
-                      {c.day}
-                    </button>
-                  );
-                })}
-              </div>
-            </>
-          ) : (
-            <div className="grid grid-cols-4 gap-1" dir="ltr">
-              {Array.from({ length: 12 }, (_, i) => yearStart + i).map((y) => (
-                <button key={y} type="button" onClick={() => { setView((v) => ({ ...v, y })); setMode('days'); }}
-                  className={cn(cell, y === view.y ? 'bg-brand-strong text-white' : 'hover:bg-brand-soft')}>{y}</button>
-              ))}
-            </div>
-          )}
-          <div className="mt-2 flex justify-start border-t border-line pt-2 text-sm">
-            {!disabled(today) && <button type="button" className="font-semibold text-brand-ink" onClick={() => { onChange(today); setOpen(false); }}>اليوم</button>}
-          </div>
+          <CalendarPanel value={current} min={min} max={max} onSelect={(iso) => { onChange(iso); setOpen(false); }} />
         </div>
       )}
     </div>

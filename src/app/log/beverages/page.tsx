@@ -6,6 +6,7 @@ import { DeleteButton } from '@/components/forms/DeleteButton';
 import { Num } from '@/components/Num';
 import { ProgressBar } from '@/components/ProgressBar';
 import { EmptyState, PageHeader, SectionTitle, Stat } from '@/components/ui';
+import { SideColumn } from '@/components/SideColumn';
 import { caffeineLevel, residualCaffeineMg } from '@/domain/caffeine-kinetics';
 import { CAFFEINE_DAILY_SAFE_MG } from '@/domain/constants';
 import { MILK_LABEL } from '@/lib/labels';
@@ -36,16 +37,16 @@ export default async function BeveragesPage({ searchParams }: { searchParams: Da
 
       <Card className="grid gap-6 sm:grid-cols-3">
         <div className="flex flex-col gap-2">
-          <Stat label="كافيين اليوم"><Num value={caffeineToday} unit="mg" /></Stat>
+          <Stat label="كافيين اليوم"><Num value={caffeineToday} unit="ملغ" /></Stat>
           <ProgressBar value={caffeineToday} max={CAFFEINE_DAILY_SAFE_MG} tone={caffeineToday > CAFFEINE_DAILY_SAFE_MG ? 'danger' : 'brand'} label="الكافيين مقابل الحد اليومي" />
-          <span className="text-xs text-ink-muted">الحد اليومي الآمن للبالغين 400 mg (EFSA)</span>
+          <span className="text-xs text-ink-muted">الحد اليومي الآمن للبالغين 400 ملغ (EFSA)</span>
         </div>
         <Stat label="الكافيين في الدم الآن" hint={`نصف العمر ${settings?.caffeineHalfLifeH ?? 5} ساعات`}>
           {residualNow == null ? <span className="text-ink-muted">—</span> : (
-            <span className="flex items-center gap-2"><Num value={residualNow} unit="mg" /><Badge tone={LEVEL[caffeineLevel(residualNow)][0]}>{LEVEL[caffeineLevel(residualNow)][1]}</Badge></span>
+            <span className="flex items-center gap-2"><Num value={residualNow} unit="ملغ" /><Badge tone={LEVEL[caffeineLevel(residualNow)][0]}>{LEVEL[caffeineLevel(residualNow)][1]}</Badge></span>
           )}
         </Stat>
-        <Stat label="سعرات المشروبات"><Num value={kcalToday} unit="kcal" /></Stat>
+        <Stat label="سعرات المشروبات"><Num value={kcalToday} unit="سعرة" /></Stat>
       </Card>
 
       <div className="grid gap-6 xl:grid-cols-[minmax(0,3fr)_minmax(0,2fr)]">
@@ -53,8 +54,7 @@ export default async function BeveragesPage({ searchParams }: { searchParams: Da
           <SectionTitle>مشروب جديد</SectionTitle>
           <BeverageForm key={date} date={date} nowClock={nowClock(tz)} caffeineMgPerG={settings?.caffeineMgPerG ?? 11} drinks={drinks} />
         </Card>
-        <section className="flex flex-col gap-3">
-          <SectionTitle aside={<Badge>{todays.length}</Badge>}>مشروبات اليوم</SectionTitle>
+        <SideColumn title={<SectionTitle aside={<Badge>{todays.length}</Badge>}>مشروبات اليوم</SectionTitle>}>
           {todays.length === 0 && <EmptyState title="لا توجد مشروبات مسجلة لهذا اليوم" />}
           {todays.map((b) => (
             <Card key={b.id} className="flex flex-wrap items-center gap-3 p-4">
@@ -69,13 +69,13 @@ export default async function BeveragesPage({ searchParams }: { searchParams: Da
                 </p>
               </div>
               <div className="flex flex-col items-end text-sm">
-                <Num value={b.caffeineMg} unit="mg" className="font-semibold" />
-                <Num value={b.kcal} unit="kcal" className="text-ink-muted" />
+                <Num value={b.caffeineMg} unit="ملغ" className="font-semibold" />
+                <Num value={b.kcal} unit="سعرة" className="text-ink-muted" />
               </div>
               <DeleteButton id={b.id} action={deleteBeverage} />
             </Card>
           ))}
-        </section>
+        </SideColumn>
       </div>
     </div>
   );

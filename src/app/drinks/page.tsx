@@ -37,7 +37,7 @@ export default async function DrinksPage() {
             {CAFFEINE_REFERENCE.map((r) => (
               <li key={r.name} className="flex justify-between gap-2 border-b border-line pb-2 last:border-0">
                 <span>{r.name}</span>
-                <span className="flex gap-2"><Num value={r.mgPer100ml} unit="mg" /><bdi className="font-mono text-xs text-ink-muted">{r.note}</bdi></span>
+                <span className="flex gap-2"><Num value={r.mgPer100ml} unit="ملغ" /><bdi className="font-mono text-xs text-ink-muted">{r.note}</bdi></span>
               </li>
             ))}
           </ul>

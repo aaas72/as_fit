@@ -46,7 +46,7 @@ export function ScreenForm({ date, initial }: { date: string; initial: { highFoc
         {total > 24 && <Badge tone="danger">يتجاوز 24 ساعة</Badge>}
         {focus > 5 && <Badge tone="warning">تركيز طويل: خطط لوجبة بروتينية قبل نهاية العمل</Badge>}
       </div>
-      <p className="text-sm text-ink-muted">ساعات الشاشة لا تضيف سعرات للحرق. العمل الذهني يرفع الحرق بنحو 5 kcal/ساعة فقط، لكنه قد يزيد الشهية مساءً، ولذلك يُستخدم لتنبيهات سلوكية فقط.</p>
+      <p className="text-sm text-ink-muted">ساعات الشاشة لا تضيف سعرات للحرق. العمل الذهني يرفع الحرق بنحو 5 سعرة/ساعة فقط، لكنه قد يزيد الشهية مساءً، ولذلك يُستخدم لتنبيهات سلوكية فقط.</p>
       <FormStatus status={status} />
       <Button id="save-screen" type="submit" disabled={pending} className="self-start">{pending ? 'جارٍ الحفظ…' : 'حفظ'}</Button>
     </form>

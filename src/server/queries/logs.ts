@@ -127,7 +127,7 @@ export async function getSleepBetween(userId: number, from: string, to: string):
 
 // ───────── Measurements ─────────
 export async function getMeasurements(userId: number): Promise<MeasurementView[]> {
-  if (MOCK_MODE) return [...mockDataset().measurements].reverse();
+  if (MOCK_MODE) return mockDataset().measurements; // already latest-first, like the query below
   const rows = await db.select().from(bodyMeasurements).where(eq(bodyMeasurements.userId, userId)).orderBy(desc(bodyMeasurements.logDate));
   return rows.map((m) => ({
     id: m.id, date: m.logDate, neckCm: n(m.neckCm), chestCm: n(m.chestCm), waistCm: Number(m.waistCm), hipCm: Number(m.hipCm),

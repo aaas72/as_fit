@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { earlierDateTime, formatDate, monthGrid, nightDateTimes, parseDate, parseTime, stepValue } from '@/lib/inputs';
+import { earlierDateTime, formatDate, isClock, monthGrid, nightDateTimes, parseDate, parseTime, stepValue } from '@/lib/inputs';
 
 describe('parseTime', () => {
   it.each([
@@ -35,6 +35,13 @@ describe('stepValue', () => {
     expect(stepValue('1.5', 0.5, { step: 0.5, max: 2 })).toBe('2.0');
     expect(stepValue('', 5, { step: 5, min: 0 })).toBe('5');
     expect(stepValue('598', 5, { step: 5, max: 600 })).toBe('600');
+  });
+});
+
+describe('isClock', () => {
+  it('accepts complete HH:MM only', () => {
+    expect(['07:00', '22:09', '00:00', '23:59'].every(isClock)).toBe(true);
+    expect(['7:00', '24:00', '12:60', 'dd:dd', '', null].some(isClock)).toBe(false);
   });
 });
 

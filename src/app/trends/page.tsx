@@ -64,7 +64,7 @@ export default async function TrendsPage({ searchParams }: { searchParams: Promi
       <Card className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
         <Stat label="وزن خط الاتجاه"><Num value={model.currentWeightKg} digits={1} unit="كغ" /></Stat>
         <Stat label="الحرق الفعلي المرصود" hint={obs ? `من ${obs.days} يوماً، وزنه في الحساب ${Math.round(obs.beta * 100)}%` : 'يحتاج 14 يوماً من القراءات الملتزمة'}>
-          {obs ? <Num value={obs.tdee} unit="kcal" /> : <span className="text-ink-muted">—</span>}
+          {obs ? <Num value={obs.tdee} unit="سعرة" /> : <span className="text-ink-muted">—</span>}
         </Stat>
         <Stat label="معدل التغير الأسبوعي">{obs ? <Num value={obs.slopeKgPerDay * 7} digits={2} unit="كغ" /> : <span className="text-ink-muted">—</span>}</Stat>
         <Stat label="أيام مكتملة التسجيل"><Num value={completeDays} /> <span className="text-base text-ink-muted">/ <Num value={range} /></span></Stat>
@@ -75,7 +75,7 @@ export default async function TrendsPage({ searchParams }: { searchParams: Promi
         <Card><SectionTitle>النزول المتوقع مقابل الفعلي</SectionTitle><CumulativeLossChart data={cumulative} /></Card>
         <Card className="xl:col-span-2"><SectionTitle>المتناول مقابل الحرق</SectionTitle><EnergyChart data={energy} observed={obs?.tdee ?? null} /></Card>
         <Card><SectionTitle>النوم الفعلي</SectionTitle><BarsChart data={sleepData} name="النوم" unit="س" digits={1} target={7} targetLabel="7 ساعات" /></Card>
-        <Card><SectionTitle>الكافيين اليومي</SectionTitle><BarsChart data={caffeine} name="الكافيين" unit="mg" target={CAFFEINE_DAILY_SAFE_MG} targetLabel="400 mg" targetTone="danger" /></Card>
+        <Card><SectionTitle>الكافيين اليومي</SectionTitle><BarsChart data={caffeine} name="الكافيين" unit="ملغ" target={CAFFEINE_DAILY_SAFE_MG} targetLabel="400 ملغ" targetTone="danger" /></Card>
       </div>
     </div>
   );

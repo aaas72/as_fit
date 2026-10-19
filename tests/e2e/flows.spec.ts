@@ -46,7 +46,7 @@ test('1. profile → meal → coffee with milk → walk → dashboard matches ma
   await expect(page.locator('#item-1-qty')).toHaveValue('100');
   await page.fill('#item-1-qty', '150');
   await page.click('#save-meal');
-  await expect(status(page).filter({ hasText: 'الوجبة' })).toContainText('392 kcal');
+  await expect(status(page).filter({ hasText: 'الوجبة' })).toContainText('392 سعرة');
 
   // Coffee: user's own drink, 15 g ground coffee + 100 ml whole milk (62 kcal, 3.3 g) + 1 tsp sugar (16.8) = 78.8 kcal
   await page.goto('/log/beverages');
@@ -67,7 +67,7 @@ test('1. profile → meal → coffee with milk → walk → dashboard matches ma
   await page.fill('#milkMl', '100');
   await page.fill('#sugarTsp', '1');
   await page.click('#save-beverage');
-  await expect(status(page).filter({ hasText: 'كافيين' })).toContainText('165 mg');
+  await expect(status(page).filter({ hasText: 'كافيين' })).toContainText('165 ملغ');
 
   // Brisk walk 45 min, MET 4.3, 80 kg → net 207.9 kcal
   await page.goto('/log/activity');
@@ -75,12 +75,12 @@ test('1. profile → meal → coffee with milk → walk → dashboard matches ma
   await page.getByRole('option', { name: /مشي سريع/ }).click();
   await page.fill('#durationMinutes', '45');
   await page.click('#save-exercise');
-  await expect(status(page)).toContainText('208 kcal');
+  await expect(status(page)).toContainText('208 سعرة');
 
   // Dashboard: intake 470.3 → 470; TDEE 2136 + 207.9 = 2343.9 → target 1843.9 → 1,844; protein 62.4 → 62
   await page.goto('/');
   const ring = page.getByRole('img', { name: /المستهلك/ });
-  await expect(ring).toHaveAttribute('aria-label', 'المستهلك 470 من 1844 kcal');
+  await expect(ring).toHaveAttribute('aria-label', 'المستهلك 470 من 1844 سعرة');
   await expect(page.getByText('2,344').first()).toBeVisible();
   await expect(page.getByText('تمارين نشطة')).toBeVisible();
   await expect(page.locator('main')).toContainText('62');
@@ -93,6 +93,8 @@ test('2. weigh-in with 12 h fast is saved and flagged non-compliant', async ({ p
   const [h, m] = (await page.inputValue('#measuredAt')).split(':').map(Number);
   await page.fill('#lastMealAt', `${String((h! + 12) % 24).padStart(2, '0')}:${String(m).padStart(2, '0')}`);
   await page.locator('#lastMealAt').blur();
+  // the live preview must compute fasting from the two clock times (regression: preview stuck at 0.0)
+  await expect(page.getByText('مدة الصيام').locator('..')).toContainText('12.0');
   await expect(page.getByText('القراءة الآن ستُحفظ كغير ملتزمة')).toBeVisible();
   await page.click('#wizard-next');
   await page.check('#bathroomDone');

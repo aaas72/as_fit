@@ -28,7 +28,7 @@ export const truePlateau: InsightRule = {
       severity: 'warning',
       title: 'ثبات وزن حقيقي محتمل',
       message: `خلال ${change.spanDays} يوماً كان المتوقع نزول ${fmt(exp.expectedKg, 2)} كغ، والفعلي ${fmt(change.lossKg, 2)} كغ، دون مؤشرات احتباس سوائل. راجع دقة وزن الطعام وتسجيل كل الوجبات.`
-        + (ctx.observedTdee != null && formulaAvg != null ? ` الحرق المرصود ${fmt(ctx.observedTdee)} مقابل النظري ${fmt(formulaAvg)} kcal.` : ''),
+        + (ctx.observedTdee != null && formulaAvg != null ? ` الحرق المرصود ${fmt(ctx.observedTdee)} مقابل النظري ${fmt(formulaAvg)} سعرة.` : ''),
       payload: { expectedKg: exp.expectedKg, actualKg: change.lossKg, spanDays: change.spanDays, observedTdee: ctx.observedTdee, formulaTdeeAvg: formulaAvg, completeDays: exp.completeDays },
       periodStart: first.date,
       periodEnd: last.date,

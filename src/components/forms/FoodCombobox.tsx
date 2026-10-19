@@ -62,7 +62,7 @@ export function FoodCombobox({ id, foods, onPick, onCreate, placeholder = 'اب�
               className={cn('flex cursor-pointer items-center justify-between gap-3 px-3 py-2 text-sm', i === active && 'bg-brand-soft')}
             >
               <span>{f.nameAr}</span>
-              <bdi className="font-mono text-xs text-ink-muted">{f.calories} kcal · {BASIS_LABEL[f.basis]}</bdi>
+              <bdi className="font-mono text-xs text-ink-muted">{f.calories} سعرة · {BASIS_LABEL[f.basis]}</bdi>
             </li>
           ))}
           {onCreate && query.trim() && (

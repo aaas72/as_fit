@@ -1,4 +1,4 @@
-import { test, type Page } from '@playwright/test';
+import { expect, test, type Page } from '@playwright/test';
 
 // Visual review of interactive states (open pickers, inline forms, filled rows) at desktop and phone width.
 // Runs after flows.spec.ts so the dictionary and drink list have data. Screenshots: test-results/states.
@@ -45,6 +45,21 @@ for (const vp of [{ name: 'desktop', width: 1440, height: 1000 }, { name: 'phone
     await page.goto('/log/activity');
     await page.waitForLoadState('networkidle');
     await shot(page, `${p}-activity`);
+
+    await page.goto('/log/sleep');
+    await page.waitForLoadState('networkidle');
+    // default night 23:00 → 23:20 → 07:00 must show live metrics (7.7 h actual sleep)
+    await expect(page.getByText('النوم الفعلي', { exact: true }).locator('..')).toContainText('7.7');
+    await page.click('#date-prev');
+    await page.waitForURL(/date=/);
+    await shot(page, `${p}-datenav-yesterday`);
+    await page.getByRole('button', { name: 'أمس' }).click();
+    await shot(page, `${p}-datenav-calendar`);
+    await page.keyboard.press('Escape');
+
+    await page.goto('/measurements');
+    await page.waitForLoadState('networkidle');
+    await page.screenshot({ path: `test-results/states/${p}-measurements.png`, fullPage: true });
 
     await page.goto('/weigh-in');
     await page.waitForLoadState('networkidle');

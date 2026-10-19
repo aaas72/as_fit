@@ -12,6 +12,7 @@ import { getSleepBetween } from '@/server/queries/logs';
 import { resolveDate, type DateSearchParams } from '@/server/queries/page';
 import { USER_ID } from '@/server/session';
 import { SleepForm } from './SleepForm';
+import { TBody, THead, Table, Td, Tr } from '@/components/Table';
 
 export const metadata: Metadata = { title: 'النوم', description: 'تسجيل النوم وحساب الكفاءة والكمون ومدة النوم الفعلي.' };
 
@@ -30,10 +31,10 @@ export default async function SleepPage({ searchParams }: { searchParams: DateSe
         <Card>
           <SectionTitle>المعايير</SectionTitle>
           <ul className="flex flex-col gap-2 text-sm">
-            <li className="flex justify-between"><span>النوم الفعلي (TST)</span><bdi className="font-mono">7–9 h</bdi></li>
+            <li className="flex justify-between"><span>النوم الفعلي (TST)</span><bdi className="font-mono">7–9 س</bdi></li>
             <li className="flex justify-between"><span>كفاءة النوم (TST ÷ الوقت في الفراش)</span><bdi className="font-mono">≥ {sleepTargets.efficiencyPct}%</bdi></li>
-            <li className="flex justify-between"><span>كمون النوم</span><bdi className="font-mono">≤ {sleepTargets.latencyMin} min</bdi></li>
-            <li className="flex justify-between"><span>ثبات منتصف النوم</span><bdi className="font-mono">± 30 min</bdi></li>
+            <li className="flex justify-between"><span>كمون النوم</span><bdi className="font-mono">≤ {sleepTargets.latencyMin} د</bdi></li>
+            <li className="flex justify-between"><span>ثبات منتصف النوم</span><bdi className="font-mono">± 30 د</bdi></li>
           </ul>
         </Card>
       </div>
@@ -42,32 +43,26 @@ export default async function SleepPage({ searchParams }: { searchParams: DateSe
         <SectionTitle>آخر 14 ليلة</SectionTitle>
         {nights.length === 0 && <EmptyState title="لا توجد ليالٍ مسجلة بعد" />}
         {nights.length > 0 && (
-          <Card className="overflow-x-auto p-0">
-            <table className="w-full min-w-[640px] text-sm">
-              <thead className="text-ink-muted">
-                <tr>
-                  {['الليلة', 'الفراش', 'الاستيقاظ', 'النوم الفعلي', 'الكفاءة', 'الكمون', 'الانتعاش', ''].map((h) => <th key={h} className="px-4 py-3 text-start font-medium">{h}</th>)}
-                </tr>
-              </thead>
-              <tbody>
-                {[...nights].reverse().map((n) => {
-                  const eff = n.tibMin > 0 ? (n.tstMin / n.tibMin) * 100 : 0;
-                  return (
-                    <tr key={n.id} className="border-t border-line">
-                      <td className="px-4 py-2">{arabicDayLabel(n.date)}</td>
-                      <td className="px-4"><bdi className="font-mono">{localClockOf(n.bedAt, tz)}</bdi></td>
-                      <td className="px-4"><bdi className="font-mono">{localClockOf(n.wakeAt, tz)}</bdi></td>
-                      <td className="px-4"><Num value={n.tstMin / 60} digits={1} unit="س" className={n.tstMin < 360 ? 'text-danger-ink' : ''} /></td>
-                      <td className="px-4"><Badge tone={eff >= sleepTargets.efficiencyPct ? 'brand' : 'warning'}><Num value={eff} unit="%" /></Badge></td>
-                      <td className="px-4"><Num value={n.latencyMin} unit="د" /></td>
-                      <td className="px-4"><Num value={n.freshness} /> / 5</td>
-                      <td className="px-4"><DeleteButton id={n.id} action={deleteSleep} /></td>
-                    </tr>
-                  );
-                })}
-              </tbody>
-            </table>
-          </Card>
+          <Table minWidth="640px">
+            <THead columns={['الليلة', 'الفراش', 'الاستيقاظ', 'النوم الفعلي', 'الكفاءة', 'الكمون', 'الانتعاش', '']} />
+            <TBody>
+              {[...nights].reverse().map((n) => {
+                const eff = n.tibMin > 0 ? (n.tstMin / n.tibMin) * 100 : 0;
+                return (
+                  <Tr key={n.id}>
+                    <Td className="whitespace-nowrap">{arabicDayLabel(n.date)}</Td>
+                    <Td num>{localClockOf(n.bedAt, tz)}</Td>
+                    <Td num>{localClockOf(n.wakeAt, tz)}</Td>
+                    <Td num className={n.tstMin < 360 ? 'font-semibold text-danger-ink' : 'font-semibold'}>{(n.tstMin / 60).toFixed(1)} <span className="text-xs text-ink-muted">س</span></Td>
+                    <Td><Badge tone={eff >= sleepTargets.efficiencyPct ? 'brand' : 'warning'}><Num value={eff} unit="%" /></Badge></Td>
+                    <Td num>{n.latencyMin} <span className="text-xs text-ink-muted">د</span></Td>
+                    <Td num>{n.freshness} / 5</Td>
+                    <Td className="text-end"><DeleteButton id={n.id} action={deleteSleep} /></Td>
+                  </Tr>
+                );
+              })}
+            </TBody>
+          </Table>
         )}
       </section>
     </div>

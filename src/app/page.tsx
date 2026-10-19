@@ -54,7 +54,7 @@ export default async function DashboardPage() {
       />
 
       <div className="flex flex-wrap gap-2" aria-label="حالة اليوم">
-        {summary.exercisesToday.length > 0 && <Badge>تمارين نشطة · <Num value={exerciseKcal} unit="kcal" /></Badge>}
+        {summary.exercisesToday.length > 0 && <Badge>تمارين نشطة · <Num value={exerciseKcal} unit="سعرة" /></Badge>}
         {summary.intakeComplete && day.deficit > 0 && <Badge>عجز محقق <Num value={-day.deficit} /></Badge>}
         {summary.intakeComplete && day.deficit <= 0 && <Badge tone="danger">فائض <Num value={-day.deficit} /></Badge>}
         {!summary.intakeComplete && <Badge tone="warning">التسجيل غير مكتمل — العجز تقديري</Badge>}
@@ -69,21 +69,21 @@ export default async function DashboardPage() {
       <div className="grid gap-6 lg:grid-cols-3">
         <Card className="flex flex-col items-center gap-4 lg:row-span-2">
           <SectionTitle>سعرات اليوم</SectionTitle>
-          <ProgressRing value={consumed} max={target} tone={consumed > target ? 'danger' : 'brand'} label={`المستهلك ${Math.round(consumed)} من ${Math.round(target)} kcal`} size={196}>
+          <ProgressRing value={consumed} max={target} tone={consumed > target ? 'danger' : 'brand'} label={`المستهلك ${Math.round(consumed)} من ${Math.round(target)} سعرة`} size={196}>
             <span className="flex flex-col">
               <Num value={consumed} className="text-3xl font-semibold" />
-              <span className="text-sm text-ink-muted">من <Num value={target} /> kcal</span>
+              <span className="text-sm text-ink-muted">من <Num value={target} /> سعرة</span>
             </span>
           </ProgressRing>
-          <p className="text-sm font-medium">{remaining >= 0 ? <>متبقٍ <Num value={remaining} unit="kcal" /></> : <span className="text-danger-ink">تجاوز الهدف بـ <Num value={-remaining} unit="kcal" /></span>}</p>
+          <p className="text-sm font-medium">{remaining >= 0 ? <>متبقٍ <Num value={remaining} unit="سعرة" /></> : <span className="text-danger-ink">تجاوز الهدف بـ <Num value={-remaining} unit="سعرة" /></span>}</p>
           <dl className="grid w-full grid-cols-2 gap-3 border-t border-line pt-4 text-sm">
-            <dt className="text-ink-muted">الحرق اليومي</dt><dd className="text-end"><Num value={day.tdee} unit="kcal" /></dd>
-            <dt className="text-ink-muted">BMR</dt><dd className="text-end"><Num value={day.bmr} unit="kcal" /></dd>
-            <dt className="text-ink-muted">التمارين</dt><dd className="text-end"><Num value={day.exerciseKcal} unit="kcal" /></dd>
-            <dt className="text-ink-muted">العجز المستهدف</dt><dd className="text-end"><Num value={day.targets.deficitApplied} unit="kcal" /></dd>
+            <dt className="text-ink-muted">الحرق اليومي</dt><dd className="text-end"><Num value={day.tdee} unit="سعرة" /></dd>
+            <dt className="text-ink-muted">BMR</dt><dd className="text-end"><Num value={day.bmr} unit="سعرة" /></dd>
+            <dt className="text-ink-muted">التمارين</dt><dd className="text-end"><Num value={day.exerciseKcal} unit="سعرة" /></dd>
+            <dt className="text-ink-muted">العجز المستهدف</dt><dd className="text-end"><Num value={day.targets.deficitApplied} unit="سعرة" /></dd>
           </dl>
           {summary.observed && (
-            <p className="text-center text-xs text-ink-muted">الحرق يمزج المعادلة مع الحرق المرصود <Num value={summary.observed.tdee} /> kcal بنسبة <Num value={summary.observed.beta * 100} unit="%" /></p>
+            <p className="text-center text-xs text-ink-muted">الحرق يمزج المعادلة مع الحرق المرصود <Num value={summary.observed.tdee} /> سعرة بنسبة <Num value={summary.observed.beta * 100} unit="%" /></p>
           )}
         </Card>
 
@@ -104,8 +104,8 @@ export default async function DashboardPage() {
 
         <Card className="flex flex-col gap-3">
           <SectionTitle>الكافيين في الدم</SectionTitle>
-          <span className="flex items-center gap-2 text-3xl font-semibold"><Num value={summary.caffeineNowMg} unit="mg" /><Badge tone={CAFFEINE[level][0]}>{CAFFEINE[level][1]}</Badge></span>
-          <span className="text-sm text-ink-muted">مجموع اليوم <Num value={summary.caffeineTodayMg} unit="mg" /> من 400 · نصف العمر <Num value={settings.caffeineHalfLifeH} unit="س" /></span>
+          <span className="flex items-center gap-2 text-3xl font-semibold"><Num value={summary.caffeineNowMg} unit="ملغ" /><Badge tone={CAFFEINE[level][0]}>{CAFFEINE[level][1]}</Badge></span>
+          <span className="text-sm text-ink-muted">مجموع اليوم <Num value={summary.caffeineTodayMg} unit="ملغ" /> من 400 · نصف العمر <Num value={settings.caffeineHalfLifeH} unit="س" /></span>
         </Card>
 
         <Card className="flex flex-col gap-3">

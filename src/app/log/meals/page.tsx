@@ -7,6 +7,7 @@ import { DeleteButton } from '@/components/forms/DeleteButton';
 import { Num } from '@/components/Num';
 import { ProgressBar } from '@/components/ProgressBar';
 import { EmptyState, PageHeader, SectionTitle } from '@/components/ui';
+import { SideColumn } from '@/components/SideColumn';
 import { driftTone } from '@/domain/meal-timing';
 import { QUANTITY_UNIT } from '@/domain/nutrition';
 import { MEAL_LABEL } from '@/lib/labels';
@@ -37,7 +38,7 @@ export default async function MealsPage({ searchParams }: { searchParams: DateSe
         <Card className="grid gap-6 sm:grid-cols-3">
           <div className="flex flex-col gap-2">
             <span className="text-sm text-ink-muted">السعرات من الطعام</span>
-            <span className="text-2xl font-semibold"><Num value={kcal} /> <span className="text-base text-ink-muted">/ <Num value={day.targets.calories} unit="kcal" /></span></span>
+            <span className="text-2xl font-semibold"><Num value={kcal} /> <span className="text-base text-ink-muted">/ <Num value={day.targets.calories} unit="سعرة" /></span></span>
             <ProgressBar value={kcal} max={day.targets.calories} tone={kcal > day.targets.calories ? 'danger' : 'brand'} label="السعرات مقابل الهدف" />
           </div>
           <div className="flex flex-col gap-2">
@@ -58,8 +59,7 @@ export default async function MealsPage({ searchParams }: { searchParams: DateSe
           <MealForm key={date} date={date} nowClock={nowClock(tz)} foods={foods} schedule={model?.settings.mealSchedule ?? { breakfast: null, lunch: null, dinner: null }} />
         </Card>
 
-        <section className="flex flex-col gap-4">
-          <SectionTitle aside={<Badge>{meals.length} وجبات</Badge>}>وجبات اليوم</SectionTitle>
+        <SideColumn title={<SectionTitle aside={<Badge>{meals.length} وجبات</Badge>}>وجبات اليوم</SectionTitle>}>
           {meals.length === 0 && <EmptyState title="لا توجد وجبات مسجلة لهذا اليوم">ابدأ بإضافة وجبة من النموذج.</EmptyState>}
           {meals.map((m) => (
             <Card key={m.id} className="flex flex-col gap-3 p-5">
@@ -77,18 +77,18 @@ export default async function MealsPage({ searchParams }: { searchParams: DateSe
                 {m.items.map((it) => (
                   <li key={it.id} className="flex justify-between gap-2">
                     <span>{it.nameAr} <bdi className="font-mono text-ink-muted">{it.quantity} {QUANTITY_UNIT[it.basis]}</bdi></span>
-                    <Num value={it.kcal} unit="kcal" />
+                    <Num value={it.kcal} unit="سعرة" />
                   </li>
                 ))}
               </ul>
               <div className="flex justify-between border-t border-line pt-2 text-sm font-semibold">
                 <span>المجموع</span>
-                <span className="flex gap-3"><Num value={m.kcal} unit="kcal" /><Num value={m.protein} unit="غ" /></span>
+                <span className="flex gap-3"><Num value={m.kcal} unit="سعرة" /><Num value={m.protein} unit="غ" /></span>
               </div>
               {m.notes && <p className="text-sm text-ink-muted">{m.notes}</p>}
             </Card>
           ))}
-        </section>
+        </SideColumn>
       </div>
     </div>
   );

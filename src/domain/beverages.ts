@@ -26,10 +26,10 @@ export function beverageMetrics(b: {
 
 // Reference values shown next to the drink form (approximate, per 100 ml). Not stored: the user decides.
 export const CAFFEINE_REFERENCE: { name: string; mgPer100ml: number; note: string }[] = [
-  { name: 'قهوة مقطّرة', mgPer100ml: 40, note: '~95 mg / 240 ml' },
-  { name: 'قهوة سريعة التحضير', mgPer100ml: 27, note: '~65 mg / 240 ml' },
-  { name: 'إسبريسو', mgPer100ml: 210, note: '~63 mg / 30 ml' },
-  { name: 'شاي أسود', mgPer100ml: 20, note: '~47 mg / 240 ml' },
-  { name: 'شاي أخضر', mgPer100ml: 12, note: '~28 mg / 240 ml' },
-  { name: 'كولا', mgPer100ml: 10, note: '~34 mg / 330 ml' },
+  { name: 'قهوة مقطّرة', mgPer100ml: 40, note: '~95 ملغ / 240 مل' },
+  { name: 'قهوة سريعة التحضير', mgPer100ml: 27, note: '~65 ملغ / 240 مل' },
+  { name: 'إسبريسو', mgPer100ml: 210, note: '~63 ملغ / 30 مل' },
+  { name: 'شاي أسود', mgPer100ml: 20, note: '~47 ملغ / 240 مل' },
+  { name: 'شاي أخضر', mgPer100ml: 12, note: '~28 ملغ / 240 مل' },
+  { name: 'كولا', mgPer100ml: 10, note: '~34 ملغ / 330 مل' },
 ];

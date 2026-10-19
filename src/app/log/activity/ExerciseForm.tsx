@@ -17,7 +17,7 @@ export function ExerciseForm({ date, catalog, weightKg, useNetMet }: { date: str
     schema: exerciseSchema,
     action: logExercise,
     defaultValues: { logDate: date, exerciseId: catalog[1]?.id ?? catalog[0]?.id, durationMinutes: 45, metOverride: '', notes: '' },
-    successText: (r) => `حُفظ التمرين: ${Math.round(useNetMet ? r.net : r.gross)} kcal تُضاف للحرق.`,
+    successText: (r) => `حُفظ التمرين: ${Math.round(useNetMet ? r.net : r.gross)} سعرة تُضاف للحرق.`,
   });
   const [exerciseId, minutes, metOverride] = useWatch({ control: form.control, name: ['exerciseId', 'durationMinutes', 'metOverride'] }) as [unknown, unknown, unknown];
   const ex = catalog.find((c) => c.id === Number(exerciseId));
@@ -45,11 +45,11 @@ export function ExerciseForm({ date, catalog, weightKg, useNetMet }: { date: str
       <div className="grid grid-cols-2 gap-3 rounded-lg bg-brand-soft px-4 py-3">
         <div className={cn(!useNetMet && 'font-semibold')}>
           <div className="text-xs text-brand-ink">الحرق الإجمالي (Gross)</div>
-          <Num value={preview.gross} unit="kcal" />
+          <Num value={preview.gross} unit="سعرة" />
         </div>
         <div className={cn(useNetMet && 'font-semibold')}>
           <div className="text-xs text-brand-ink">الحرق الصافي (Net = MET − 1)</div>
-          <Num value={preview.net} unit="kcal" />
+          <Num value={preview.net} unit="سعرة" />
         </div>
         <p className="col-span-2 text-xs text-brand-ink">
           يُحسب على وزن خط الاتجاه <bdi className="font-mono">{weightKg.toFixed(1)}</bdi> كغ. {useNetMet ? 'الصافي هو ما يُضاف للحرق اليومي لأن دقيقة الراحة محسوبة أصلاً في BMR × 1.2.' : 'الإعدادات تستخدم الحرق الإجمالي.'}

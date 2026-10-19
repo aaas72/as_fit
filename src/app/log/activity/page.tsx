@@ -5,6 +5,7 @@ import { DateNav } from '@/components/DateNav';
 import { DeleteButton } from '@/components/forms/DeleteButton';
 import { Num } from '@/components/Num';
 import { EmptyState, PageHeader, SectionTitle, Stat } from '@/components/ui';
+import { SideColumn } from '@/components/SideColumn';
 import { deleteExercise } from '@/server/actions/exercise';
 import { getExerciseCatalog, getExercisesBetween } from '@/server/queries/logs';
 import { resolveDate, type DateSearchParams } from '@/server/queries/page';
@@ -27,8 +28,8 @@ export default async function ActivityPage({ searchParams }: { searchParams: Dat
 
       <Card className="grid gap-6 sm:grid-cols-3">
         <Stat label="مدة التمارين"><Num value={totalMin} unit="دقيقة" /></Stat>
-        <Stat label={useNet ? 'الحرق الصافي المضاف' : 'الحرق الإجمالي المضاف'}><Num value={totalKcal} unit="kcal" /></Stat>
-        <Stat label="الحرق اليومي (TDEE)">{model ? <Num value={model.days[0]!.tdee} unit="kcal" /> : '—'}</Stat>
+        <Stat label={useNet ? 'الحرق الصافي المضاف' : 'الحرق الإجمالي المضاف'}><Num value={totalKcal} unit="سعرة" /></Stat>
+        <Stat label="الحرق اليومي (TDEE)">{model ? <Num value={model.days[0]!.tdee} unit="سعرة" /> : '—'}</Stat>
       </Card>
 
       <div className="grid gap-6 xl:grid-cols-[minmax(0,3fr)_minmax(0,2fr)]">
@@ -39,8 +40,7 @@ export default async function ActivityPage({ searchParams }: { searchParams: Dat
             catalog={catalog.map((c) => ({ id: c.id, nameAr: c.nameAr, defaultMet: Number(c.defaultMet) }))}
           />
         </Card>
-        <section className="flex flex-col gap-3">
-          <SectionTitle aside={logs.length > 0 && <Badge>تمارين نشطة</Badge>}>تمارين اليوم</SectionTitle>
+        <SideColumn title={<SectionTitle aside={logs.length > 0 && <Badge>تمارين نشطة</Badge>}>تمارين اليوم</SectionTitle>}>
           {logs.length === 0 && <EmptyState title="لا توجد تمارين مسجلة لهذا اليوم" />}
           {logs.map((l) => (
             <Card key={l.id} className="flex flex-wrap items-center gap-3 p-4">
@@ -49,13 +49,13 @@ export default async function ActivityPage({ searchParams }: { searchParams: Dat
                 <p className="text-sm text-ink-muted"><bdi className="font-mono">{l.minutes} د · MET {l.met} · {l.weightKg} كغ</bdi></p>
               </div>
               <div className="flex flex-col items-end text-sm">
-                <Num value={l.netKcal} unit="kcal صافي" className="font-semibold" />
-                <Num value={l.grossKcal} unit="kcal إجمالي" className="text-ink-muted" />
+                <Num value={l.netKcal} unit="سعرة صافية" className="font-semibold" />
+                <Num value={l.grossKcal} unit="سعرة إجمالية" className="text-ink-muted" />
               </div>
               <DeleteButton id={l.id} action={deleteExercise} />
             </Card>
           ))}
-        </section>
+        </SideColumn>
       </div>
     </div>
   );

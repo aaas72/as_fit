@@ -11,7 +11,7 @@ import { ProgressBar } from '@/components/ProgressBar';
 import { Button, Field, FormStatus } from '@/components/ui';
 import { protocolCompliance } from '@/domain/weigh-in';
 import { cn } from '@/lib/cn';
-import { earlierDateTime } from '@/lib/inputs';
+import { earlierDateTime, isClock } from '@/lib/inputs';
 import { weighInClockSchema } from '@/lib/validation/schemas';
 import { logWeighIn } from '@/server/actions/weigh-in';
 
@@ -31,7 +31,6 @@ function YesNo({ name, value, onChange, yes, no }: { name: string; value: boolea
     </div>
   );
 }
-const isClock = (v: unknown): v is string => typeof v === 'string' && /^d{2}:d{2}$/.test(v);
 // Wall-clock strings read as UTC: fine for the fasting-hours preview
 const asDate = (s: string) => new Date(`${s}:00Z`);
 

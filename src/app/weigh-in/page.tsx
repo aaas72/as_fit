@@ -4,6 +4,7 @@ import { Card } from '@/components/Card';
 import { DeleteButton } from '@/components/forms/DeleteButton';
 import { Num } from '@/components/Num';
 import { EmptyState, PageHeader, SectionTitle, Stat } from '@/components/ui';
+import { SideColumn } from '@/components/SideColumn';
 import { addDaysIso, arabicDayLabel, localClockOf, nowClock, zonedDateTime } from '@/lib/time';
 import { deleteWeighIn } from '@/server/actions/weigh-in';
 import { getMealsBetween } from '@/server/queries/logs';
@@ -42,25 +43,28 @@ export default async function WeighInPage() {
           <SectionTitle>قراءة جديدة</SectionTitle>
           <WeighInWizard date={today} nowClock={nowClock(tz)} suggestedLastMeal={suggested} requiredFastingH={settings?.requiredFastingHours ?? 14} />
         </Card>
-        <section className="flex flex-col gap-3">
-          <SectionTitle>السجل</SectionTitle>
+        <SideColumn title={<SectionTitle>السجل</SectionTitle>}>
           {rows.length === 0 && <EmptyState title="لا توجد قراءات بعد" />}
-          {[...rows].reverse().slice(0, 20).map((r) => (
-            <Card key={r.id} className="flex flex-wrap items-center gap-3 p-4">
-              <div className="min-w-0 flex-1">
-                <p className="font-semibold">{r.date === today ? 'اليوم' : arabicDayLabel(r.date)}</p>
-                <p className="text-sm text-ink-muted">صيام <bdi className="font-mono">{r.fastingH.toFixed(1)}</bdi> س · {r.official ? 'رسمية' : 'يومية'}</p>
+          {[...rows].reverse().slice(0, 90).map((r) => (
+            <Card key={r.id} className="flex flex-col gap-2 p-4">
+              <div className="flex items-start justify-between gap-3">
+                <div className="min-w-0">
+                  <p className="font-semibold">{r.date === today ? 'اليوم' : arabicDayLabel(r.date)}</p>
+                  <p className="whitespace-nowrap text-xs text-ink-muted">صيام <bdi className="font-mono">{r.fastingH.toFixed(1)}</bdi> س · {r.official ? 'رسمية' : 'يومية'}</p>
+                </div>
+                <div className="flex shrink-0 flex-col items-end">
+                  <Num value={r.weight} digits={2} unit="كغ" className="text-lg font-semibold" />
+                  {r.trend != null && <span className="whitespace-nowrap text-xs text-ink-muted">الاتجاه <Num value={r.trend} digits={2} /></span>}
+                </div>
               </div>
-              <div className="flex flex-col items-end">
-                <Num value={r.weight} digits={2} unit="كغ" className="font-semibold" />
-                {r.trend != null && <span className="text-xs text-ink-muted">الاتجاه <Num value={r.trend} digits={2} /></span>}
+              <div className="flex flex-wrap items-center gap-2">
+                <Badge tone={r.compliant ? 'brand' : 'danger'}>{r.compliant ? 'ملتزمة' : 'غير ملتزمة'}</Badge>
+                {(r.highSodium || !r.normalDigestion) && <Badge tone="warning">{r.highSodium ? 'صوديوم' : 'هضم'}</Badge>}
+                <span className="ms-auto"><DeleteButton id={r.id} action={deleteWeighIn} /></span>
               </div>
-              <Badge tone={r.compliant ? 'brand' : 'danger'}>{r.compliant ? 'ملتزمة' : 'غير ملتزمة'}</Badge>
-              {(r.highSodium || !r.normalDigestion) && <Badge tone="warning">{r.highSodium ? 'صوديوم' : 'هضم'}</Badge>}
-              <DeleteButton id={r.id} action={deleteWeighIn} />
             </Card>
           ))}
-        </section>
+        </SideColumn>
       </div>
     </div>
   );

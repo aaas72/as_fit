@@ -8,7 +8,7 @@ import { TimeField } from '@/components/inputs/pickers';
 import { Num } from '@/components/Num';
 import { Button, Field, FormStatus } from '@/components/ui';
 import { sleepMetrics, sleepTargets } from '@/domain/sleep';
-import { nightDateTimes } from '@/lib/inputs';
+import { isClock, nightDateTimes } from '@/lib/inputs';
 import { sleepClockSchema } from '@/lib/validation/schemas';
 import { logSleep } from '@/server/actions/sleep';
 
@@ -19,7 +19,6 @@ const FRESHNESS = [
 
 // Wall-clock 'YYYY-MM-DDTHH:mm' read as UTC: fine for durations in the preview
 const asDate = (s: string) => new Date(`${s}:00Z`);
-const isClock = (v: unknown): v is string => typeof v === 'string' && /^d{2}:d{2}$/.test(v);
 
 // Times only: the night is the one ending on wakeDate, earlier clocks roll back to the previous evening.
 export function SleepForm({ wakeDate }: { wakeDate: string }) {

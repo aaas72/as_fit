@@ -62,6 +62,9 @@ export function stepValue(current: unknown, delta: number, opts: { min?: number;
   return next.toFixed(digits);
 }
 
+// A complete "HH:MM" value (as stored by TimeField)
+export const isClock = (v: unknown): v is string => typeof v === 'string' && /^([01]\d|2[0-3]):[0-5]\d$/.test(v);
+
 const shiftIso = (iso: string, days: number) => {
   const d = new Date(`${iso}T00:00:00Z`);
   d.setUTCDate(d.getUTCDate() + days);

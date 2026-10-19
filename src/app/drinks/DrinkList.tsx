@@ -25,7 +25,7 @@ export function DrinkList({ drinks, caffeineMgPerG }: { drinks: DrinkView[]; caf
                 <p className="text-sm text-ink-muted">
                   <Num value={d.defaultVolumeMl} unit="مل" />
                   {d.byCoffeeWeight && d.defaultCoffeeG != null && <> · <Num value={d.defaultCoffeeG} unit="غ بن" /></>}
-                  {' · '}لكل 100 مل: <Num value={d.caffeineMgPer100ml} unit="mg" /> · <Num value={d.kcalPer100ml} unit="kcal" />
+                  {' · '}لكل 100 مل: <Num value={d.caffeineMgPer100ml} unit="ملغ" /> · <Num value={d.kcalPer100ml} unit="سعرة" />
                   {d.proteinGPer100ml > 0 && <> · <Num value={d.proteinGPer100ml} digits={1} unit="غ" /></>}
                 </p>
               </div>
