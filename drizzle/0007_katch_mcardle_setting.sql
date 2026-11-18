@@ -1,0 +1,1 @@
+ALTER TABLE "user_settings" ADD COLUMN "use_katch_mcardle" boolean DEFAULT false NOT NULL;

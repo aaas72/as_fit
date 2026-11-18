@@ -78,6 +78,13 @@ export function SettingsForm({ initial }: { initial: ProfileInput }) {
               <span className="text-sm text-ink-muted">موصى به: دقيقة الراحة محسوبة أصلاً في BMR × معامل النشاط.</span>
             </span>
           </label>
+          <label className="flex cursor-pointer items-center gap-3 rounded-lg border border-line p-3 has-checked:border-brand has-checked:bg-brand-soft sm:col-span-2">
+            <input id="useKatchMcArdle" type="checkbox" className="size-5 accent-brand" {...r('useKatchMcArdle')} />
+            <span>
+              <span className="block font-semibold">احسب الأيض الأساسي من الكتلة الخالية من الدهون (Katch-McArdle)</span>
+              <span className="text-sm text-ink-muted">يُستخدم فقط عند وجود قياس للرقبة والخصر (والورك للنساء) خلال آخر 30 يوماً، وإلا تُستخدم معادلة Mifflin-St Jeor.</span>
+            </span>
+          </label>
         </div>
       </section>
 

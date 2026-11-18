@@ -22,6 +22,7 @@ export type Settings = {
   plannedDeficit: number;
   proteinPerKg: number;
   useNetMet: boolean;
+  useKatchMcArdle: boolean;
   caffeineMgPerG: number;
   caffeineHalfLifeH: number;
   requiredFastingHours: number;
@@ -62,6 +63,7 @@ export async function getProfileAndSettings(userId: number): Promise<{ profile: 
       plannedDeficit: s?.plannedDailyDeficitKcal ?? 500,
       proteinPerKg: Number(s?.proteinGPerKg ?? 1.8),
       useNetMet: s?.useNetMet ?? true,
+      useKatchMcArdle: s?.useKatchMcArdle ?? false,
       caffeineMgPerG: Number(s?.caffeineMgPerGCoffee ?? 11),
       caffeineHalfLifeH: Number(s?.caffeineHalfLifeHours ?? 5),
       requiredFastingHours: s?.requiredFastingHours ?? 14,

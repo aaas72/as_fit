@@ -17,6 +17,19 @@ export function leanBodyMassKg(weightKg: number, bodyFatPct: number) {
 // accurate than Mifflin-St Jeor for very muscular or high-body-fat people when body fat is known.
 export const bmrKatchMcArdle = (leanMassKg: number) => 370 + 21.6 * leanMassKg;
 
+export type BmrFormula = 'mifflin' | 'katch_mcardle';
+
+// Katch-McArdle only when the user opted in AND a plausible body-fat value is available;
+// otherwise Mifflin-St Jeor, so a missing or stale measurement never breaks the daily targets.
+export function selectBmr(p: {
+  preferKatchMcArdle: boolean; bodyFatPct: number | null;
+  weightKg: number; heightCm: number; ageYears: number; gender: Gender;
+}): { bmr: number; formula: BmrFormula } {
+  const lbm = p.preferKatchMcArdle && p.bodyFatPct != null ? leanBodyMassKg(p.weightKg, p.bodyFatPct) : null;
+  if (lbm != null) return { bmr: bmrKatchMcArdle(lbm), formula: 'katch_mcardle' };
+  return { bmr: bmrMifflin(p), formula: 'mifflin' };
+}
+
 // activityFactor = non-exercise activity only (logged exercise is added separately)
 export const baseTdee = (bmr: number, activityFactor = 1.2) => bmr * activityFactor;
 export const dynamicTdee = (base: number, exerciseKcal: number) => base + exerciseKcal;
