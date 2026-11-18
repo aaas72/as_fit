@@ -27,6 +27,10 @@ export const profileSchema = z.object({
   breakfastTime: optionalClock,
   lunchTime: optionalClock,
   dinnerTime: optionalClock,
+}).refine((v) => !(v.targetWeightKg > v.initialWeightKg && v.plannedDeficit > 0), {
+  // A calorie deficit loses weight; with a target above the starting weight the plan contradicts itself.
+  message: 'الوزن المستهدف أعلى من الوزن الابتدائي: اجعل العجز اليومي 0',
+  path: ['plannedDeficit'],
 });
 export type ProfileInput = z.input<typeof profileSchema>;
 
