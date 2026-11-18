@@ -1,5 +1,6 @@
 # AS_FIT — Personal Metabolic Telemetry & Tracking System
 
+[![CI](https://github.com/salims0110/as_fit/actions/workflows/ci.yml/badge.svg)](https://github.com/salims0110/as_fit/actions/workflows/ci.yml)
 [![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](./LICENSE)
 [![Contributions Welcome](https://img.shields.io/badge/Contributions-Welcome-brightgreen.svg)](./CONTRIBUTING.md)
 [![Next.js](https://img.shields.io/badge/Next.js-16-black)](https://nextjs.org/)
