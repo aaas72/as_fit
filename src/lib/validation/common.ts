@@ -21,6 +21,19 @@ export const localDateTime = z.string()
   .regex(/^\d{4}-\d{2}-\d{2}T([01]\d|2[0-3]):[0-5]\d$/, 'تاريخ ووقت غير صالحين')
   .refine(isCalendarDate, CALENDAR_DATE_MESSAGE);
 
+// True for an IANA zone the runtime can format (e.g. "Europe/Istanbul", "UTC").
+// An unknown zone would make every zoned conversion return an Invalid Date.
+export function isTimeZone(value: string) {
+  try {
+    new Intl.DateTimeFormat('en', { timeZone: value });
+    return true;
+  } catch {
+    return false;
+  }
+}
+
+export const timeZone = z.string().trim().min(1, 'مطلوب').max(64).refine(isTimeZone, 'منطقة زمنية غير معروفة');
+
 export const num = (min: number, max: number) =>
   z.preprocess(blankToUndefined, z.coerce.number({ required_error: 'مطلوب', invalid_type_error: 'رقم غير صالح' })
     .min(min, `الحد الأدنى ${min}`).max(max, `الحد الأقصى ${max}`));

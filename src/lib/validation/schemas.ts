@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { bool, clockTime, int, isoDate, localDateTime, num, optionalNum } from './common';
+import { bool, clockTime, int, isoDate, localDateTime, num, optionalNum, timeZone } from './common';
 
 const optionalClock = z.union([clockTime, z.literal('')]).optional();
 
@@ -15,7 +15,7 @@ export const profileSchema = z.object({
   initialWeightKg: num(30, 300),
   targetWeightKg: num(30, 300),
   activityFactor: num(1, 2.5),
-  timezone: z.string().min(1).max(64),
+  timezone: timeZone,
   plannedDeficit: int(0, 1200),
   proteinPerKg: num(0.8, 3),
   useNetMet: bool,
