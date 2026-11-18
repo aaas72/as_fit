@@ -20,7 +20,7 @@ export const mockProfile: Profile = {
 };
 
 export const mockSettings: Settings = {
-  timezone: TZ, plannedDeficit: 500, proteinPerKg: 1.8, useNetMet: true, caffeineMgPerG: 11, caffeineHalfLifeH: 5,
+  timezone: TZ, plannedDeficit: 500, proteinPerKg: 1.8, useNetMet: true, useKatchMcArdle: false, caffeineMgPerG: 11, caffeineHalfLifeH: 5,
   requiredFastingHours: 14, kcalPerKg: 7700, emaAlpha: 0.1,
   mealSchedule: { breakfast: '08:00', lunch: '13:30', dinner: '19:30' },
 };

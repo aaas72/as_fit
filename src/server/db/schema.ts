@@ -56,6 +56,8 @@ export const userSettings = pgTable('user_settings', {
   plannedDailyDeficitKcal: integer('planned_daily_deficit_kcal').notNull().default(500),
   proteinGPerKg: numeric('protein_g_per_kg', { precision: 3, scale: 2 }).notNull().default('1.80'),
   useNetMet: boolean('use_net_met').notNull().default(true),
+  // BMR from lean mass (Katch-McArdle) when a body-fat measurement from the last 30 days exists
+  useKatchMcArdle: boolean('use_katch_mcardle').notNull().default(false),
   caffeineMgPerGCoffee: numeric('caffeine_mg_per_g_coffee', { precision: 4, scale: 1 }).notNull().default('11.0'),
   caffeineHalfLifeHours: numeric('caffeine_half_life_hours', { precision: 3, scale: 1 }).notNull().default('5.0'),
   requiredFastingHours: integer('required_fasting_hours').notNull().default(14),

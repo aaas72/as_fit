@@ -19,6 +19,7 @@ export const profileSchema = z.object({
   plannedDeficit: int(0, 1200),
   proteinPerKg: num(0.8, 3),
   useNetMet: bool,
+  useKatchMcArdle: bool,
   caffeineMgPerG: num(5, 25),
   caffeineHalfLifeH: num(2, 10),
   requiredFastingHours: int(8, 24),

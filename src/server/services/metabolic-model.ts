@@ -1,13 +1,16 @@
 import { ageInYears } from '@/domain/age';
+import { navyBodyFat } from '@/domain/anthropometry';
 import { OBSERVED_TDEE_MIN_DAYS } from '@/domain/constants';
-import { baseTdee, bmrMifflin, dailyTargets, dynamicTdee } from '@/domain/metabolism';
+import { baseTdee, dailyTargets, dynamicTdee, selectBmr } from '@/domain/metabolism';
 import { blendBeta, blendedTdee, dayNumber, linearSlope, observedTdee } from '@/domain/weight-trend';
 import { addDaysIso, isoDateRange } from '@/lib/time';
 import { emptyIntake, getIntake, type IntakeRow } from '@/server/queries/intake';
+import { getMeasurements } from '@/server/queries/logs';
 import { getProfileAndSettings, type Profile, type Settings } from '@/server/queries/profile';
 import { getWeighIns, trendWeightAt, type WeighInRow } from '@/server/queries/weight';
 
 const OBSERVED_WINDOW_DAYS = 42;
+const BODY_FAT_MAX_AGE_DAYS = 30;
 
 export type Observed = { tdee: number; days: number; slopeKgPerDay: number; completeDays: number; beta: number } | null;
 
@@ -55,16 +58,25 @@ export async function loadModel(userId: number, from: string, to: string): Promi
   if (!ps) return null;
   const { profile, settings } = ps;
 
-  const [weighIns, intake] = await Promise.all([
+  const [weighIns, intake, measurements] = await Promise.all([
     getWeighIns(userId, settings.emaAlpha),
     getIntake(userId, addDaysIso(to, -OBSERVED_WINDOW_DAYS) < from ? addDaysIso(to, -OBSERVED_WINDOW_DAYS) : from, to),
+    settings.useKatchMcArdle ? getMeasurements(userId) : Promise.resolve([]),
   ]);
+  // US Navy body fat from the latest measurement in the 30 days up to `date` (measurements are latest-first)
+  const bodyFatOn = (date: string) => {
+    const m = measurements.find((x) => x.date <= date && x.date > addDaysIso(date, -BODY_FAT_MAX_AGE_DAYS));
+    return m ? navyBodyFat({ gender: profile.gender, heightCm: profile.heightCm, waistCm: m.waistCm, neckCm: m.neckCm, hipCm: m.hipCm }) : null;
+  };
   const observed = computeObserved(weighIns, intake, to, settings.kcalPerKg);
   const birth = new Date(`${profile.birthDate}T00:00:00`);
 
   const days = isoDateRange(from, to).map((date): DayModel => {
     const weightKg = trendWeightAt(weighIns, date, profile.initialWeightKg);
-    const bmr = bmrMifflin({ weightKg, heightCm: profile.heightCm, ageYears: ageInYears(birth, new Date(`${date}T12:00:00`)), gender: profile.gender });
+    const { bmr } = selectBmr({
+      preferKatchMcArdle: settings.useKatchMcArdle, bodyFatPct: settings.useKatchMcArdle ? bodyFatOn(date) : null,
+      weightKg, heightCm: profile.heightCm, ageYears: ageInYears(birth, new Date(`${date}T12:00:00`)), gender: profile.gender,
+    });
     const base = baseTdee(bmr, profile.activityFactor);
     const day = intake.get(date) ?? emptyIntake(date);
     const exerciseKcal = settings.useNetMet ? day.exerciseNetKcal : day.exerciseGrossKcal;
