@@ -28,6 +28,11 @@ jobs:
 
       - run: pnpm install --frozen-lockfile
 
+      # Fails on critical advisories in production dependencies. Raise to `high` once
+      # zod is on v4 (GHSA-mrhx-c7xc-m3w5 has no fix in the 3.x line).
+      - name: Audit production dependencies
+        run: pnpm audit --prod --audit-level=critical
+
       - name: Typecheck
         run: pnpm typecheck
 
