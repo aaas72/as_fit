@@ -6,6 +6,17 @@ export function bmrMifflin(p: { weightKg: number; heightCm: number; ageYears: nu
   return p.gender === 'male' ? base + 5 : base - 161;
 }
 
+// Lean body mass from total weight and body-fat percentage (e.g. navyBodyFat()).
+// null when the percentage is outside a physiological 2–70 % range.
+export function leanBodyMassKg(weightKg: number, bodyFatPct: number) {
+  if (!(bodyFatPct >= 2 && bodyFatPct <= 70)) return null;
+  return weightKg * (1 - bodyFatPct / 100);
+}
+
+// Katch-McArdle: BMR = 370 + 21.6 × LBM. Uses lean mass instead of total weight, so it is more
+// accurate than Mifflin-St Jeor for very muscular or high-body-fat people when body fat is known.
+export const bmrKatchMcArdle = (leanMassKg: number) => 370 + 21.6 * leanMassKg;
+
 // activityFactor = non-exercise activity only (logged exercise is added separately)
 export const baseTdee = (bmr: number, activityFactor = 1.2) => bmr * activityFactor;
 export const dynamicTdee = (base: number, exerciseKcal: number) => base + exerciseKcal;
