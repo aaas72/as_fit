@@ -1,6 +1,7 @@
 'use server';
 
 import { and, eq } from 'drizzle-orm';
+import { INVALID_ID_MESSAGE, parseRecordId } from '@/lib/validation/common';
 import { measurementsSchema } from '@/lib/validation/schemas';
 import type { ActionResult } from '@/lib/validation/common';
 import { db } from '@/server/db/client';
@@ -26,7 +27,9 @@ export async function logMeasurements(input: unknown): Promise<ActionResult> {
 
 export async function deleteMeasurement(id: number): Promise<ActionResult> {
   if (MOCK_MODE) return failure(MOCK_READ_ONLY_MESSAGE);
-  await db.delete(bodyMeasurements).where(and(eq(bodyMeasurements.id, id), eq(bodyMeasurements.userId, USER_ID)));
+  const recordId = parseRecordId(id);
+  if (recordId == null) return failure(INVALID_ID_MESSAGE);
+  await db.delete(bodyMeasurements).where(and(eq(bodyMeasurements.id, recordId), eq(bodyMeasurements.userId, USER_ID)));
   refreshAll();
   return { ok: true };
 }

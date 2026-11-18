@@ -1,6 +1,7 @@
 'use server';
 
 import { and, eq } from 'drizzle-orm';
+import { INVALID_ID_MESSAGE, parseRecordId } from '@/lib/validation/common';
 import { localDateOf, zonedToDate } from '@/lib/time';
 import { sleepSchema } from '@/lib/validation/schemas';
 import type { ActionResult } from '@/lib/validation/common';
@@ -40,7 +41,9 @@ export async function logSleep(input: unknown): Promise<ActionResult<{ tstMin: n
 
 export async function deleteSleep(id: number): Promise<ActionResult> {
   if (MOCK_MODE) return failure(MOCK_READ_ONLY_MESSAGE);
-  await db.delete(sleepLogs).where(and(eq(sleepLogs.id, id), eq(sleepLogs.userId, USER_ID)));
+  const recordId = parseRecordId(id);
+  if (recordId == null) return failure(INVALID_ID_MESSAGE);
+  await db.delete(sleepLogs).where(and(eq(sleepLogs.id, recordId), eq(sleepLogs.userId, USER_ID)));
   refreshAll();
   return { ok: true };
 }

@@ -1,6 +1,7 @@
 'use server';
 
 import { eq } from 'drizzle-orm';
+import { INVALID_ID_MESSAGE, parseRecordId } from '@/lib/validation/common';
 import { foodSchema } from '@/lib/validation/schemas';
 import type { ActionResult } from '@/lib/validation/common';
 import { db } from '@/server/db/client';
@@ -39,7 +40,10 @@ export async function saveFood(input: unknown): Promise<ActionResult<{ id: numbe
 // Foods referenced by meals cannot be deleted; they are deactivated instead.
 export async function setFoodActive(id: number, active: boolean): Promise<ActionResult> {
   if (MOCK_MODE) return failure(MOCK_READ_ONLY_MESSAGE);
-  const [row] = await db.update(foodDictionary).set({ isActive: active }).where(eq(foodDictionary.id, id)).returning({ id: foodDictionary.id });
+  const recordId = parseRecordId(id);
+  if (recordId == null) return failure(INVALID_ID_MESSAGE);
+  if (typeof active !== 'boolean') return failure('قيمة غير صالحة');
+  const [row] = await db.update(foodDictionary).set({ isActive: active }).where(eq(foodDictionary.id, recordId)).returning({ id: foodDictionary.id });
   if (!row) return failure('الصنف غير موجود');
   refreshAll();
   return { ok: true };

@@ -1,6 +1,7 @@
 'use server';
 
 import { and, eq, lt } from 'drizzle-orm';
+import { INVALID_ID_MESSAGE, parseRecordId } from '@/lib/validation/common';
 import { protocolCompliance } from '@/domain/weigh-in';
 import { localDateOf, zonedToDate } from '@/lib/time';
 import { weighInSchema } from '@/lib/validation/schemas';
@@ -51,7 +52,9 @@ export async function logWeighIn(input: unknown): Promise<ActionResult<{ complia
 
 export async function deleteWeighIn(id: number): Promise<ActionResult> {
   if (MOCK_MODE) return failure(MOCK_READ_ONLY_MESSAGE);
-  await db.delete(weighIns).where(and(eq(weighIns.id, id), eq(weighIns.userId, USER_ID)));
+  const recordId = parseRecordId(id);
+  if (recordId == null) return failure(INVALID_ID_MESSAGE);
+  await db.delete(weighIns).where(and(eq(weighIns.id, recordId), eq(weighIns.userId, USER_ID)));
   refreshAll();
   return { ok: true };
 }
