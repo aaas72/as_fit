@@ -118,7 +118,12 @@ export default async function DashboardPage() {
                 {!summary.lastWeighIn.compliant && <Badge tone="danger">غير ملتزمة</Badge>}
                 {summary.trendDeltaKg != null && <Badge tone={summary.trendDeltaKg <= 0 ? 'brand' : 'warning'}>الاتجاه <Num value={summary.trendDeltaKg} digits={2} /></Badge>}
               </span>
-              <span className="text-sm text-ink-muted">الهدف <Num value={profile.targetWeightKg} digits={1} unit="كغ" /></span>
+              <span className="text-sm text-ink-muted">
+                الهدف <Num value={profile.targetWeightKg} digits={1} unit="كغ" />
+                {summary.goalDays != null && summary.goalDays > 0 && (
+                  <> · المدة المتوقعة بالوتيرة الحالية ≈ <Num value={Math.max(1, Math.round(summary.goalDays / 7))} unit="أسبوع" /></>
+                )}
+              </span>
             </>
           ) : (
             <p className="text-sm text-ink-muted">لا توجد قراءات بعد. الحسابات تستخدم الوزن الأولي <Num value={profile.initialWeightKg} digits={1} /> كغ.</p>
