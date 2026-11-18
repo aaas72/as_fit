@@ -41,3 +41,12 @@ jobs:
 
       - name: Unit tests with coverage (95% threshold on src/domain)
         run: pnpm test:coverage
+
+      # Catches build-only failures (server/client boundaries, route config) before merge.
+      # Mock data mode means no database is needed; DATABASE_URL only has to be set.
+      - name: Production build
+        run: pnpm build
+        env:
+          USE_MOCK_DATA: "true"
+          DATABASE_URL: postgres://ci:ci@localhost:5432/ci
+          NEXT_TELEMETRY_DISABLED: "1"
