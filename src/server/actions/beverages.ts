@@ -1,6 +1,7 @@
 'use server';
 
 import { and, eq } from 'drizzle-orm';
+import { INVALID_ID_MESSAGE, parseRecordId } from '@/lib/validation/common';
 import { beverageMetrics } from '@/domain/beverages';
 import { zonedDateTime } from '@/lib/time';
 import { beverageSchema } from '@/lib/validation/schemas';
@@ -50,7 +51,9 @@ export async function logBeverage(input: unknown): Promise<ActionResult<{ caffei
 
 export async function deleteBeverage(id: number): Promise<ActionResult> {
   if (MOCK_MODE) return failure(MOCK_READ_ONLY_MESSAGE);
-  await db.delete(beverageLogs).where(and(eq(beverageLogs.id, id), eq(beverageLogs.userId, USER_ID)));
+  const recordId = parseRecordId(id);
+  if (recordId == null) return failure(INVALID_ID_MESSAGE);
+  await db.delete(beverageLogs).where(and(eq(beverageLogs.id, recordId), eq(beverageLogs.userId, USER_ID)));
   refreshAll();
   return { ok: true };
 }

@@ -19,5 +19,14 @@ export const int = (min: number, max: number) =>
 
 export const bool = z.preprocess((v) => v === true || v === 'true' || v === 'on', z.boolean());
 
+// Primary keys passed straight to server actions (delete, dismiss, toggle). Server actions are
+// public HTTP endpoints, so a TypeScript `number` parameter is not enforced at runtime.
+export const recordId = z.number().int().positive().max(2_147_483_647); // PostgreSQL serial range
+export const INVALID_ID_MESSAGE = 'معرّف غير صالح';
+export const parseRecordId = (id: unknown) => {
+  const parsed = recordId.safeParse(id);
+  return parsed.success ? parsed.data : null;
+};
+
 export type FieldErrors = Record<string, string[] | undefined>;
 export type ActionResult<T extends object = object> = ({ ok: true } & T) | { ok: false; errors?: FieldErrors; message?: string };

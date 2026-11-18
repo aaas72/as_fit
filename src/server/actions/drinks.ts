@@ -1,6 +1,7 @@
 'use server';
 
 import { and, eq } from 'drizzle-orm';
+import { INVALID_ID_MESSAGE, parseRecordId } from '@/lib/validation/common';
 import { drinkSchema } from '@/lib/validation/schemas';
 import type { ActionResult } from '@/lib/validation/common';
 import { db } from '@/server/db/client';
@@ -40,7 +41,9 @@ export async function saveDrink(input: unknown): Promise<ActionResult<{ id: numb
 
 export async function deleteDrink(id: number): Promise<ActionResult> {
   if (MOCK_MODE) return failure(MOCK_READ_ONLY_MESSAGE);
-  await db.delete(beverageCatalog).where(and(eq(beverageCatalog.id, id), eq(beverageCatalog.userId, USER_ID)));
+  const recordId = parseRecordId(id);
+  if (recordId == null) return failure(INVALID_ID_MESSAGE);
+  await db.delete(beverageCatalog).where(and(eq(beverageCatalog.id, recordId), eq(beverageCatalog.userId, USER_ID)));
   refreshAll();
   return { ok: true };
 }

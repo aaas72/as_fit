@@ -1,6 +1,7 @@
 'use server';
 
 import { and, eq, inArray } from 'drizzle-orm';
+import { INVALID_ID_MESSAGE, parseRecordId } from '@/lib/validation/common';
 import { portionNutrition } from '@/domain/nutrition';
 import { mealSchema } from '@/lib/validation/schemas';
 import type { ActionResult } from '@/lib/validation/common';
@@ -53,7 +54,9 @@ export async function createMeal(input: unknown): Promise<ActionResult<{ kcal: n
 
 export async function deleteMeal(id: number): Promise<ActionResult> {
   if (MOCK_MODE) return failure(MOCK_READ_ONLY_MESSAGE);
-  await db.delete(meals).where(and(eq(meals.id, id), eq(meals.userId, USER_ID)));
+  const recordId = parseRecordId(id);
+  if (recordId == null) return failure(INVALID_ID_MESSAGE);
+  await db.delete(meals).where(and(eq(meals.id, recordId), eq(meals.userId, USER_ID)));
   refreshAll();
   return { ok: true };
 }
