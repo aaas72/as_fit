@@ -9,7 +9,7 @@ import type { ActionResult } from '@/lib/validation/common';
 type Status = { tone: 'brand' | 'danger'; text: string } | null;
 
 // React Hook Form + the same Zod schema as the Server Action. Server field errors are mapped back onto the form.
-export function useActionForm<S extends z.ZodTypeAny, R extends object>(opts: {
+export function useActionForm<S extends z.ZodType<unknown, FieldValues>, R extends object>(opts: {
   schema: S;
   action: (values: z.output<S>) => Promise<ActionResult<R>>;
   defaultValues: DefaultValues<z.input<S> & FieldValues>;
@@ -17,7 +17,8 @@ export function useActionForm<S extends z.ZodTypeAny, R extends object>(opts: {
   onSuccess?: (res: { ok: true } & R, values: z.output<S>) => void;
 }) {
   const form = useForm<z.input<S> & FieldValues, unknown, z.output<S>>({
-    resolver: zodResolver(opts.schema),
+    // A generic S cannot be matched against zodResolver's overloads; this names the same schema's input/output.
+    resolver: zodResolver(opts.schema as unknown as z.ZodType<z.output<S>, z.input<S> & FieldValues>),
     defaultValues: opts.defaultValues,
   });
   const [pending, startTransition] = useTransition();
