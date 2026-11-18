@@ -5,6 +5,11 @@ updates:
     schedule:
       interval: weekly
     open-pull-requests-limit: 5
+    # Major versions change APIs (postgres 4, @hookform/resolvers 7, @types/node 26 ...) and need a
+    # deliberate migration PR, so weekly version updates stay within the current major.
+    ignore:
+      - dependency-name: "*"
+        update-types: ["version-update:semver-major"]
     groups:
       # One PR for patch/minor updates of the framework pair, so they never drift apart.
       nextjs:
@@ -17,3 +22,6 @@ updates:
     directory: /
     schedule:
       interval: weekly
+    groups:
+      actions:
+        patterns: ["*"]
