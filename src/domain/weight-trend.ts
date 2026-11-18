@@ -68,3 +68,18 @@ export function projectedGoal(p: {
   // Tolerance keeps floating-point noise (4.0000000001) from adding a whole day.
   return { days: Math.ceil(remainingKg / slope - 1e-9), slopeKgPerDay: slope };
 }
+
+// Recent pace only: the projection uses compliant readings from the last `windowDays` days before
+// `asOf` (YYYY-MM-DD), so an old phase of faster or slower loss does not skew the estimate.
+export function projectedGoalFromReadings(p: {
+  readings: { date: string; weight: number; compliant: boolean }[];
+  asOf: string; currentWeightKg: number; targetWeightKg: number; windowDays?: number;
+}) {
+  const end = dayNumber(p.asOf);
+  const start = end - (p.windowDays ?? 42);
+  const points = p.readings
+    .filter((r) => r.compliant)
+    .map((r) => ({ day: dayNumber(r.date), weight: r.weight }))
+    .filter((pt) => pt.day > start && pt.day <= end);
+  return projectedGoal({ points, currentWeightKg: p.currentWeightKg, targetWeightKg: p.targetWeightKg });
+}

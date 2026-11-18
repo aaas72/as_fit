@@ -1,4 +1,5 @@
 import { residualCaffeineMg } from '@/domain/caffeine-kinetics';
+import { projectedGoalFromReadings } from '@/domain/weight-trend';
 import { addDaysIso, todayIn, zonedDateTime } from '@/lib/time';
 import { getBeveragesBetween, getDayComplete, getExercisesBetween, getInsights, getMealsBetween } from '@/server/queries/logs';
 import { getTimezone } from '@/server/queries/profile';
@@ -32,6 +33,10 @@ export async function getDailySummary(userId: number, date?: string) {
   const lastWeighIn = [...model.weighIns].reverse()[0] ?? null;
   const prevTrend = [...model.weighIns].reverse().find((w) => w.trend != null && lastWeighIn && w.date < lastWeighIn.date)?.trend ?? null;
 
+  const goal = projectedGoalFromReadings({
+    readings: model.weighIns, asOf: today, currentWeightKg: model.currentWeightKg, targetWeightKg: model.profile.targetWeightKg,
+  });
+
   return {
     date: today,
     timezone: tz,
@@ -46,6 +51,7 @@ export async function getDailySummary(userId: number, date?: string) {
     fastingH,
     lastMealAt,
     lastWeighIn,
+    goalDays: goal?.days ?? null,
     trendDeltaKg: lastWeighIn?.trend != null && prevTrend != null ? lastWeighIn.trend - prevTrend : null,
     exercisesToday: exercises,
     mealsToday: todaysMeals.filter((m) => m.date === today),
