@@ -4,10 +4,10 @@ import { describe, expect, it } from 'vitest';
 import { residualCaffeineMg } from '@/domain/caffeine-kinetics';
 import { MIN_INTAKE_KCAL } from '@/domain/constants';
 import { clockDriftMin } from '@/domain/meal-timing';
-import { dailyTargets, maxSafeDeficit } from '@/domain/metabolism';
+import { bmrKatchMcArdle, dailyTargets, leanBodyMassKg, maxSafeDeficit } from '@/domain/metabolism';
 import { portionNutrition } from '@/domain/nutrition';
 import { circularMeanMin, clockDistanceMin } from '@/domain/sleep';
-import { emaTrend, linearSlope } from '@/domain/weight-trend';
+import { emaTrend, linearSlope, projectedGoal } from '@/domain/weight-trend';
 
 const weight = fc.double({ min: 30, max: 300, noNaN: true });
 const clock = fc.integer({ min: 0, max: 23 * 60 + 59 });
@@ -109,6 +109,33 @@ describe('portion nutrition', () => {
       const two = portionNutrition(f, 2 * q);
       expect(two.calories).toBeCloseTo(2 * one.calories, 6);
       expect(two.protein).toBeCloseTo(2 * one.protein, 6);
+    }));
+  });
+});
+
+describe('lean mass and Katch-McArdle', () => {
+  it('lean mass is positive and never exceeds total weight', () => {
+    fc.assert(fc.property(weight, fc.double({ min: -10, max: 100, noNaN: true }), (w, bf) => {
+      const lbm = leanBodyMassKg(w, bf);
+      return lbm == null || (lbm > 0 && lbm <= w);
+    }));
+  });
+
+  it('BMR rises strictly with lean mass', () => {
+    fc.assert(fc.property(fc.double({ min: 10, max: 150, noNaN: true }), fc.double({ min: 0.01, max: 50, noNaN: true }), (lbm, extra) =>
+      bmrKatchMcArdle(lbm + extra) > bmrKatchMcArdle(lbm)));
+  });
+});
+
+describe('goal projection', () => {
+  it('when an estimate exists, following the slope for that many days reaches the target', () => {
+    fc.assert(fc.property(weighIns, weight, weight, (points, current, target) => {
+      const r = projectedGoal({ points, currentWeightKg: current, targetWeightKg: target });
+      if (r == null || r.days === 0) return true;
+      const projected = current + r.slopeKgPerDay * r.days;
+      const before = current + r.slopeKgPerDay * (r.days - 1);
+      const passed = (x: number) => (target < current ? x <= target + 1e-6 : x >= target - 1e-6);
+      return r.days >= 1 && passed(projected) && (r.days === 1 || !passed(before - Math.sign(r.slopeKgPerDay) * 1e-6));
     }));
   });
 });
