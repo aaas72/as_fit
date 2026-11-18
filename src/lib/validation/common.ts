@@ -34,16 +34,19 @@ export function isTimeZone(value: string) {
 
 export const timeZone = z.string().trim().min(1, 'مطلوب').max(64).refine(isTimeZone, 'منطقة زمنية غير معروفة');
 
+// Zod 4 coerces before reporting, so a blank field and "abc" both arrive as NaN. Checking for a
+// missing value first keeps the two messages apart: "مطلوب" (required) vs "رقم غير صالح" (invalid).
+const present = z.unknown().refine((v): boolean => v !== undefined, { message: 'مطلوب', abort: true });
+const coercedNumber = () => z.coerce.number({ error: 'رقم غير صالح' });
+
 export const num = (min: number, max: number) =>
-  z.preprocess(blankToUndefined, z.coerce.number({ required_error: 'مطلوب', invalid_type_error: 'رقم غير صالح' })
-    .min(min, `الحد الأدنى ${min}`).max(max, `الحد الأقصى ${max}`));
+  z.preprocess(blankToUndefined, present.pipe(coercedNumber().min(min, `الحد الأدنى ${min}`).max(max, `الحد الأقصى ${max}`)));
 
 export const optionalNum = (min: number, max: number) =>
-  z.preprocess(blankToUndefined, z.coerce.number({ invalid_type_error: 'رقم غير صالح' }).min(min, `الحد الأدنى ${min}`).max(max, `الحد الأقصى ${max}`).optional());
+  z.preprocess(blankToUndefined, coercedNumber().min(min, `الحد الأدنى ${min}`).max(max, `الحد الأقصى ${max}`).optional());
 
 export const int = (min: number, max: number) =>
-  z.preprocess(blankToUndefined, z.coerce.number({ required_error: 'مطلوب', invalid_type_error: 'رقم غير صالح' })
-    .int('عدد صحيح فقط').min(min, `الحد الأدنى ${min}`).max(max, `الحد الأقصى ${max}`));
+  z.preprocess(blankToUndefined, present.pipe(coercedNumber().int('عدد صحيح فقط').min(min, `الحد الأدنى ${min}`).max(max, `الحد الأقصى ${max}`)));
 
 export const bool = z.preprocess((v) => v === true || v === 'true' || v === 'on', z.boolean());
 
