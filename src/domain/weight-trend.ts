@@ -49,3 +49,22 @@ export function blendedTdee(formula: number, observed: number | null, days: numb
   const beta = blendBeta(days);
   return (1 - beta) * formula + beta * observed;
 }
+
+// Days until the target weight at the current pace: OLS slope over compliant readings (as the
+// plateau rules use), extrapolated from the current trend weight. null when the data cannot support
+// an estimate: fewer than `minReadings`, a span shorter than `minSpanDays`, or a trend that is flat
+// or heading away from the target. 0 when the target is already reached.
+export function projectedGoal(p: {
+  points: WeightPoint[]; currentWeightKg: number; targetWeightKg: number; minReadings?: number; minSpanDays?: number;
+}) {
+  const remainingKg = p.targetWeightKg - p.currentWeightKg;
+  if (remainingKg === 0) return { days: 0, slopeKgPerDay: 0 };
+  const first = p.points[0];
+  const last = p.points[p.points.length - 1];
+  if (!first || !last || p.points.length < (p.minReadings ?? 3)) return null;
+  if (last.day - first.day < (p.minSpanDays ?? 14)) return null;
+  const slope = linearSlope(p.points);
+  if (slope == null || slope === 0 || Math.sign(slope) !== Math.sign(remainingKg)) return null;
+  // Tolerance keeps floating-point noise (4.0000000001) from adding a whole day.
+  return { days: Math.ceil(remainingKg / slope - 1e-9), slopeKgPerDay: slope };
+}
