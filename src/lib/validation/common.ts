@@ -2,9 +2,24 @@ import { z } from 'zod';
 
 const blankToUndefined = (v: unknown) => (v === '' || v === null || (typeof v === 'number' && Number.isNaN(v)) ? undefined : v);
 
-export const isoDate = z.string().regex(/^\d{4}-\d{2}-\d{2}$/, 'تاريخ غير صالح');
+// True only for a date that exists in the calendar: "2026-02-31" has the right shape,
+// but JavaScript silently rolls it over to March 3 while PostgreSQL rejects it.
+export function isCalendarDate(value: string) {
+  const [y, m, d] = value.slice(0, 10).split('-').map(Number);
+  if (y === undefined || m === undefined || d === undefined) return false;
+  const date = new Date(Date.UTC(y, m - 1, d));
+  return date.getUTCFullYear() === y && date.getUTCMonth() === m - 1 && date.getUTCDate() === d;
+}
+
+const CALENDAR_DATE_MESSAGE = 'تاريخ غير موجود في التقويم';
+
+export const isoDate = z.string()
+  .regex(/^\d{4}-\d{2}-\d{2}$/, 'تاريخ غير صالح')
+  .refine(isCalendarDate, CALENDAR_DATE_MESSAGE);
 export const clockTime = z.string().regex(/^([01]\d|2[0-3]):[0-5]\d$/, 'وقت غير صالح');
-export const localDateTime = z.string().regex(/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}$/, 'تاريخ ووقت غير صالحين');
+export const localDateTime = z.string()
+  .regex(/^\d{4}-\d{2}-\d{2}T([01]\d|2[0-3]):[0-5]\d$/, 'تاريخ ووقت غير صالحين')
+  .refine(isCalendarDate, CALENDAR_DATE_MESSAGE);
 
 export const num = (min: number, max: number) =>
   z.preprocess(blankToUndefined, z.coerce.number({ required_error: 'مطلوب', invalid_type_error: 'رقم غير صالح' })
