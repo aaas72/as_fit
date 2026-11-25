@@ -117,6 +117,8 @@ Starts `db` (PostgreSQL 16), runs the one-shot `migrate` service (migrations + i
 | `pnpm test:e2e` | Build and run Playwright end-to-end tests against isolated `asfit_test` DB |
 | `pnpm db:up` / `pnpm db:down` | Start / stop local PostgreSQL container |
 | `pnpm db:migrate` / `pnpm db:seed` | Apply Drizzle migrations / run idempotent seed |
+| `pnpm db:backup` | Create a timestamped PostgreSQL custom-format dump in `backups/` (Linux / macOS / Windows) |
+| `pnpm db:restore <file>` | Restore database from a dump file with interactive confirmation (`--yes` to skip prompt) |
 
 ---
 
