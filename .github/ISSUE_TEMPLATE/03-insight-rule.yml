@@ -1,0 +1,36 @@
+name: "🧠 New Insight Rule / قاعدة تنبيه ذكية جديدة"
+description: "Propose a deterministic, explainable rule for src/domain/insights"
+title: "[Insight Rule]: "
+labels: ["area:insights", "type:science", "status:needs-triage"]
+body:
+  - type: input
+    id: rule_code
+    attributes:
+      label: "Rule Code (SCREAMING_SNAKE_CASE)"
+      placeholder: "e.g., SLEEP_MIDPOINT_DRIFT"
+    validations:
+      required: true
+
+  - type: textarea
+    id: condition
+    attributes:
+      label: "Mathematical Trigger Condition / الشرط الرياضي"
+      description: "Specify window length, thresholds, and handling of incomplete days."
+    validations:
+      required: true
+
+  - type: textarea
+    id: payload
+    attributes:
+      label: "Explainable Payload & Non-Diagnostic Arabic Copy / التفسير الرقمي والنص"
+      description: "Which numerical fields go into payload, and what Arabic message is shown?"
+    validations:
+      required: true
+
+  - type: textarea
+    id: citation
+    attributes:
+      label: "Scientific or Behavioral Basis / الأساس العلمي"
+      description: "Provide peer-reviewed citations or physiological rationale."
+    validations:
+      required: true

@@ -1,0 +1,43 @@
+name: "✨ Feature Request / اقتراح ميزة"
+description: "Propose a local-first feature aligned with AS_FIT's architecture and calm UI"
+title: "[Feature]: "
+labels: ["type:feature", "status:needs-triage"]
+body:
+  - type: textarea
+    id: problem
+    attributes:
+      label: "Problem or Need / المشكلة أو الاحتياج"
+      description: "What user friction or gap does this solve?"
+    validations:
+      required: true
+
+  - type: textarea
+    id: solution
+    attributes:
+      label: "Proposed Solution / الحل المقترح"
+      description: "Describe the expected behavior and affected layers/files."
+    validations:
+      required: true
+
+  - type: checkboxes
+    id: alignment
+    attributes:
+      label: "Core Principles Check / التوافق مع المبادئ الحاكمة"
+      options:
+        - label: "100% Local-first (no external cloud services or telemetry)"
+          required: true
+        - label: "Preserves Snapshot-over-Recompute historical integrity"
+          required: true
+        - label: "Follows Light & Green palette (no yellow/orange/red) and logical RTL"
+          required: true
+
+  - type: dropdown
+    id: willing
+    attributes:
+      label: "Contribution Interest / الرغبة في التنفيذ"
+      options:
+        - "Yes, I would like to implement this PR once approved"
+        - "Yes, with some maintainer guidance"
+        - "No, proposing the idea for the community"
+    validations:
+      required: true

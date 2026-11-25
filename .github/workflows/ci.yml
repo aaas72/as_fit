@@ -14,7 +14,7 @@ concurrency:
 
 jobs:
   checks:
-    name: Typecheck, lint and tests
+    name: Typecheck, lint, conventions and tests
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v7
@@ -37,6 +37,9 @@ jobs:
 
       - name: Lint
         run: pnpm lint
+
+      - name: Verify architecture, RTL & UI conventions
+        run: pnpm check:conventions
 
       - name: Unit tests with coverage (95% threshold on src/domain)
         run: pnpm test:coverage

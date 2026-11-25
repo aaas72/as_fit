@@ -1,88 +1,106 @@
 # Contributing to AS_FIT
 
-Thank you for your interest in contributing to **AS_FIT**! This repository is open for public contributions, bug reports, scientific/domain improvements, documentation updates, and UI refinements.
+**[📖 اقرأ دليل المساهمة باللغة العربية (CONTRIBUTING.ar.md)](./CONTRIBUTING.ar.md)** · **[🎯 Starter Issue Backlog](./docs/GOOD_FIRST_ISSUES.md)**
+
+Thank you for your interest in contributing to **AS_FIT**! This project combines **rigorous metabolic science**, **clean layered engineering**, and **a calm Arabic-first (`RTL`) telemetry interface**.
+
+This guide explains **all 6 ways you can contribute**, our **Issue-to-PR resolution workflow**, and the **non-negotiable architectural and visual guardrails** enforced by CI.
 
 ---
 
-## 🛠️ Setting Up Your Development Environment
+## 1. Ways to Contribute (6 Contribution Tracks)
 
-1. **Fork** this repository on GitHub and clone your fork:
+You don't need to be a full-stack developer to make a meaningful impact. Contributions are organized into **6 clear tracks**:
+
+1. **Domain Science & Insights (`area:domain` · `area:insights`)**
+   - Propose or implement new pure TypeScript insight rules under `src/domain/insights/rules/` implementing `InsightRule` with explainable numerical payloads.
+   - Audit or refine metabolic equations backed by **peer-reviewed academic citations**, unit tests, Golden Values, and `fast-check` property invariants. See [docs/SCIENTIFIC_MODEL.md](./docs/SCIENTIFIC_MODEL.md).
+2. **UI/UX, RTL Polish & Accessibility (`area:ui`)**
+   - Improve mobile (`375px`) and desktop (`1440px`) ergonomics, keyboard navigation, ARIA semantics, and Recharts visualizations while strictly following [docs/DESIGN_SYSTEM.md](./docs/DESIGN_SYSTEM.md).
+3. **Backend, Data Ownership & Features (`area:server` · `area:db`)**
+   - Build local-first data tools (CSV/JSON export & import, meal templates), Drizzle schema migrations, and Zod-validated Server Actions while preserving **Snapshot-over-Recompute** and `MOCK_MODE` parity. See [docs/ARCHITECTURE.md](./docs/ARCHITECTURE.md).
+4. **Testing & Quality Assurance (`area:testing`)**
+   - Expand edge-case unit/property tests (midnight wrap-around, timezone transitions, sparse weigh-in gaps) and Playwright E2E flows under `tests/e2e/`.
+5. **Local DevOps & Cross-Platform Tooling (`area:devops`)**
+   - Improve cross-platform backup/restore scripts (`Linux` / `macOS` / `Windows`), isolated E2E Docker Compose setups, and CI pipelines.
+6. **Documentation & Optional Starter Catalogs (`area:docs`)**
+   - Improve bilingual guides, examples, or optional importable JSON food/beverage starter packs (while keeping default database catalogs empty by design).
+
+---
+
+## 2. Issue-to-PR Workflow & Claiming Issues
+
+```mermaid
+flowchart LR
+    A["1. Pick or Propose an Issue"] --> B["2. Comment Plan & Request Assignment"]
+    B --> C["3. Branch & Develop Locally"]
+    C --> D["4. Run pnpm check & Tests"]
+    D --> E["5. Open PR & Review"]
+```
+
+1. **Find an Issue**:
+   - New to the repo? Check **[docs/GOOD_FIRST_ISSUES.md](./docs/GOOD_FIRST_ISSUES.md)** or browse GitHub Issues labeled `good first issue` or `status:help-wanted`.
+   - Difficulty labels: `good first issue` (1–3 files, clear scope), `intermediate` (cross-layer feature), `deep-dive` (architectural/scientific design discussion required first).
+   - Proposing a new idea? Open an Issue using our structured templates before writing large PRs so we can align on scope.
+2. **Claiming & Stale Policy**:
+   - Comment on the issue briefly describing your planned approach to get assigned.
+   - To keep issues moving for everyone, assigned issues with **no activity or update for 14 days** may be politely unassigned so another contributor can pick them up.
+3. **Branch & Commit Conventions**:
+   - Branch from `main`: `feat/<short-name>`, `fix/<short-name>`, `rule/<insight-name>`, `test/<topic>`, or `docs/<topic>`.
+   - Use clear Conventional Commits (e.g., `feat(insights): add sleep midpoint drift rule`, `fix(validation): ...`).
+
+---
+
+## 3. Setting Up Your Development Environment
+
+1. **Fork & Clone**:
    ```bash
    git clone https://github.com/<your-username>/as_fit.git
    cd as_fit
-   ```
-2. **Install dependencies** using `pnpm` (Node.js `>= 22` required):
-   ```bash
    pnpm install
-   ```
-3. **Configure environment variables**:
-   ```bash
    cp .env.example .env
    ```
-   - For fast UI/domain iteration without running PostgreSQL, set `USE_MOCK_DATA=true` in `.env`.
-   - For full database/server action development, keep `USE_MOCK_DATA=false` and run:
+2. **Choose Your Mode**:
+   - **Fast UI / Domain Mode (No PostgreSQL needed)**: Set `USE_MOCK_DATA=true` in `.env` and run `pnpm dev`.
+   - **Full Stack Mode (PostgreSQL 16 via Docker)**: Keep `USE_MOCK_DATA=false` and run:
      ```bash
      pnpm db:up
      pnpm db:migrate
      pnpm db:seed
+     pnpm dev
      ```
-4. **Start the dev server**:
-   ```bash
-   pnpm dev
-   ```
+     *(Tip: If port `5432` is already used on your machine, set `POSTGRES_PORT=5433` and update `DATABASE_URL` in `.env`.)*
 
 ---
 
-## 🧭 Architectural Guidelines
+## 4. Non-Negotiable Architectural & UI Guardrails
 
-To keep the codebase clean, testable, and maintainable, please follow these core boundaries:
+CI automatically enforces these boundaries via `pnpm check`:
 
-1. **Pure Domain Logic (`src/domain/`)**:
-   - Functions inside `src/domain/` must remain **pure** (no database calls, no network IO, no `Date.now()` side effects without explicit parameters).
-   - Every new rule or formula in `src/domain/` must include unit tests under `tests/domain/`.
-   - Vitest enforces a **95% coverage threshold** (lines, functions, statements) on `src/domain/**`.
-2. **Validation & Server Layer (`src/lib/validation/`, `src/server/`)**:
-   - Validate all user inputs with Zod schemas before persisting or running calculations.
-   - Preserve snapshot-at-log-time semantics when modifying food, beverage, or exercise logging.
-3. **Database Changes (`src/server/db/`, `drizzle/`)**:
-   - Update `src/server/db/schema.ts` and generate SQL migrations via `pnpm db:generate` rather than editing historical migration files manually.
-4. **Documentation**:
-   - See `docs/SRS_Metabolic_Telemetry.md` for full scientific equations, architectural decisions, and system rules.
+1. **Pure Domain (`src/domain/**`)**: Zero IO, zero framework/ORM/server imports, no implicit `Date.now()`, and **>= 95% Vitest coverage** on `src/domain/**`.
+2. **Strict Layering**: `src/app/**` and `src/components/**` must never import `@/server/db/*` or `drizzle-orm` directly. Reads go through `src/server/queries/**` (supporting `MOCK_MODE`); writes go through Zod-validated `src/server/actions/**`.
+3. **Snapshot Integrity**: Computed calories, macros, caffeine, and MET burns are stored at log time—dictionary edits must never retroactively mutate past logs.
+4. **Calm `Light & Green` Palette Only**: **Yellow, orange, red, bright colors, and raw `#hex` / `rgb()` / `hsl()` literals in components are strictly banned.** Use semantic `@theme` tokens from `src/styles/globals.css` (`brand`, `warning`, `danger`, `ink`, `line`) and always carry attention meaning in text labels, never color alone.
+5. **Logical RTL Classes Only**: Use `ms-*`, `me-*`, `ps-*`, `pe-*`, `start-*`, `end-*`, `text-start`, `text-end`. Physical classes (`ml-*`, `mr-*`, `pl-*`, `pr-*`, `left-*`, `right-*`, `text-left`, `text-right`) fail `pnpm check:conventions`.
+6. **Arabic UI Units & `<Num />` / `<bdi>`**: User-facing units stay in Arabic (`سعرة`, `غ`, `ملغ`, `مل`, `كغ`, `سم`, `س`, `د`) with numbers rendered in tabular monospace (`<Num />` / `<bdi>`).
+7. **Lean Dependencies**: Do not add new npm packages without prior approval in an issue.
 
 ---
 
-## ✅ Pre-PR Verification Checklist
+## 5. Pre-PR Verification Checklist
 
-Before opening a Pull Request, please run the relevant checks locally:
+Run the unified verification command locally before opening your Pull Request:
 
 ```bash
-pnpm typecheck
-pnpm lint
-pnpm test
+pnpm check
 pnpm test:coverage
 ```
 
-If your change touches database queries, server actions, or page flows, also verify:
+If your change modifies database queries, Server Actions, build config, or interactive user flows, also verify:
 
 ```bash
 pnpm build
 pnpm test:e2e
 ```
 
----
-
-## 📬 Submitting a Pull Request
-
-1. Create a descriptive branch from `main` (e.g., `feat/sleep-insight-rule` or `fix/weigh-in-validation`).
-2. Keep commits focused and clear.
-3. Fill out the [Pull Request template](./.github/PULL_REQUEST_TEMPLATE.md), including what changed, why, and which tests you ran.
-4. Never commit `.env` files, personal health exports, or `backups/`.
-
----
-
-## 💬 Reporting Issues or Proposing Features
-
-- Use the **Bug Report** template for reproducible bugs (include steps, expected vs. actual behavior, and whether `USE_MOCK_DATA` was `true` or `false`).
-- Use the **Feature Request** template for new domain rules, visualizations, or workflow enhancements.
-
-Thank you for helping improve AS_FIT!
+Never commit `.env` files, personal health exports, or `backups/`. Thank you for helping build AS_FIT!

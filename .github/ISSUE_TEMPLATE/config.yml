@@ -1,0 +1,8 @@
+blank_issues_enabled: false
+contact_links:
+  - name: "🎯 Starter Issue Backlog / بنك القضايا الجاهزة للمساهمين"
+    url: "https://github.com/salims0110/as_fit/blob/main/docs/GOOD_FIRST_ISSUES.md"
+    about: "Browse well-scoped beginner, intermediate, and deep-dive issues / تصفّح القضايا المجهّزة للمساهمين"
+  - name: "🔒 Report a Security Vulnerability / إبلاغ سري عن ثغرة أمنية"
+    url: "https://github.com/salims0110/as_fit/security/advisories/new"
+    about: "Please report security vulnerabilities privately / يرجى عدم نشر الثغرات الأمنية في القضايا العامة"

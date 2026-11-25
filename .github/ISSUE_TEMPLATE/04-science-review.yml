@@ -1,0 +1,28 @@
+name: "🔬 Scientific / Formula Review / مراجعة معادلة علمية"
+description: "Audit or refine a metabolic equation in src/domain backed by literature"
+title: "[Science]: "
+labels: ["area:domain", "type:science", "status:needs-triage"]
+body:
+  - type: input
+    id: target_module
+    attributes:
+      label: "Target Module & Function / الملف والدالة"
+      placeholder: "e.g., src/domain/metabolism.ts — selectBmr"
+    validations:
+      required: true
+
+  - type: textarea
+    id: analysis
+    attributes:
+      label: "Mathematical / Physiological Analysis / التحليل الرياضي"
+      description: "Explain the edge case, bias, or proposed refinement with concrete Golden Values."
+    validations:
+      required: true
+
+  - type: textarea
+    id: references
+    attributes:
+      label: "Peer-Reviewed Citations / المراجع المحكّمة"
+      placeholder: "Author, Title, Journal, Year, DOI"
+    validations:
+      required: true

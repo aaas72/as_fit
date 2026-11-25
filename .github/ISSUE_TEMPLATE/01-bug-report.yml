@@ -1,0 +1,52 @@
+name: "🐛 Bug Report / بلاغ خلل"
+description: "Report a reproducible bug in calculations, UI/RTL, or database actions"
+title: "[Bug]: "
+labels: ["type:bug", "status:needs-triage"]
+body:
+  - type: dropdown
+    id: area
+    attributes:
+      label: "Affected Area / الطبقة المتأثرة"
+      options:
+        - "UI & RTL Layout (src/app, src/components)"
+        - "Domain Science & Insights (src/domain)"
+        - "Server Actions, Queries & DB (src/server)"
+        - "Docker, Scripts & CI"
+    validations:
+      required: true
+
+  - type: textarea
+    id: description
+    attributes:
+      label: "Description / وصف المشكلة"
+      description: "What happened vs. what you expected to happen?"
+    validations:
+      required: true
+
+  - type: textarea
+    id: steps
+    attributes:
+      label: "Steps to Reproduce / خطوات إعادة الإنتاج"
+      placeholder: |
+        1. Go to '/log/meals'
+        2. Enter a meal at 00:15...
+        3. Observe...
+    validations:
+      required: true
+
+  - type: dropdown
+    id: mode
+    attributes:
+      label: "Runtime Mode / وضع التشغيل"
+      options:
+        - "Docker Compose (full stack)"
+        - "Local dev with PostgreSQL (USE_MOCK_DATA=false)"
+        - "Mock Data Mode (USE_MOCK_DATA=true)"
+    validations:
+      required: true
+
+  - type: input
+    id: environment
+    attributes:
+      label: "OS, Browser & Viewport"
+      placeholder: "e.g., Ubuntu 24.04 / Chrome 135 / Mobile 375px"

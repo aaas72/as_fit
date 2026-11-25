@@ -1,22 +1,24 @@
 ## Summary
 
-<!-- Briefly describe what this PR changes and why. -->
+<!-- Briefly describe what this PR changes and why (English or Arabic). -->
 
-## Type of Change
+## Related Issue
 
-- [ ] Bug fix (non-breaking change addressing an issue)
-- [ ] New feature / insight rule / UI enhancement
-- [ ] Refactoring or performance improvement
-- [ ] Documentation update
-- [ ] Tests / CI / DevOps
+<!-- e.g., Closes #12 -->
 
-## Checklist
+## Contribution Track
 
-- [ ] My changes follow the project boundaries (`src/domain/` stays pure with no IO).
-- [ ] I ran `pnpm typecheck` and `pnpm lint` with no errors.
-- [ ] I ran `pnpm test` (and added/updated tests for domain or behavioral changes).
-- [ ] No secrets, `.env` files, or local database dumps are included.
+- [ ] Domain Science / Insight Rule (`src/domain/**`)
+- [ ] UI / RTL / Accessibility (`src/app/**`, `src/components/**`)
+- [ ] Backend / Database / Validation (`src/server/**`, `src/lib/validation/**`, `drizzle/**`)
+- [ ] Testing & QA (`tests/**`)
+- [ ] DevOps / CI / Scripts (`Docker`, `scripts/**`, `.github/**`)
+- [ ] Documentation (`docs/**`, `README*`, `CONTRIBUTING*`)
 
-## Related Issues
+## Pre-Merge Checklist
 
-<!-- Link related issue(s) if applicable, e.g., Closes #12 -->
+- [ ] I ran `pnpm check` (`lint` + `typecheck` + `check:conventions` + `test`) and `pnpm test:coverage` with zero errors.
+- [ ] **Pure Domain:** `src/domain/**` remains 100% pure (zero IO, framework, or ORM imports) with `>= 95%` test coverage.
+- [ ] **Snapshot & Mock Mode:** Historical records are never retroactively mutated, and any new query supports `MOCK_MODE`.
+- [ ] **Design & RTL:** Uses semantic `@theme` tokens only (no yellow/orange/red or raw `#hex`), logical RTL classes (`ms-*`, `pe-*`, `text-start`), and Arabic UI units.
+- [ ] No secrets, `.env` files, or personal database dumps are included.
